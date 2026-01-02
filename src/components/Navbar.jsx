@@ -46,37 +46,16 @@ const Navbar = () => {
                       </div>
                       
                       {isConfigurator && (
-                        <>
-                          <a href="#user-management" className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors">
-                            <i className="fa-solid fa-users-gear text-emerald-500 w-5"></i>
-                            <span className="text-sm text-slate-700">Gerir Utilizadores</span>
-                          </a>
-                          <a href="#settings" className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors">
-                            <i className="fa-solid fa-sliders text-emerald-500 w-5"></i>
-                            <span className="text-sm text-slate-700">Configurações</span>
-                          </a>
-                        </>
+                        <a href="#user-management" className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors">
+                          <i className="fa-solid fa-users-gear text-emerald-500 w-5"></i>
+                          <span className="text-sm text-slate-700">Gerir Utilizadores</span>
+                        </a>
                       )}
                       
                       <a href="#property-management" className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors">
                         <i className="fa-solid fa-building text-emerald-500 w-5"></i>
                         <span className="text-sm text-slate-700">Gerir Imóveis</span>
                       </a>
-                      
-                      <a href="#analytics" className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors">
-                        <i className="fa-solid fa-chart-line text-emerald-500 w-5"></i>
-                        <span className="text-sm text-slate-700">Estatísticas</span>
-                      </a>
-                      
-                      {isConfigurator && (
-                        <>
-                          <div className="border-t border-gray-100 my-2"></div>
-                          <a href="#audit" className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors">
-                            <i className="fa-solid fa-clipboard-list text-emerald-500 w-5"></i>
-                            <span className="text-sm text-slate-700">Logs de Sistema</span>
-                          </a>
-                        </>
-                      )}
                       
                       <div className="px-4 py-2 mt-2 border-t border-gray-100">
                         <p className="text-xs text-slate-400">
