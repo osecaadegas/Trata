@@ -5,59 +5,54 @@ import { supabase } from '../lib/supabase';
 const PropertyListings = () => {
   const [properties, setProperties] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     fetchProperties();
   }, []);
 
   const fetchProperties = async () => {
+    setLoading(true);
+    setError(null);
+
     try {
-      setLoading(true);
-      console.log('Fetching properties...');
-      console.log('Supabase client:', supabase);
-      
-      const { data, error } = await supabase
+      const { data, error: fetchError } = await supabase
         .from('properties')
         .select('*')
         .eq('status', 'available')
         .order('created_at', { ascending: false })
         .limit(6);
 
-      console.log('Fetch completed!');
-      console.log('Fetch result:', { data, error });
-
-      if (error) {
-        console.error('Supabase error:', error);
-        throw error;
+      if (fetchError) {
+        console.error('Error:', fetchError);
+        setError(fetchError.message);
+        setProperties([]);
+        return;
       }
 
-      // Handle empty or null data
       if (!data || data.length === 0) {
         setProperties([]);
         return;
       }
 
-      // Transform data to match PropertyCard format
       const transformedProperties = data.map(prop => ({
         id: prop.id,
         title: prop.title,
         location: prop.location,
         price: prop.price_type === 'sale' 
-          ? `${prop.price.toLocaleString('pt-PT')} €` 
-          : `${prop.price.toLocaleString('pt-PT')} € /mês`,
+          ? `${Number(prop.price).toLocaleString('pt-PT')} €` 
+          : `${Number(prop.price).toLocaleString('pt-PT')} € /mês`,
         beds: prop.bedrooms,
         baths: prop.bathrooms,
         sqm: prop.area_sqm,
-        image: prop.images && prop.images.length > 0 
-          ? prop.images[0] 
-          : "https://images.unsplash.com/photo-1560518883-ce09059eeffa?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+        image: prop.images?.[0] || "https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=800",
         tag: prop.price_type === 'sale' ? 'Venda' : 'Arrendamento'
       }));
 
       setProperties(transformedProperties);
-    } catch (error) {
-      console.error('Error fetching properties:', error);
-      setProperties([]); // Set empty array on error
+    } catch (err) {
+      console.error('Exception:', err);
+      setError(err.message);
     } finally {
       setLoading(false);
     }
@@ -79,6 +74,18 @@ const PropertyListings = () => {
         <div className="flex justify-center items-center py-20">
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-emerald-600"></div>
         </div>
+      ) : error ? (
+        <div className="text-center py-20">
+          <i className="fa-solid fa-exclamation-triangle text-6xl text-red-400 mb-4"></i>
+          <p className="text-gray-600 text-lg mb-2">Erro ao carregar imóveis</p>
+          <p className="text-gray-400 text-sm mb-4">{error}</p>
+          <button 
+            onClick={fetchProperties}
+            className="px-6 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700"
+          >
+            Tentar novamente
+          </button>
+        </div>
       ) : properties.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {properties.map(property => (
@@ -88,7 +95,7 @@ const PropertyListings = () => {
       ) : (
         <div className="text-center py-20">
           <i className="fa-solid fa-home text-6xl text-gray-300 mb-4"></i>
-          <p className="text-gray-500 text-lg">Nenhum imóvel em destaque no momento.</p>
+          <p className="text-gray-500 text-lg">Nenhum imóvel disponível no momento.</p>
           <p className="text-gray-400 text-sm mt-2">Novos imóveis serão adicionados em breve!</p>
         </div>
       )}
