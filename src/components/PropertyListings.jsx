@@ -1,75 +1,52 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import PropertyCard from './PropertyCard';
+import { supabase } from '../supabaseClient';
 
 const PropertyListings = () => {
-  const properties = [
-    {
-      id: 1,
-      title: "Apartamento T2 Moderno",
-      location: "Parque das Nações, Lisboa",
-      price: "450.000 €",
-      beds: 2,
-      baths: 2,
-      sqm: 110,
-      image: "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-      tag: "Venda"
-    },
-    {
-      id: 2,
-      title: "Moradia Minimalista V4",
-      location: "Cascais, Portugal",
-      price: "1.250.000 €",
-      beds: 4,
-      baths: 3,
-      sqm: 280,
-      image: "https://images.unsplash.com/photo-1613490493576-7fde63acd811?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-      tag: "Venda"
-    },
-    {
-      id: 3,
-      title: "Loft Industrial",
-      location: "Marvila, Lisboa",
-      price: "1.800 € /mês",
-      beds: 1,
-      baths: 1,
-      sqm: 85,
-      image: "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-      tag: "Arrendamento"
-    },
-    {
-      id: 4,
-      title: "Penthouse com Vista Rio",
-      location: "Algés, Oeiras",
-      price: "890.000 €",
-      beds: 3,
-      baths: 2,
-      sqm: 165,
-      image: "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-      tag: "Venda"
-    },
-    {
-      id: 5,
-      title: "Moradia Tradicional Recuperada",
-      location: "Sintra, Portugal",
-      price: "620.000 €",
-      beds: 3,
-      baths: 2,
-      sqm: 190,
-      image: "https://images.unsplash.com/photo-1518780664697-55e3ad937233?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-      tag: "Venda"
-    },
-    {
-      id: 6,
-      title: "Apartamento T1 Conforto",
-      location: "Arroios, Lisboa",
-      price: "1.200 € /mês",
-      beds: 1,
-      baths: 1,
-      sqm: 60,
-      image: "https://images.unsplash.com/photo-1493809842364-78817add7ffb?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-      tag: "Arrendamento"
+  const [properties, setProperties] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchProperties();
+  }, []);
+
+  const fetchProperties = async () => {
+    try {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('properties')
+        .select('*')
+        .eq('status', 'available')
+        .eq('featured', true)
+        .order('created_at', { ascending: false })
+        .limit(6);
+
+      if (error) throw error;
+
+      // Transform data to match PropertyCard format
+      const transformedProperties = data.map(prop => ({
+        id: prop.id,
+        title: prop.title,
+        location: prop.location,
+        price: prop.price_type === 'sale' 
+          ? `${prop.price.toLocaleString('pt-PT')} €` 
+          : `${prop.price.toLocaleString('pt-PT')} € /mês`,
+        beds: prop.bedrooms,
+        baths: prop.bathrooms,
+        sqm: prop.area_sqm,
+        image: prop.images && prop.images.length > 0 
+          ? prop.images[0] 
+          : "https://images.unsplash.com/photo-1560518883-ce09059eeffa?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+        tag: prop.price_type === 'sale' ? 'Venda' : 'Arrendamento'
+      }));
+
+      setProperties(transformedProperties);
+    } catch (error) {
+      console.error('Error fetching properties:', error);
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
 
   return (
     <section id="imoveis" className="py-20 max-w-7xl mx-auto px-4">
@@ -83,11 +60,23 @@ const PropertyListings = () => {
         </button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {properties.map(property => (
-          <PropertyCard key={property.id} property={property} />
-        ))}
-      </div>
+      {loading ? (
+        <div className="flex justify-center items-center py-20">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-emerald-600"></div>
+        </div>
+      ) : properties.length > 0 ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {properties.map(property => (
+            <PropertyCard key={property.id} property={property} />
+          ))}
+        </div>
+      ) : (
+        <div className="text-center py-20">
+          <i className="fa-solid fa-home text-6xl text-gray-300 mb-4"></i>
+          <p className="text-gray-500 text-lg">Nenhum imóvel em destaque no momento.</p>
+          <p className="text-gray-400 text-sm mt-2">Novos imóveis serão adicionados em breve!</p>
+        </div>
+      )}
     </section>
   );
 };
