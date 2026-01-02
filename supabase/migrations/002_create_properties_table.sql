@@ -116,8 +116,8 @@ CREATE POLICY "Authenticated users can upload property images"
 
 CREATE POLICY "Users can update own property images"
     ON storage.objects FOR UPDATE
-    USING (bucket_id = 'property-images' AND auth.uid()::text = owner);
+    USING (bucket_id = 'property-images' AND auth.uid() = owner::uuid);
 
 CREATE POLICY "Users can delete own property images"
     ON storage.objects FOR DELETE
-    USING (bucket_id = 'property-images' AND auth.uid()::text = owner);
+    USING (bucket_id = 'property-images' AND auth.uid() = owner::uuid);
