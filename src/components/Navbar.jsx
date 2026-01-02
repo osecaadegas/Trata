@@ -7,10 +7,6 @@ const Navbar = () => {
   const [isAdminMenuOpen, setIsAdminMenuOpen] = useState(false);
   const { user, userRole, logout, isAdmin, isConfigurator, isSeller } = useAuth();
 
-  const handleLoginSuccess = () => {
-    // Auth context handles this automatically
-  };
-
   const handleLogout = async () => {
     await logout();
   };
@@ -128,7 +124,6 @@ const Navbar = () => {
       <LoginModal 
         isOpen={isLoginOpen}
         onClose={() => setIsLoginOpen(false)}
-        onSuccess={handleLoginSuccess}
       />
     </>
   );
