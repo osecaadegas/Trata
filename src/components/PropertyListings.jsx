@@ -14,6 +14,8 @@ const PropertyListings = () => {
     try {
       setLoading(true);
       console.log('Fetching properties...');
+      console.log('Supabase client:', supabase);
+      
       const { data, error } = await supabase
         .from('properties')
         .select('*')
@@ -21,6 +23,7 @@ const PropertyListings = () => {
         .order('created_at', { ascending: false })
         .limit(6);
 
+      console.log('Fetch completed!');
       console.log('Fetch result:', { data, error });
 
       if (error) {
