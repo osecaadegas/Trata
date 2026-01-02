@@ -20,7 +20,16 @@ const PropertyListings = () => {
         .order('created_at', { ascending: false })
         .limit(6);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase error:', error);
+        throw error;
+      }
+
+      // Handle empty or null data
+      if (!data || data.length === 0) {
+        setProperties([]);
+        return;
+      }
 
       // Transform data to match PropertyCard format
       const transformedProperties = data.map(prop => ({
@@ -42,6 +51,7 @@ const PropertyListings = () => {
       setProperties(transformedProperties);
     } catch (error) {
       console.error('Error fetching properties:', error);
+      setProperties([]); // Set empty array on error
     } finally {
       setLoading(false);
     }
