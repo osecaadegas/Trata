@@ -201,9 +201,6 @@ const PropertyManagement = () => {
       setUploadingImages(false);
     }
   };
-      setUploadingImages(false);
-    }
-  };
 
   const handleEdit = (property) => {
     setEditingProperty(property);
