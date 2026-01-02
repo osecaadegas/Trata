@@ -15,13 +15,24 @@ const PropertyListings = () => {
     setLoading(true);
     setError(null);
 
+    // Set a 5 second timeout
+    const timeout = setTimeout(() => {
+      console.error('Fetch timeout after 5 seconds');
+      setError('Timeout: Could not connect to database');
+      setLoading(false);
+    }, 5000);
+
     try {
+      console.log('Starting fetch from Supabase...');
       const { data, error: fetchError } = await supabase
         .from('properties')
         .select('*')
         .eq('status', 'available')
         .order('created_at', { ascending: false })
         .limit(6);
+
+      clearTimeout(timeout);
+      console.log('Fetch completed:', { data, error: fetchError });
 
       if (fetchError) {
         console.error('Error:', fetchError);
@@ -51,6 +62,7 @@ const PropertyListings = () => {
 
       setProperties(transformedProperties);
     } catch (err) {
+      clearTimeout(timeout);
       console.error('Exception:', err);
       setError(err.message);
     } finally {
