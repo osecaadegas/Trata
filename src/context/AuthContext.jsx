@@ -25,9 +25,10 @@ export const AuthProvider = ({ children }) => {
       if (session?.user) {
         await loadUserWithRole(session.user);
         
-        // Clean up URL hash after successful login
-        if (event === 'SIGNED_IN' && window.location.hash) {
-          window.history.replaceState(null, '', window.location.pathname);
+        // Clean up OAuth tokens from URL hash after successful login
+        if (event === 'SIGNED_IN' && window.location.hash.includes('access_token')) {
+          // Remove the entire hash with tokens
+          window.history.replaceState(null, '', window.location.pathname + window.location.search);
         }
       } else {
         setUser(null);
