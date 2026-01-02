@@ -734,7 +734,16 @@ const PropertyManagement = () => {
                       Área (m²)
                     </label>
                     <input
-                      Features/Amenities */}
+                      type="number"
+                      min="0"
+                      value={formData.area_sqm}
+                      onChange={(e) => setFormData({ ...formData, area_sqm: e.target.value })}
+                      className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                      placeholder="120"
+                    />
+                  </div>
+
+                  {/* Features/Amenities */}
                   <div className="md:col-span-2">
                     <label className="block text-sm font-semibold text-slate-700 mb-3">
                       Características e Comodidades
