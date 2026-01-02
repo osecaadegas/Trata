@@ -16,6 +16,40 @@ const PropertyManagement = () => {
   const [editingProperty, setEditingProperty] = useState(null);
   const [filterStatus, setFilterStatus] = useState('all');
 
+  // Available property features/amenities
+  const availableFeatures = [
+    { id: 'piscina', label: 'Piscina', icon: 'fa-swimming-pool' },
+    { id: 'garagem', label: 'Garagem', icon: 'fa-car' },
+    { id: 'jardim', label: 'Jardim', icon: 'fa-tree' },
+    { id: 'varanda', label: 'Varanda', icon: 'fa-building' },
+    { id: 'terraço', label: 'Terraço', icon: 'fa-house-flag' },
+    { id: 'elevador', label: 'Elevador', icon: 'fa-elevator' },
+    { id: 'ar_condicionado', label: 'Ar Condicionado', icon: 'fa-wind' },
+    { id: 'aquecimento', label: 'Aquecimento Central', icon: 'fa-temperature-high' },
+    { id: 'lareira', label: 'Lareira', icon: 'fa-fire' },
+    { id: 'churrasqueira', label: 'Churrasqueira', icon: 'fa-utensils' },
+    { id: 'arrecadacao', label: 'Arrecadação', icon: 'fa-box' },
+    { id: 'despensa', label: 'Despensa', icon: 'fa-boxes-stacked' },
+    { id: 'suite', label: 'Suite', icon: 'fa-bed' },
+    { id: 'closet', label: 'Closet', icon: 'fa-shirt' },
+    { id: 'escritorio', label: 'Escritório', icon: 'fa-briefcase' },
+    { id: 'ginasio', label: 'Ginásio', icon: 'fa-dumbbell' },
+    { id: 'sauna', label: 'Sauna', icon: 'fa-hot-tub-person' },
+    { id: 'jacuzzi', label: 'Jacuzzi', icon: 'fa-bath' },
+    { id: 'condominio_fechado', label: 'Condomínio Fechado', icon: 'fa-shield-halved' },
+    { id: 'portaria_24h', label: 'Portaria 24h', icon: 'fa-user-shield' },
+    { id: 'video_vigilancia', label: 'Vídeo Vigilância', icon: 'fa-video' },
+    { id: 'alarme', label: 'Sistema de Alarme', icon: 'fa-bell' },
+    { id: 'paineis_solares', label: 'Painéis Solares', icon: 'fa-solar-panel' },
+    { id: 'vidros_duplos', label: 'Vidros Duplos', icon: 'fa-window-maximize' },
+    { id: 'cozinha_equipada', label: 'Cozinha Equipada', icon: 'fa-kitchen-set' },
+    { id: 'mobilado', label: 'Mobilado', icon: 'fa-couch' },
+    { id: 'vista_mar', label: 'Vista Mar', icon: 'fa-water' },
+    { id: 'vista_montanha', label: 'Vista Montanha', icon: 'fa-mountain' },
+    { id: 'pet_friendly', label: 'Pet Friendly', icon: 'fa-paw' },
+    { id: 'acessibilidade', label: 'Acessibilidade', icon: 'fa-wheelchair' },
+  ];
+
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -227,6 +261,25 @@ const PropertyManagement = () => {
     setEditingProperty(null);
   };
 
+  const toggleFeature = (featureId) => {
+    setFormData(prev => ({
+      ...prev,
+      features: prev.features.includes(featureId)
+        ? prev.features.filter(f => f !== featureId)
+        : [...prev.features, featureId]
+    }));
+  };
+
+  const getFeatureLabel = (featureId) => {
+    const feature = availableFeatures.find(f => f.id === featureId);
+    return feature ? feature.label : featureId;
+  };
+
+  const getFeatureIcon = (featureId) => {
+    const feature = availableFeatures.find(f => f.id === featureId);
+    return feature ? feature.icon : 'fa-check';
+  };
+
   const totalPages = Math.ceil(totalProperties / PROPERTIES_PER_PAGE);
   const startIndex = (currentPage - 1) * PROPERTIES_PER_PAGE;
   const endIndex = startIndex + PROPERTIES_PER_PAGE;
@@ -423,6 +476,29 @@ const PropertyManagement = () => {
                     </div>
                     <div className="p-5">
                       <h3 className="text-lg font-bold text-slate-900 mb-2">{property.title}</h3>
+                      
+                      {/* Features */}
+                      {property.features && property.features.length > 0 && (
+                        <div className="mb-4">
+                          <div className="flex flex-wrap gap-2">
+                            {property.features.slice(0, 3).map((featureId) => (
+                              <span
+                                key={featureId}
+                                className="inline-flex items-center gap-1 px-2 py-1 bg-emerald-50 text-emerald-700 rounded-lg text-xs"
+                              >
+                                <i className={`fa-solid ${getFeatureIcon(featureId)}`}></i>
+                                {getFeatureLabel(featureId)}
+                              </span>
+                            ))}
+                            {property.features.length > 3 && (
+                              <span className="inline-flex items-center px-2 py-1 bg-gray-100 text-gray-600 rounded-lg text-xs">
+                                +{property.features.length - 3}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                      
                       <p className="text-sm text-slate-500 mb-3 flex items-center">
                         <i className="fa-solid fa-location-dot mr-2"></i>
                         {property.location}
@@ -658,7 +734,40 @@ const PropertyManagement = () => {
                       Área (m²)
                     </label>
                     <input
-                      type="number"
+                      Features/Amenities */}
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-semibold text-slate-700 mb-3">
+                      Características e Comodidades
+                    </label>
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 p-4 border border-gray-200 rounded-xl max-h-64 overflow-y-auto">
+                      {availableFeatures.map((feature) => (
+                        <label
+                          key={feature.id}
+                          className={`flex items-center gap-2 p-3 rounded-lg border-2 cursor-pointer transition-all ${
+                            formData.features.includes(feature.id)
+                              ? 'border-emerald-500 bg-emerald-50'
+                              : 'border-gray-200 hover:border-gray-300'
+                          }`}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={formData.features.includes(feature.id)}
+                            onChange={() => toggleFeature(feature.id)}
+                            className="w-4 h-4 text-emerald-500 rounded focus:ring-2 focus:ring-emerald-500"
+                          />
+                          <i className={`fa-solid ${feature.icon} text-emerald-600 text-sm`}></i>
+                          <span className="text-sm text-slate-700">{feature.label}</span>
+                        </label>
+                      ))}
+                    </div>
+                    {formData.features.length > 0 && (
+                      <p className="mt-2 text-sm text-slate-500">
+                        {formData.features.length} característica(s) selecionada(s)
+                      </p>
+                    )}
+                  </div>
+
+                  {/* type="number"
                       min="0"
                       value={formData.area_sqm}
                       onChange={(e) => setFormData({ ...formData, area_sqm: e.target.value })}
