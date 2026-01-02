@@ -21,9 +21,14 @@ export const AuthProvider = ({ children }) => {
     checkUser();
 
     // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (session?.user) {
         await loadUserWithRole(session.user);
+        
+        // Clean up URL hash after successful login
+        if (event === 'SIGNED_IN' && window.location.hash) {
+          window.history.replaceState(null, '', window.location.pathname);
+        }
       } else {
         setUser(null);
         setUserRole('user');
