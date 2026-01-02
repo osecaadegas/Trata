@@ -1,21 +1,74 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import LoginModal from './LoginModal';
+import { supabase } from '../lib/supabase';
 
 const Navbar = () => {
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [user, setUser] = useState(null);
 
-  const handleLoginSuccess = (credentialResponse) => {
-    // Decode JWT token to get user info
-    const decoded = JSON.parse(atob(credentialResponse.credential.split('.')[1]));
-    setUser({
-      name: decoded.name,
-      email: decoded.email,
-      picture: decoded.picture
+  useEffect(() => {
+    // Check if user is already logged in
+    const checkUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        setUser({
+          name: user.user_metadata.full_name || user.email,
+          email: user.email,
+          picture: user.user_metadata.avatar_url || `https://ui-avatars.com/api/?name=${user.email}`
+        });
+      }
+    };
+    checkUser();
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) {
+        setUser({
+          name: session.user.user_metadata.full_name || session.user.email,
+          email: session.user.email,
+          picture: session.user.user_metadata.avatar_url || `https://ui-avatars.com/api/?name=${session.user.email}`
+        });
+      } else {
+        setUser(null);
+      }
     });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const handleLoginSuccess = async (credentialResponse) => {
+    try {
+      // Decode JWT token to get user info
+      const decoded = JSON.parse(atob(credentialResponse.credential.split('.')[1]));
+      
+      // Store user in Supabase
+      const { data, error } = await supabase.auth.signInWithIdToken({
+        provider: 'google',
+        token: credentialResponse.credential,
+      });
+
+      if (error) {
+        console.error('Supabase auth error:', error);
+        // Fallback: store user data locally
+        setUser({
+          name: decoded.name,
+          email: decoded.email,
+          picture: decoded.picture
+        });
+      } else if (data.user) {
+        setUser({
+          name: data.user.user_metadata.full_name || data.user.email,
+          email: data.user.email,
+          picture: data.user.user_metadata.avatar_url || decoded.picture
+        });
+      }
+    } catch (err) {
+      console.error('Login error:', err);
+    }
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
     setUser(null);
   };
 
