@@ -6,10 +6,13 @@ const PropertyListings = () => {
   const [properties, setProperties] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalProperties, setTotalProperties] = useState(0);
+  const PROPERTIES_PER_PAGE = 6;
 
   useEffect(() => {
     fetchProperties();
-  }, []);
+  }, [currentPage]);
 
   const fetchProperties = async () => {
     setLoading(true);
@@ -19,15 +22,30 @@ const PropertyListings = () => {
       const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
       const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-      console.log('Fetching with direct API call...');
-      
-      const response = await fetch(
-        `${supabaseUrl}/rest/v1/properties?status=eq.available&order=created_at.desc&limit=6`,
+      const offset = (currentPage - 1) * PROPERTIES_PER_PAGE;
+
+      // Fetch total count
+      const countResponse = await fetch(
+        `${supabaseUrl}/rest/v1/properties?status=eq.available&select=count`,
         {
           headers: {
             'apikey': supabaseKey,
             'Authorization': `Bearer ${supabaseKey}`,
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'Prefer': 'count=exact'
+          }
+        }
+      );
+
+      // Fetch paginated data
+      const response = await fetch(
+        `${supabaseUrl}/rest/v1/properties?status=eq.available&order=created_at.desc&limit=${PROPERTIES_PER_PAGE}&offset=${offset}`,
+        {
+          headers: {
+            'apikey': supabaseKey,
+            'Authorization': `Bearer ${supabaseKey}`,
+            'Content-Type': 'application/json',
+            'Prefer': 'count=exact'
           }
         }
       );
@@ -36,8 +54,13 @@ const PropertyListings = () => {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
 
+      const contentRange = response.headers.get('content-range');
+      if (contentRange) {
+        const total = parseInt(contentRange.split('/')[1]);
+        setTotalProperties(total);
+      }
+
       const data = await response.json();
-      console.log('Fetched data:', data);
 
       if (!data || data.length === 0) {
         setProperties([]);
@@ -65,6 +88,16 @@ const PropertyListings = () => {
       setError(err.message);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const totalPages = Math.ceil(totalProperties / PROPERTIES_PER_PAGE);
+
+  const handlePageChange = (newPage) => {
+    if (newPage >= 1 && newPage <= totalPages) {
+      setCurrentPage(newPage);
+      // Scroll to top of properties section
+      document.getElementById('imoveis')?.scrollIntoView({ behavior: 'smooth' });
     }
   };
 
@@ -97,11 +130,76 @@ const PropertyListings = () => {
           </button>
         </div>
       ) : properties.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {properties.map(property => (
-            <PropertyCard key={property.id} property={property} />
-          ))}
-        </div>
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {properties.map(property => (
+              <PropertyCard key={property.id} property={property} />
+            ))}
+          </div>
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex justify-center items-center gap-2 mt-12">
+              <button
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+                className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                  currentPage === 1
+                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                    : 'bg-white text-slate-700 border border-gray-200 hover:border-emerald-500 hover:text-emerald-600'
+                }`}
+              >
+                <i className="fa-solid fa-chevron-left mr-2"></i>
+                Anterior
+              </button>
+
+              <div className="flex gap-2">
+                {[...Array(totalPages)].map((_, index) => {
+                  const page = index + 1;
+                  // Show first page, last page, current page, and pages around current
+                  if (
+                    page === 1 ||
+                    page === totalPages ||
+                    (page >= currentPage - 1 && page <= currentPage + 1)
+                  ) {
+                    return (
+                      <button
+                        key={page}
+                        onClick={() => handlePageChange(page)}
+                        className={`w-10 h-10 rounded-lg font-medium transition-colors ${
+                          currentPage === page
+                            ? 'bg-emerald-600 text-white'
+                            : 'bg-white text-slate-700 border border-gray-200 hover:border-emerald-500 hover:text-emerald-600'
+                        }`}
+                      >
+                        {page}
+                      </button>
+                    );
+                  } else if (
+                    (page === currentPage - 2 && page > 1) ||
+                    (page === currentPage + 2 && page < totalPages)
+                  ) {
+                    return <span key={page} className="px-2 text-gray-400">...</span>;
+                  }
+                  return null;
+                })}
+              </div>
+
+              <button
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                  currentPage === totalPages
+                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                    : 'bg-white text-slate-700 border border-gray-200 hover:border-emerald-500 hover:text-emerald-600'
+                }`}
+              >
+                Próximo
+                <i className="fa-solid fa-chevron-right ml-2"></i>
+              </button>
+            </div>
+          )}
+        </>
       ) : (
         <div className="text-center py-20">
           <i className="fa-solid fa-home text-6xl text-gray-300 mb-4"></i>
