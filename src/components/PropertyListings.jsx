@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import PropertyCard from './PropertyCard';
-import { supabase } from '../supabaseClient';
+import { supabase } from '../lib/supabase';
 
 const PropertyListings = () => {
   const [properties, setProperties] = useState([]);
