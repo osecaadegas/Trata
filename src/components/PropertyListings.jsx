@@ -15,34 +15,33 @@ const PropertyListings = () => {
     setLoading(true);
     setError(null);
 
-    // Set a 5 second timeout
-    const timeout = setTimeout(() => {
-      console.error('Fetch timeout after 5 seconds');
-      setError('Timeout: Could not connect to database');
-      setLoading(false);
-    }, 5000);
-
     try {
-      console.log('Starting fetch from Supabase...');
-      const { data, error: fetchError } = await supabase
-        .from('properties')
-        .select('*')
-        .eq('status', 'available')
-        .order('created_at', { ascending: false })
-        .limit(6);
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-      clearTimeout(timeout);
-      console.log('Fetch completed:', { data, error: fetchError });
+      console.log('Fetching with direct API call...');
+      
+      const response = await fetch(
+        `${supabaseUrl}/rest/v1/properties?status=eq.available&order=created_at.desc&limit=6`,
+        {
+          headers: {
+            'apikey': supabaseKey,
+            'Authorization': `Bearer ${supabaseKey}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
 
-      if (fetchError) {
-        console.error('Error:', fetchError);
-        setError(fetchError.message);
-        setProperties([]);
-        return;
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
+
+      const data = await response.json();
+      console.log('Fetched data:', data);
 
       if (!data || data.length === 0) {
         setProperties([]);
+        setLoading(false);
         return;
       }
 
@@ -62,7 +61,6 @@ const PropertyListings = () => {
 
       setProperties(transformedProperties);
     } catch (err) {
-      clearTimeout(timeout);
       console.error('Exception:', err);
       setError(err.message);
     } finally {
