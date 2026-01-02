@@ -17,7 +17,6 @@ const PropertyListings = () => {
         .from('properties')
         .select('*')
         .eq('status', 'available')
-        .eq('featured', true)
         .order('created_at', { ascending: false })
         .limit(6);
 
