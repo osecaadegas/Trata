@@ -58,7 +58,7 @@ const Navbar = () => {
                         </>
                       )}
                       
-                      <a href="#properties-admin" className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors">
+                      <a href="#property-management" className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors">
                         <i className="fa-solid fa-building text-emerald-500 w-5"></i>
                         <span className="text-sm text-slate-700">Gerir Imóveis</span>
                       </a>

@@ -7,6 +7,7 @@ import PropertyListings from './components/PropertyListings';
 import CallToAction from './components/CallToAction';
 import Footer from './components/Footer';
 import UserManagement from './components/UserManagement';
+import PropertyManagement from './components/PropertyManagement';
 
 function App() {
   const [currentPage, setCurrentPage] = useState('home');
@@ -32,6 +33,8 @@ function App() {
     switch (currentPage) {
       case 'user-management':
         return <UserManagement />;
+      case 'property-management':
+        return <PropertyManagement />;
       default:
         return (
           <>
