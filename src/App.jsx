@@ -1,5 +1,6 @@
 import React from 'react';
 import { GoogleOAuthProvider } from '@react-oauth/google';
+import { AuthProvider } from './context/AuthContext';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import Features from './components/Features';
@@ -13,14 +14,16 @@ const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || "YOUR_GOOGLE_C
 function App() {
   return (
     <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
-      <div className="text-slate-800">
-        <Navbar />
-        <Hero />
-        <Features />
-        <PropertyListings />
-        <CallToAction />
-        <Footer />
-      </div>
+      <AuthProvider>
+        <div className="text-slate-800">
+          <Navbar />
+          <Hero />
+          <Features />
+          <PropertyListings />
+          <CallToAction />
+          <Footer />
+        </div>
+      </AuthProvider>
     </GoogleOAuthProvider>
   );
 }
