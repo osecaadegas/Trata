@@ -135,7 +135,7 @@ const PropertyManagement = () => {
 
       if (uploadError) {
         console.error('Upload error:', uploadError);
-        continue;
+        throw new Error(`Erro ao fazer upload da imagem: ${uploadError.message}`);
       }
 
       const { data: { publicUrl } } = supabase.storage
@@ -196,8 +196,11 @@ const PropertyManagement = () => {
       fetchProperties();
     } catch (error) {
       console.error('Error saving property:', error);
-      alert('Erro ao guardar imóvel');
+      alert(`Erro ao guardar imóvel: ${error.message}`);
     } finally {
+      setUploadingImages(false);
+    }
+  };
       setUploadingImages(false);
     }
   };
