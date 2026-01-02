@@ -47,7 +47,7 @@ const Navbar = () => {
                       
                       {isConfigurator && (
                         <>
-                          <a href="#roles" className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors">
+                          <a href="#user-management" className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors">
                             <i className="fa-solid fa-users-gear text-emerald-500 w-5"></i>
                             <span className="text-sm text-slate-700">Gerir Utilizadores</span>
                           </a>
