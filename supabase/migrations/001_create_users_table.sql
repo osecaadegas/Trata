@@ -12,6 +12,12 @@ CREATE TABLE IF NOT EXISTS public.users (
 -- Enable Row Level Security
 ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;
 
+-- Drop existing policies if they exist
+DROP POLICY IF EXISTS "Users can read own data" ON public.users;
+DROP POLICY IF EXISTS "Users can update own data" ON public.users;
+DROP POLICY IF EXISTS "Only configurators can update roles" ON public.users;
+DROP POLICY IF EXISTS "Authenticated users can read all users" ON public.users;
+
 -- Policy: Users can read their own data
 CREATE POLICY "Users can read own data"
     ON public.users
