@@ -13,12 +13,15 @@ const PropertyListings = () => {
   const fetchProperties = async () => {
     try {
       setLoading(true);
+      console.log('Fetching properties...');
       const { data, error } = await supabase
         .from('properties')
         .select('*')
         .eq('status', 'available')
         .order('created_at', { ascending: false })
         .limit(6);
+
+      console.log('Fetch result:', { data, error });
 
       if (error) {
         console.error('Supabase error:', error);
