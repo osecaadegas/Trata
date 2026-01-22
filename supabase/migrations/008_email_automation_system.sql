@@ -179,9 +179,9 @@ CREATE TABLE IF NOT EXISTS public.email_logs (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     
     -- Email details
-    recipient_email TEXT NOT NULL,
+    recipient_email TEXT,  -- Can be NULL for pending alert notifications
     recipient_name TEXT,
-    subject TEXT NOT NULL,
+    subject TEXT,  -- Can be NULL for pending records
     template_name TEXT,
     
     -- Type and status
