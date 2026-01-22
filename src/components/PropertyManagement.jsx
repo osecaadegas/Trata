@@ -167,29 +167,79 @@ const PropertyManagement = () => {
     console.log('User confirmed delete');
 
     try {
-      // Use Supabase client directly - it has the active session
-      console.log('Using Supabase client for delete...');
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
       
-      const { data, error } = await supabase
-        .from('properties')
-        .delete()
-        .eq('id', propertyId)
-        .select();
-      
-      console.log('Delete result - data:', data);
-      console.log('Delete result - error:', error);
-      
-      if (error) {
-        throw new Error(error.message);
+      // Try to get token from trata-auth (our custom storage)
+      let accessToken = null;
+      const trataAuth = localStorage.getItem('trata-auth');
+      if (trataAuth) {
+        try {
+          const parsed = JSON.parse(trataAuth);
+          accessToken = parsed?.access_token;
+          console.log('Found token in trata-auth:', !!accessToken);
+        } catch (e) {
+          console.log('Could not parse trata-auth');
+        }
       }
       
-      // Check if any row was actually deleted
-      if (!data || data.length === 0) {
-        console.log('No rows deleted - checking RLS policies');
-        throw new Error('Não foi possível eliminar. Verifique se tem permissões.');
+      // If no token found, try Supabase default storage
+      if (!accessToken) {
+        const projectId = supabaseUrl.split('//')[1].split('.')[0];
+        const sbAuth = localStorage.getItem(`sb-${projectId}-auth-token`);
+        if (sbAuth) {
+          try {
+            const parsed = JSON.parse(sbAuth);
+            accessToken = parsed?.access_token;
+            console.log('Found token in sb-auth:', !!accessToken);
+          } catch (e) {}
+        }
       }
       
-      console.log('=== DELETE SUCCESS ===');
+      // Fallback to anon key
+      if (!accessToken) {
+        console.log('No auth token found, using anon key');
+        accessToken = supabaseKey;
+      }
+      
+      const url = `${supabaseUrl}/rest/v1/properties?id=eq.${propertyId}`;
+      console.log('DELETE URL:', url);
+      console.log('Using token length:', accessToken?.length);
+      
+      const response = await fetch(url, {
+        method: 'DELETE',
+        headers: {
+          'apikey': supabaseKey,
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+          'Prefer': 'return=representation'
+        }
+      });
+
+      console.log('DELETE response status:', response.status);
+      
+      const responseText = await response.text();
+      console.log('DELETE response body:', responseText);
+
+      if (!response.ok) {
+        throw new Error(responseText || `HTTP ${response.status}`);
+      }
+      
+      // Check if something was deleted (Prefer: return=representation returns deleted rows)
+      let deleted = [];
+      if (responseText) {
+        try {
+          deleted = JSON.parse(responseText);
+        } catch (e) {}
+      }
+      
+      if (deleted.length === 0) {
+        // 204 with no content might mean RLS blocked it
+        console.log('WARNING: Delete returned success but no rows affected');
+        throw new Error('Não foi possível eliminar. Verifique as permissões RLS.');
+      }
+      
+      console.log('=== DELETE SUCCESS - Deleted:', deleted.length, 'rows ===');
       alert('Imóvel eliminado com sucesso!');
       fetchProperties();
     } catch (error) {

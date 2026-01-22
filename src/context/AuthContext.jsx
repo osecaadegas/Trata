@@ -49,11 +49,20 @@ export const AuthProvider = ({ children }) => {
         
         if (session?.user) {
           await loadUserWithRole(session.user);
+          
+          // Store the access token for API calls
+          const authData = {
+            user: session.user,
+            access_token: session.access_token
+          };
+          localStorage.setItem('trata-auth', JSON.stringify(authData));
+          console.log('Stored auth token on init');
         } else {
           // No valid session, clear everything
           setUser(null);
           setUserRole('user');
           localStorage.removeItem('trata-user-role');
+          localStorage.removeItem('trata-auth');
         }
       } catch (error) {
         console.error('Error initializing session:', error);
@@ -71,10 +80,24 @@ export const AuthProvider = ({ children }) => {
       
       if (event === 'TOKEN_REFRESHED') {
         console.log('Token refreshed successfully');
+        // Update stored token
+        if (session?.access_token) {
+          const stored = JSON.parse(localStorage.getItem('trata-auth') || '{}');
+          stored.access_token = session.access_token;
+          localStorage.setItem('trata-auth', JSON.stringify(stored));
+        }
       }
       
       if (session?.user) {
         await loadUserWithRole(session.user);
+        
+        // Store the access token for API calls
+        const authData = {
+          user: session.user,
+          access_token: session.access_token
+        };
+        localStorage.setItem('trata-auth', JSON.stringify(authData));
+        console.log('Stored auth token in trata-auth');
         
         // Clean up OAuth tokens from URL hash after successful login
         if (event === 'SIGNED_IN' && window.location.hash.includes('access_token')) {
@@ -84,6 +107,7 @@ export const AuthProvider = ({ children }) => {
         setUser(null);
         setUserRole('user');
         localStorage.removeItem('trata-user-role');
+        localStorage.removeItem('trata-auth');
       }
       setLoading(false);
     });
