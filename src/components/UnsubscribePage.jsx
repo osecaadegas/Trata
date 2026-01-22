@@ -1,11 +1,15 @@
 import { useState, useEffect } from 'react';
-import { useSearchParams, Link } from 'react-router-dom';
 import { CheckCircle, AlertCircle, Loader2, Home } from 'lucide-react';
 
 export default function UnsubscribePage() {
-  const [searchParams] = useSearchParams();
-  const token = searchParams.get('token');
+  // Get token from URL hash (e.g., #unsubscribe?token=xxx)
+  const getTokenFromHash = () => {
+    const hash = window.location.hash;
+    const match = hash.match(/[?&]token=([^&]*)/);
+    return match ? match[1] : null;
+  };
   
+  const [token] = useState(getTokenFromHash);
   const [status, setStatus] = useState('loading'); // loading, success, error
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -81,13 +85,13 @@ export default function UnsubscribePage() {
                 Se isto foi um erro, pode voltar a subscrever a qualquer momento.
               </p>
             </div>
-            <Link
-              to="/"
+            <a
+              href="#"
               className="inline-flex items-center gap-2 px-6 py-3 bg-indigo-600 text-white font-semibold rounded-xl hover:bg-indigo-700 transition-colors"
             >
               <Home className="w-5 h-5" />
               Voltar ao site
-            </Link>
+            </a>
           </>
         )}
 
@@ -107,13 +111,13 @@ export default function UnsubscribePage() {
               O link de cancelamento pode ser inválido ou já foi utilizado.
               Se pretende cancelar a sua subscrição, entre em contacto connosco.
             </p>
-            <Link
-              to="/"
+            <a
+              href="#"
               className="inline-flex items-center gap-2 px-6 py-3 bg-indigo-600 text-white font-semibold rounded-xl hover:bg-indigo-700 transition-colors"
             >
               <Home className="w-5 h-5" />
               Voltar ao site
-            </Link>
+            </a>
           </>
         )}
 
