@@ -44,20 +44,29 @@ const Footer = () => {
         <div>
           <h4 className="font-bold mb-6">Contactos</h4>
           <ul className="space-y-4 text-slate-500">
-            <li className="flex items-center">
-              <i className="fa-solid fa-phone mr-3 text-emerald-500"></i> +351 210 000 000
+            <li className="flex items-start">
+              <i className="fa-solid fa-phone mr-3 text-emerald-500 mt-1"></i>
+              <a href="tel:+351934101523" className="hover:text-emerald-500 transition-colors">+351 934 101 523</a>
             </li>
-            <li className="flex items-center">
-              <i className="fa-solid fa-envelope mr-3 text-emerald-500"></i> geral@trata.pt
+            <li className="flex items-start">
+              <i className="fa-solid fa-envelope mr-3 text-emerald-500 mt-1"></i>
+              <a href="mailto:geral@trata.pt" className="hover:text-emerald-500 transition-colors">geral@trata.pt</a>
             </li>
-            <li className="flex items-center">
-              <i className="fa-solid fa-location-dot mr-3 text-emerald-500"></i> Av. da Liberdade, Lisboa
+            <li className="flex items-start">
+              <i className="fa-solid fa-location-dot mr-3 text-emerald-500 mt-1"></i>
+              <a href="https://maps.google.com/?q=GHV9+R3+Braga" target="_blank" rel="noopener noreferrer" className="hover:text-emerald-500 transition-colors">
+                Centro Comercial Galecia R7C,<br />Loja 45, 4700-026 Braga
+              </a>
+            </li>
+            <li className="flex items-start">
+              <i className="fa-solid fa-clock mr-3 text-emerald-500 mt-1"></i>
+              <span>Seg - Sex: 8h-12h, 13h-18h</span>
             </li>
           </ul>
         </div>
       </div>
       <div className="max-w-7xl mx-auto px-4 pt-8 border-t border-gray-100 text-center text-slate-400 text-sm">
-        <p>&copy; 2023 TRATA Imobiliária. Todos os direitos reservados.</p>
+        <p>&copy; 2026 TRATA Imobiliária. Todos os direitos reservados.</p>
       </div>
     </footer>
   );

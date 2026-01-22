@@ -306,10 +306,10 @@ const ContactPage = () => {
                   <div className="relative">
                     <label 
                       htmlFor="subject" 
-                      className={`absolute left-4 transition-all duration-200 pointer-events-none z-10 ${
-                        focusedField === 'subject' || formData.subject 
-                          ? '-top-2.5 text-xs bg-white px-2 text-emerald-600 font-medium' 
-                          : 'top-4 text-slate-400'
+                      className={`absolute left-4 -top-2.5 text-xs bg-white px-2 font-medium transition-all duration-200 pointer-events-none z-10 ${
+                        focusedField === 'subject' 
+                          ? 'text-emerald-600' 
+                          : 'text-slate-500'
                       }`}
                     >
                       Assunto *
@@ -322,7 +322,9 @@ const ContactPage = () => {
                       onFocus={() => setFocusedField('subject')}
                       onBlur={() => setFocusedField(null)}
                       required
-                      className="w-full px-4 py-4 bg-gray-50 border-2 border-gray-100 rounded-xl text-slate-900 focus:outline-none focus:border-emerald-500 focus:bg-white transition-all duration-200 appearance-none cursor-pointer"
+                      className={`w-full px-4 py-4 bg-gray-50 border-2 border-gray-100 rounded-xl focus:outline-none focus:border-emerald-500 focus:bg-white transition-all duration-200 appearance-none cursor-pointer ${
+                        formData.subject ? 'text-slate-900' : 'text-slate-400'
+                      }`}
                     >
                       {subjects.map((subject) => (
                         <option key={subject.value} value={subject.value}>

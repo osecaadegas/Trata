@@ -9,6 +9,7 @@ import Footer from './components/Footer';
 import UserManagement from './components/UserManagement';
 import PropertyManagement from './components/PropertyManagement';
 import ContactPage from './components/ContactPage';
+import ServicesPage from './components/ServicesPage';
 
 function App() {
   const [currentPage, setCurrentPage] = useState('home');
@@ -40,6 +41,13 @@ function App() {
         return (
           <>
             <ContactPage />
+            <Footer />
+          </>
+        );
+      case 'servicos':
+        return (
+          <>
+            <ServicesPage />
             <Footer />
           </>
         );
