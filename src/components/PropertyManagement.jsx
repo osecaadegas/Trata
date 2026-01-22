@@ -162,13 +162,17 @@ const PropertyManagement = () => {
       const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
       const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
       
+      // Get the current session token for authenticated requests
+      const { data: { session } } = await supabase.auth.getSession();
+      const accessToken = session?.access_token || supabaseKey;
+      
       const response = await fetch(
         `${supabaseUrl}/rest/v1/properties?id=eq.${propertyId}`,
         {
           method: 'DELETE',
           headers: {
             'apikey': supabaseKey,
-            'Authorization': `Bearer ${supabaseKey}`,
+            'Authorization': `Bearer ${accessToken}`,
             'Content-Type': 'application/json'
           }
         }

@@ -265,6 +265,10 @@ const PropertyCreationModal = ({ isOpen, onClose, editingProperty, onSuccess }) 
     setIsSubmitting(true);
     
     try {
+      // Get the current session token for authenticated requests
+      const { data: { session } } = await supabase.auth.getSession();
+      const accessToken = session?.access_token || supabaseKey;
+      
       let imageUrls = [...existingImages];
       if (imageFiles.length > 0) {
         const newUrls = await handleImageUpload(imageFiles);
@@ -294,7 +298,7 @@ const PropertyCreationModal = ({ isOpen, onClose, editingProperty, onSuccess }) 
             method: 'PATCH',
             headers: {
               'apikey': supabaseKey,
-              'Authorization': `Bearer ${supabaseKey}`,
+              'Authorization': `Bearer ${accessToken}`,
               'Content-Type': 'application/json',
               'Prefer': 'return=minimal'
             },
@@ -314,7 +318,7 @@ const PropertyCreationModal = ({ isOpen, onClose, editingProperty, onSuccess }) 
             method: 'POST',
             headers: {
               'apikey': supabaseKey,
-              'Authorization': `Bearer ${supabaseKey}`,
+              'Authorization': `Bearer ${accessToken}`,
               'Content-Type': 'application/json',
               'Prefer': 'return=minimal'
             },
