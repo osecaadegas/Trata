@@ -72,8 +72,8 @@ const Navbar = () => {
 
   const adminMenuItems = [
     ...(isConfigurator ? [{ href: '#user-management', label: 'Gerir Utilizadores', icon: 'fa-users-gear', color: 'text-purple-500', bgColor: 'bg-purple-50', description: 'Funções e permissões' }] : []),
-    ...(isAdmin ? [{ href: '#property-management', label: 'Gerir Imóveis', icon: 'fa-building', color: 'text-emerald-500', bgColor: 'bg-emerald-50', description: 'Propriedades e listagens' }] : []),
-    { href: '#messages', label: 'Mensagens', icon: 'fa-inbox', color: 'text-blue-500', bgColor: 'bg-blue-50', description: 'Caixa de entrada' },
+    ...((isAdmin || isConfigurator || isSeller) ? [{ href: '#property-management', label: 'Gerir Imóveis', icon: 'fa-building', color: 'text-emerald-500', bgColor: 'bg-emerald-50', description: 'Propriedades e listagens' }] : []),
+    ...((isAdmin || isConfigurator || isSeller) ? [{ href: '#messages', label: 'Mensagens', icon: 'fa-inbox', color: 'text-blue-500', bgColor: 'bg-blue-50', description: 'Caixa de entrada' }] : []),
   ];
 
   return (
@@ -114,7 +114,7 @@ const Navbar = () => {
             {/* Desktop Right Section */}
             <div className="hidden lg:flex items-center gap-3">
               {/* Admin Panel Button - Desktop */}
-              {(isAdmin || isSeller) && (
+              {(isAdmin || isConfigurator || isSeller) && (
                 <div className="relative admin-menu-container">
                   <button
                     onClick={() => setIsAdminMenuOpen(!isAdminMenuOpen)}
@@ -196,7 +196,7 @@ const Navbar = () => {
                       alt={user.name}
                       className="w-10 h-10 rounded-xl border-2 border-emerald-200 group-hover:border-emerald-400 transition-colors object-cover"
                     />
-                    {(isAdmin || isSeller) && (
+                    {(isAdmin || isConfigurator || isSeller) && (
                       <span className="absolute -bottom-0.5 -right-0.5 w-4 h-4 bg-emerald-500 rounded-full border-2 border-white flex items-center justify-center">
                         <i className="fa-solid fa-check text-[8px] text-white"></i>
                       </span>
@@ -303,7 +303,7 @@ const Navbar = () => {
             </div>
 
             {/* Admin Section - Mobile */}
-            {(isAdmin || isSeller) && (
+            {(isAdmin || isConfigurator || isSeller) && (
               <div className="px-4 py-4 border-t border-gray-100">
                 <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider px-3 mb-2">
                   Área de Gestão
