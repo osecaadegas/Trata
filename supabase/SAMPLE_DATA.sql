@@ -7,11 +7,129 @@
 -- 2. Depois executa este ficheiro para adicionar dados de teste
 --
 -- Este script adiciona:
+-- ✓ 10 utilizadores de teste (admin, vendedores, utilizadores)
 -- ✓ 15 imóveis variados (apartamentos, moradias, terrenos, etc.)
 -- ✓ 8 mensagens de contacto
 -- ✓ 5 conversas de chat com mensagens
 -- ✓ Dados de presença online
 -- =====================================================
+
+
+-- =====================================================
+-- PARTE 0: UTILIZADORES DE TESTE
+-- =====================================================
+-- NOTA: Em produção, os utilizadores são criados automaticamente
+-- quando fazem login via Google/Email. 
+-- Para dados de demonstração, precisamos desativar temporariamente a FK.
+
+-- Desativar temporariamente a constraint FK para permitir dados de teste
+ALTER TABLE public.users DROP CONSTRAINT IF EXISTS users_id_fkey;
+
+INSERT INTO public.users (id, email, name, avatar_url, role, phone, created_at) VALUES
+
+-- Configuradores (1)
+(
+    'cfg00001-0000-0000-0000-000000000001',
+    'admin@trata.pt',
+    'Admin TRATA',
+    'https://ui-avatars.com/api/?name=Admin+TRATA&background=7c3aed&color=fff',
+    'configurador',
+    '+351 253 000 001',
+    NOW() - INTERVAL '6 months'
+),
+
+-- Administradores (2)
+(
+    'adm00001-0000-0000-0000-000000000001',
+    'maria.gestora@trata.pt',
+    'Maria Gestora',
+    'https://ui-avatars.com/api/?name=Maria+Gestora&background=dc2626&color=fff',
+    'admin',
+    '+351 253 000 002',
+    NOW() - INTERVAL '5 months'
+),
+(
+    'adm00002-0000-0000-0000-000000000002',
+    'joao.admin@trata.pt',
+    'João Administrador',
+    'https://ui-avatars.com/api/?name=Joao+Admin&background=dc2626&color=fff',
+    'admin',
+    '+351 253 000 003',
+    NOW() - INTERVAL '4 months'
+),
+
+-- Vendedores (3)
+(
+    'vnd00001-0000-0000-0000-000000000001',
+    'carlos.vendedor@trata.pt',
+    'Carlos Silva',
+    'https://ui-avatars.com/api/?name=Carlos+Silva&background=059669&color=fff',
+    'vendedor',
+    '+351 912 345 678',
+    NOW() - INTERVAL '3 months'
+),
+(
+    'vnd00002-0000-0000-0000-000000000002',
+    'ana.vendedora@trata.pt',
+    'Ana Ferreira',
+    'https://ui-avatars.com/api/?name=Ana+Ferreira&background=059669&color=fff',
+    'vendedor',
+    '+351 963 852 741',
+    NOW() - INTERVAL '3 months'
+),
+(
+    'vnd00003-0000-0000-0000-000000000003',
+    'pedro.vendedor@trata.pt',
+    'Pedro Santos',
+    'https://ui-avatars.com/api/?name=Pedro+Santos&background=059669&color=fff',
+    'vendedor',
+    '+351 936 147 258',
+    NOW() - INTERVAL '2 months'
+),
+
+-- Utilizadores normais (4)
+(
+    'usr00001-0000-0000-0000-000000000001',
+    'miguel.cliente@gmail.com',
+    'Miguel Costa',
+    'https://ui-avatars.com/api/?name=Miguel+Costa&background=3b82f6&color=fff',
+    'user',
+    '+351 915 753 159',
+    NOW() - INTERVAL '2 months'
+),
+(
+    'usr00002-0000-0000-0000-000000000002',
+    'sofia.cliente@gmail.com',
+    'Sofia Ribeiro',
+    'https://ui-avatars.com/api/?name=Sofia+Ribeiro&background=ec4899&color=fff',
+    'user',
+    '+351 961 357 951',
+    NOW() - INTERVAL '1 month'
+),
+(
+    'usr00003-0000-0000-0000-000000000003',
+    'ricardo.cliente@hotmail.com',
+    'Ricardo Almeida',
+    'https://ui-avatars.com/api/?name=Ricardo+Almeida&background=f59e0b&color=fff',
+    'user',
+    '+351 933 666 999',
+    NOW() - INTERVAL '2 weeks'
+),
+(
+    'usr00004-0000-0000-0000-000000000004',
+    'beatriz.cliente@yahoo.com',
+    'Beatriz Oliveira',
+    'https://ui-avatars.com/api/?name=Beatriz+Oliveira&background=6366f1&color=fff',
+    'user',
+    '+351 966 333 222',
+    NOW() - INTERVAL '1 week'
+)
+ON CONFLICT (id) DO UPDATE SET
+    email = EXCLUDED.email,
+    name = EXCLUDED.name,
+    avatar_url = EXCLUDED.avatar_url,
+    role = EXCLUDED.role,
+    phone = EXCLUDED.phone;
 
 
 -- =====================================================
@@ -842,6 +960,7 @@ INSERT INTO public.user_presence (user_id, user_name, user_avatar, is_online, la
 -- =====================================================
 
 SELECT '✅ Sample data inserted successfully!' as status;
+SELECT 'Users:' as table_name, COUNT(*) as count FROM public.users;
 SELECT 'Properties:' as table_name, COUNT(*) as count FROM public.properties;
 SELECT 'Messages:' as table_name, COUNT(*) as count FROM public.messages;
 SELECT 'Conversations:' as table_name, COUNT(*) as count FROM public.conversations;
@@ -853,6 +972,12 @@ SELECT 'User Presence:' as table_name, COUNT(*) as count FROM public.user_presen
 -- SUMÁRIO DOS DADOS CRIADOS
 -- =====================================================
 -- 
+-- UTILIZADORES (10 total):
+-- - 1 configurador (admin@trata.pt)
+-- - 2 administradores
+-- - 3 vendedores
+-- - 4 utilizadores normais
+--
 -- IMÓVEIS (15 total):
 -- - 6 marcados como DESTAQUE (featured)
 -- - 1 marcado como VENDIDO
