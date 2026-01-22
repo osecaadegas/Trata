@@ -10,6 +10,7 @@ const PropertyManagement = () => {
   const [properties, setProperties] = useState([]);
   const [filteredProperties, setFilteredProperties] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [totalProperties, setTotalProperties] = useState(0);
@@ -78,6 +79,16 @@ const PropertyManagement = () => {
   const fetchProperties = async () => {
     try {
       setLoading(true);
+      setError(null);
+      
+      // Check if Supabase is configured
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      if (!supabaseUrl || supabaseUrl.includes('your-project')) {
+        setError('Base de dados não configurada. Configure as variáveis de ambiente do Supabase.');
+        setLoading(false);
+        return;
+      }
+      
       let query = supabase
         .from('properties')
         .select('*, users(name, email)', { count: 'exact' });
@@ -115,8 +126,9 @@ const PropertyManagement = () => {
       setProperties(data || []);
       setFilteredProperties(data || []);
       setTotalProperties(count || 0);
-    } catch (error) {
-      console.error('Error fetching properties:', error);
+    } catch (err) {
+      console.error('Error fetching properties:', err);
+      setError(err.message || 'Erro ao carregar imóveis. Verifique a ligação à base de dados.');
     } finally {
       setLoading(false);
     }
@@ -479,6 +491,23 @@ const PropertyManagement = () => {
           <div className="flex flex-col items-center justify-center py-20">
             <div className="w-16 h-16 border-4 border-emerald-200 border-t-emerald-500 rounded-full animate-spin mb-4"></div>
             <p className="text-slate-500 font-medium">A carregar imóveis...</p>
+          </div>
+        ) : error ? (
+          <div className="bg-white rounded-2xl border border-gray-100 p-12 text-center">
+            <div className="w-20 h-20 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-6">
+              <i className="fa-solid fa-exclamation-triangle text-3xl text-amber-500"></i>
+            </div>
+            <h3 className="text-xl font-bold text-slate-900 mb-2">Erro ao carregar imóveis</h3>
+            <p className="text-slate-500 max-w-md mx-auto mb-6">
+              {error}
+            </p>
+            <button
+              onClick={fetchProperties}
+              className="inline-flex items-center gap-2 px-6 py-3 bg-emerald-500 text-white rounded-xl font-semibold hover:bg-emerald-600 transition-colors"
+            >
+              <i className="fa-solid fa-refresh"></i>
+              Tentar novamente
+            </button>
           </div>
         ) : filteredProperties.length === 0 ? (
           <div className="bg-white rounded-2xl border border-gray-100 p-12 text-center">
