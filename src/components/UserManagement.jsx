@@ -41,13 +41,21 @@ const UserManagement = ({ onClose }) => {
       setLoading(true);
       setError(null);
       
-      console.log('Fetching users with Supabase client...');
+      console.log('Fetching users...');
       
-      // Use Supabase client directly - it handles auth automatically
-      const { data, error, count } = await supabase
+      // Add timeout to prevent infinite loading
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Request timeout after 10s')), 10000)
+      );
+      
+      const queryPromise = supabase
         .from('users')
         .select('*', { count: 'exact' })
         .order('created_at', { ascending: false });
+
+      console.log('Query started...');
+      
+      const { data, error, count } = await Promise.race([queryPromise, timeoutPromise]);
 
       console.log('Users query result:', { data, error, count });
 
@@ -58,10 +66,10 @@ const UserManagement = ({ onClose }) => {
       setUsers(data || []);
       setFilteredUsers(data || []);
       setTotalUsers(count || data?.length || 0);
+      setLoading(false);
     } catch (err) {
       console.error('Error fetching users:', err);
-      setError(err.message || 'Erro ao carregar utilizadores. Verifique se a tabela "users" existe na base de dados.');
-    } finally {
+      setError(err.message || 'Erro ao carregar utilizadores.');
       setLoading(false);
     }
   };
