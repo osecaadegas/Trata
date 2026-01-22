@@ -14,6 +14,7 @@ import PropertiesPage from './components/PropertiesPage';
 import PropertyDetailPage from './components/PropertyDetailPage';
 import MessagesInbox from './components/MessagesInbox';
 import UserDashboard from './components/UserDashboard';
+import UnsubscribePage from './components/UnsubscribePage';
 
 function App() {
   const [currentPage, setCurrentPage] = useState('home');
@@ -84,6 +85,8 @@ function App() {
             <Footer />
           </>
         );
+      case 'unsubscribe':
+        return <UnsubscribePage />;
       default:
         return (
           <>

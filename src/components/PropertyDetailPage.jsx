@@ -1,15 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
+import InquiryForm from './InquiryForm';
 
 const PropertyDetailPage = ({ propertyId }) => {
   const { user } = useAuth();
   const [property, setProperty] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [activeImage, setActiveImage] = useState(0);
-  const [showContactForm, setShowContactForm] = useState(false);
+  const [showInquiryModal, setShowInquiryModal] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
   const [favoriteLoading, setFavoriteLoading] = useState(false);
   const [show3DTour, setShow3DTour] = useState(false);
+  const [showContactForm, setShowContactForm] = useState(false);
   const [contactFormData, setContactFormData] = useState({
     name: '',
     email: '',
@@ -618,8 +620,8 @@ const PropertyDetailPage = ({ propertyId }) => {
                 {!showContactForm ? (
                   <div className="space-y-3">
                     <button
-                      onClick={() => setShowContactForm(true)}
-                      className="w-full py-3 bg-emerald-500 text-white font-semibold rounded-xl hover:bg-emerald-600 transition-colors flex items-center justify-center gap-2"
+                      onClick={() => setShowInquiryModal(true)}
+                      className="w-full py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold rounded-xl hover:from-indigo-700 hover:to-purple-700 transition-all shadow-lg shadow-indigo-500/30 flex items-center justify-center gap-2"
                     >
                       <i className="fa-solid fa-envelope"></i>
                       Pedir mais informações
@@ -752,6 +754,13 @@ const PropertyDetailPage = ({ propertyId }) => {
           </div>
         </div>
       </div>
+
+      {/* Inquiry Modal with Email Integration */}
+      <InquiryForm
+        property={property}
+        isOpen={showInquiryModal}
+        onClose={() => setShowInquiryModal(false)}
+      />
     </div>
   );
 };

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { PropertyAlertBanner } from './PropertyAlertSubscription';
 
 const PropertiesPage = () => {
   const { user } = useAuth();
@@ -718,6 +719,13 @@ const PropertiesPage = () => {
               +351 934 101 523
             </a>
           </div>
+        </div>
+      </section>
+
+      {/* Property Alerts Banner */}
+      <section className="py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-4xl mx-auto">
+          <PropertyAlertBanner />
         </div>
       </section>
     </div>
