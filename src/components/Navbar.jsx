@@ -60,8 +60,15 @@ const Navbar = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-20 items-center">
             {/* Logo */}
-            <a href="#home" className="text-3xl font-bold tracking-tighter text-slate-900 z-10">
-              TRA<span className="text-green-accent">TA</span>
+            <a href="#home" className="flex items-center gap-2 z-10">
+              <img 
+                src="/trata.jpg" 
+                alt="TRATA Logo" 
+                className="h-10 w-10 object-contain rounded-lg"
+              />
+              <span className="text-3xl font-bold tracking-tighter text-slate-900">
+                TRA<span className="text-green-accent">TA</span>
+              </span>
             </a>
             
             {/* Desktop Navigation */}

@@ -17,17 +17,47 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check current session from storage first
+    // Check for stored session immediately on mount
+    const storedSession = localStorage.getItem('trata-auth');
+    if (storedSession) {
+      try {
+        const parsed = JSON.parse(storedSession);
+        if (parsed?.user) {
+          // Restore user immediately from localStorage for instant UI
+          setUser({
+            id: parsed.user.id,
+            name: parsed.user.user_metadata?.full_name || parsed.user.email,
+            email: parsed.user.email,
+            picture: parsed.user.user_metadata?.avatar_url || `https://ui-avatars.com/api/?name=${parsed.user.email}`
+          });
+          // Restore role from localStorage
+          const storedRole = localStorage.getItem('trata-user-role');
+          if (storedRole) {
+            setUserRole(storedRole);
+          }
+        }
+      } catch (e) {
+        console.log('Could not parse stored session');
+      }
+    }
+
+    // Then validate with Supabase
     const initSession = async () => {
       try {
-        // Get session from storage (this is fast and doesn't hit network)
+        // Get session from Supabase (validates token)
         const { data: { session } } = await supabase.auth.getSession();
         
         if (session?.user) {
           await loadUserWithRole(session.user);
+        } else {
+          // No valid session, clear everything
+          setUser(null);
+          setUserRole('user');
+          localStorage.removeItem('trata-user-role');
         }
       } catch (error) {
         console.error('Error initializing session:', error);
+        // On error, still keep any stored session for offline-ish experience
       } finally {
         setLoading(false);
       }
@@ -39,17 +69,21 @@ export const AuthProvider = ({ children }) => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log('Auth state changed:', event);
       
+      if (event === 'TOKEN_REFRESHED') {
+        console.log('Token refreshed successfully');
+      }
+      
       if (session?.user) {
         await loadUserWithRole(session.user);
         
         // Clean up OAuth tokens from URL hash after successful login
         if (event === 'SIGNED_IN' && window.location.hash.includes('access_token')) {
-          // Remove the entire hash with tokens
           window.history.replaceState(null, '', window.location.pathname + window.location.search);
         }
-      } else {
+      } else if (event === 'SIGNED_OUT') {
         setUser(null);
         setUserRole('user');
+        localStorage.removeItem('trata-user-role');
       }
       setLoading(false);
     });
@@ -79,6 +113,8 @@ export const AuthProvider = ({ children }) => {
         .eq('id', authUser.id)
         .single();
 
+      let role = 'user';
+
       if (error && error.code === 'PGRST116') {
         // User doesn't exist in users table, create them
         const { data: newUser } = await supabase
@@ -95,10 +131,14 @@ export const AuthProvider = ({ children }) => {
           .select()
           .single();
 
-        setUserRole(newUser?.role || 'user');
+        role = newUser?.role || 'user';
       } else if (userData) {
-        setUserRole(userData.role || 'user');
+        role = userData.role || 'user';
       }
+
+      // Store role in localStorage for instant restore on page reload
+      localStorage.setItem('trata-user-role', role);
+      setUserRole(role);
 
       setUser({
         id: authUser.id,
@@ -108,13 +148,15 @@ export const AuthProvider = ({ children }) => {
       });
     } catch (error) {
       console.error('Error loading user role:', error);
+      // Fallback: use stored role if available
+      const storedRole = localStorage.getItem('trata-user-role');
       setUser({
         id: authUser.id,
         name: authUser.user_metadata.full_name || authUser.email,
         email: authUser.email,
         picture: authUser.user_metadata.avatar_url
       });
-      setUserRole('user');
+      setUserRole(storedRole || 'user');
     }
   };
 
@@ -122,6 +164,7 @@ export const AuthProvider = ({ children }) => {
     await supabase.auth.signOut();
     setUser(null);
     setUserRole('user');
+    localStorage.removeItem('trata-user-role');
   };
 
   const value = {

@@ -5,9 +5,16 @@ const Footer = () => {
     <footer id="contatos" className="bg-white pt-20 pb-10 border-t border-gray-100">
       <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
         <div className="col-span-1 md:col-span-1">
-          <span className="text-2xl font-bold tracking-tighter text-slate-900 mb-6 block">
-            TRA<span className="text-green-accent">TA</span>
-          </span>
+          <a href="#home" className="flex items-center gap-2 mb-6">
+            <img 
+              src="/trata.jpg" 
+              alt="TRATA Logo" 
+              className="h-9 w-9 object-contain rounded-lg"
+            />
+            <span className="text-2xl font-bold tracking-tighter text-slate-900">
+              TRA<span className="text-green-accent">TA</span>
+            </span>
+          </a>
           <p className="text-slate-500 leading-relaxed mb-6">
             A TRATA é a sua parceira de confiança no mercado imobiliário, focada na eficácia e modernidade.
           </p>
