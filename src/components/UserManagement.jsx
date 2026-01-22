@@ -46,13 +46,17 @@ const UserManagement = ({ onClose }) => {
       const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
       const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
       
-      // Fetch using REST API (same approach as PropertyListings)
+      // Get the current session token for authenticated requests
+      const { data: { session } } = await supabase.auth.getSession();
+      const accessToken = session?.access_token || supabaseKey;
+      
+      // Fetch using REST API with authenticated user token
       const response = await fetch(
         `${supabaseUrl}/rest/v1/users?order=created_at.desc`,
         {
           headers: {
             'apikey': supabaseKey,
-            'Authorization': `Bearer ${supabaseKey}`,
+            'Authorization': `Bearer ${accessToken}`,
             'Content-Type': 'application/json',
             'Prefer': 'count=exact'
           }

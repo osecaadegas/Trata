@@ -29,7 +29,7 @@ INSERT INTO public.users (id, email, name, avatar_url, role, phone, created_at) 
 
 -- Configuradores (1)
 (
-    'cfg00001-0000-0000-0000-000000000001',
+    '00000000-0000-0000-0000-000000000001',
     'admin@trata.pt',
     'Admin TRATA',
     'https://ui-avatars.com/api/?name=Admin+TRATA&background=7c3aed&color=fff',
@@ -40,7 +40,7 @@ INSERT INTO public.users (id, email, name, avatar_url, role, phone, created_at) 
 
 -- Administradores (2)
 (
-    'adm00001-0000-0000-0000-000000000001',
+    '00000000-0000-0000-0000-000000000002',
     'maria.gestora@trata.pt',
     'Maria Gestora',
     'https://ui-avatars.com/api/?name=Maria+Gestora&background=dc2626&color=fff',
@@ -49,7 +49,7 @@ INSERT INTO public.users (id, email, name, avatar_url, role, phone, created_at) 
     NOW() - INTERVAL '5 months'
 ),
 (
-    'adm00002-0000-0000-0000-000000000002',
+    '00000000-0000-0000-0000-000000000003',
     'joao.admin@trata.pt',
     'João Administrador',
     'https://ui-avatars.com/api/?name=Joao+Admin&background=dc2626&color=fff',
@@ -60,7 +60,7 @@ INSERT INTO public.users (id, email, name, avatar_url, role, phone, created_at) 
 
 -- Vendedores (3)
 (
-    'vnd00001-0000-0000-0000-000000000001',
+    '00000000-0000-0000-0000-000000000004',
     'carlos.vendedor@trata.pt',
     'Carlos Silva',
     'https://ui-avatars.com/api/?name=Carlos+Silva&background=059669&color=fff',
@@ -69,7 +69,7 @@ INSERT INTO public.users (id, email, name, avatar_url, role, phone, created_at) 
     NOW() - INTERVAL '3 months'
 ),
 (
-    'vnd00002-0000-0000-0000-000000000002',
+    '00000000-0000-0000-0000-000000000005',
     'ana.vendedora@trata.pt',
     'Ana Ferreira',
     'https://ui-avatars.com/api/?name=Ana+Ferreira&background=059669&color=fff',
@@ -78,7 +78,7 @@ INSERT INTO public.users (id, email, name, avatar_url, role, phone, created_at) 
     NOW() - INTERVAL '3 months'
 ),
 (
-    'vnd00003-0000-0000-0000-000000000003',
+    '00000000-0000-0000-0000-000000000006',
     'pedro.vendedor@trata.pt',
     'Pedro Santos',
     'https://ui-avatars.com/api/?name=Pedro+Santos&background=059669&color=fff',
@@ -89,7 +89,7 @@ INSERT INTO public.users (id, email, name, avatar_url, role, phone, created_at) 
 
 -- Utilizadores normais (4)
 (
-    'usr00001-0000-0000-0000-000000000001',
+    '00000000-0000-0000-0000-000000000007',
     'miguel.cliente@gmail.com',
     'Miguel Costa',
     'https://ui-avatars.com/api/?name=Miguel+Costa&background=3b82f6&color=fff',
@@ -98,7 +98,7 @@ INSERT INTO public.users (id, email, name, avatar_url, role, phone, created_at) 
     NOW() - INTERVAL '2 months'
 ),
 (
-    'usr00002-0000-0000-0000-000000000002',
+    '00000000-0000-0000-0000-000000000008',
     'sofia.cliente@gmail.com',
     'Sofia Ribeiro',
     'https://ui-avatars.com/api/?name=Sofia+Ribeiro&background=ec4899&color=fff',
@@ -107,7 +107,7 @@ INSERT INTO public.users (id, email, name, avatar_url, role, phone, created_at) 
     NOW() - INTERVAL '1 month'
 ),
 (
-    'usr00003-0000-0000-0000-000000000003',
+    '00000000-0000-0000-0000-000000000009',
     'ricardo.cliente@hotmail.com',
     'Ricardo Almeida',
     'https://ui-avatars.com/api/?name=Ricardo+Almeida&background=f59e0b&color=fff',
@@ -116,7 +116,7 @@ INSERT INTO public.users (id, email, name, avatar_url, role, phone, created_at) 
     NOW() - INTERVAL '2 weeks'
 ),
 (
-    'usr00004-0000-0000-0000-000000000004',
+    '00000000-0000-0000-0000-00000000000a',
     'beatriz.cliente@yahoo.com',
     'Beatriz Oliveira',
     'https://ui-avatars.com/api/?name=Beatriz+Oliveira&background=6366f1&color=fff',
