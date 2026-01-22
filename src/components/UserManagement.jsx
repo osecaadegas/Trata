@@ -41,18 +41,22 @@ const UserManagement = ({ onClose }) => {
       setLoading(true);
       setError(null);
       
-      // Check if Supabase is configured
-      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-      if (!supabaseUrl || supabaseUrl.includes('your-project')) {
-        setError('Base de dados não configurada. Configure as variáveis de ambiente do Supabase.');
-        setLoading(false);
-        return;
-      }
+      console.log('Fetching users...');
       
-      const { data, error: fetchError, count } = await supabase
+      // Create a timeout promise
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Timeout: A consulta demorou demasiado tempo')), 10000)
+      );
+      
+      // Race between the query and the timeout
+      const queryPromise = supabase
         .from('users')
         .select('*', { count: 'exact' })
         .order('created_at', { ascending: false });
+      
+      const { data, error: fetchError, count } = await Promise.race([queryPromise, timeoutPromise]);
+
+      console.log('Users query result:', { data, error: fetchError, count });
 
       if (fetchError) throw fetchError;
 
@@ -61,7 +65,7 @@ const UserManagement = ({ onClose }) => {
       setTotalUsers(count || 0);
     } catch (err) {
       console.error('Error fetching users:', err);
-      setError(err.message || 'Erro ao carregar utilizadores. Verifique a ligação à base de dados.');
+      setError(err.message || 'Erro ao carregar utilizadores. Verifique se a tabela "users" existe na base de dados.');
     } finally {
       setLoading(false);
     }

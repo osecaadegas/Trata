@@ -81,13 +81,7 @@ const PropertyManagement = () => {
       setLoading(true);
       setError(null);
       
-      // Check if Supabase is configured
-      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-      if (!supabaseUrl || supabaseUrl.includes('your-project')) {
-        setError('Base de dados não configurada. Configure as variáveis de ambiente do Supabase.');
-        setLoading(false);
-        return;
-      }
+      console.log('Fetching properties...');
       
       let query = supabase
         .from('properties')
@@ -119,7 +113,14 @@ const PropertyManagement = () => {
         query = query.eq('created_by', user.id);
       }
 
-      const { data, error, count } = await query;
+      // Add timeout
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Timeout: A consulta demorou demasiado tempo')), 10000)
+      );
+
+      const { data, error, count } = await Promise.race([query, timeoutPromise]);
+      
+      console.log('Properties query result:', { data, error, count });
 
       if (error) throw error;
 
@@ -128,7 +129,7 @@ const PropertyManagement = () => {
       setTotalProperties(count || 0);
     } catch (err) {
       console.error('Error fetching properties:', err);
-      setError(err.message || 'Erro ao carregar imóveis. Verifique a ligação à base de dados.');
+      setError(err.message || 'Erro ao carregar imóveis. Verifique se a tabela "properties" existe na base de dados.');
     } finally {
       setLoading(false);
     }
