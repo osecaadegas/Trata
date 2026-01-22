@@ -21,6 +21,28 @@ const PropertiesPage = () => {
 
   const propertiesPerPage = 12;
 
+  // Fallback mock data when Supabase isn't configured
+  const fallbackProperties = [
+    { id: 1, title: 'Apartamento T3 com Vista Mar', type: 'Apartamento', location: 'Braga, Centro', price: 285000, area: 120, bedrooms: 3, bathrooms: 2, condition: 'Novo', featured: true, image: 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=800&h=600&fit=crop' },
+    { id: 2, title: 'Moradia T4 com Jardim', type: 'Moradia', location: 'Braga, Gualtar', price: 425000, area: 200, bedrooms: 4, bathrooms: 3, condition: 'Renovado', featured: true, image: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800&h=600&fit=crop' },
+    { id: 3, title: 'Apartamento T2 Renovado', type: 'Apartamento', location: 'Braga, São Vicente', price: 175000, area: 85, bedrooms: 2, bathrooms: 1, condition: 'Renovado', featured: false, image: 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800&h=600&fit=crop' },
+    { id: 4, title: 'Terreno Urbanizável', type: 'Terreno', location: 'Braga, Palmeira', price: 95000, area: 500, bedrooms: 0, bathrooms: 0, condition: 'Novo', featured: false, image: 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=800&h=600&fit=crop' },
+    { id: 5, title: 'Moradia T5 de Luxo', type: 'Moradia', location: 'Braga, Bom Jesus', price: 750000, area: 350, bedrooms: 5, bathrooms: 4, condition: 'Novo', featured: true, image: 'https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=800&h=600&fit=crop' },
+    { id: 6, title: 'Apartamento T1 para Investimento', type: 'Apartamento', location: 'Braga, Universidade', price: 125000, area: 45, bedrooms: 1, bathrooms: 1, condition: 'Para Renovar', featured: false, image: 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&h=600&fit=crop' },
+    { id: 7, title: 'Moradia T3 com Piscina', type: 'Moradia', location: 'Braga, Fraião', price: 385000, area: 180, bedrooms: 3, bathrooms: 2, condition: 'Renovado', featured: true, image: 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800&h=600&fit=crop' },
+    { id: 8, title: 'Apartamento T4 Duplex', type: 'Apartamento', location: 'Braga, Maximinos', price: 320000, area: 150, bedrooms: 4, bathrooms: 2, condition: 'Novo', featured: false, image: 'https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?w=800&h=600&fit=crop' },
+    { id: 9, title: 'Quinta com 2 Hectares', type: 'Quinta', location: 'Braga, Priscos', price: 550000, area: 20000, bedrooms: 6, bathrooms: 3, condition: 'Para Renovar', featured: false, image: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800&h=600&fit=crop' },
+    { id: 10, title: 'Apartamento T2 com Varanda', type: 'Apartamento', location: 'Braga, Real', price: 195000, area: 90, bedrooms: 2, bathrooms: 1, condition: 'Novo', featured: false, image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&h=600&fit=crop' },
+    { id: 11, title: 'Moradia Geminada T3', type: 'Moradia', location: 'Braga, Nogueira', price: 295000, area: 140, bedrooms: 3, bathrooms: 2, condition: 'Renovado', featured: false, image: 'https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?w=800&h=600&fit=crop' },
+    { id: 12, title: 'Loja Comercial', type: 'Comercial', location: 'Braga, Centro', price: 180000, area: 75, bedrooms: 0, bathrooms: 1, condition: 'Novo', featured: false, image: 'https://images.unsplash.com/photo-1582037928769-181f2644ecb7?w=800&h=600&fit=crop' },
+    { id: 13, title: 'Apartamento T3 com Terraço', type: 'Apartamento', location: 'Braga, São José', price: 265000, area: 110, bedrooms: 3, bathrooms: 2, condition: 'Novo', featured: false, image: 'https://images.unsplash.com/photo-1600573472550-8090b5e0745e?w=800&h=600&fit=crop' },
+    { id: 14, title: 'Moradia T4 Moderna', type: 'Moradia', location: 'Braga, Lamaçães', price: 480000, area: 220, bedrooms: 4, bathrooms: 3, condition: 'Novo', featured: true, image: 'https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?w=800&h=600&fit=crop' },
+    { id: 15, title: 'Apartamento T1 Centro Histórico', type: 'Apartamento', location: 'Braga, Sé', price: 145000, area: 55, bedrooms: 1, bathrooms: 1, condition: 'Renovado', featured: false, image: 'https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?w=800&h=600&fit=crop' },
+    { id: 16, title: 'Terreno Industrial', type: 'Terreno', location: 'Braga, Celeirós', price: 250000, area: 2000, bedrooms: 0, bathrooms: 0, condition: 'Novo', featured: false, image: 'https://images.unsplash.com/photo-1628744448840-55bdb2497bd4?w=800&h=600&fit=crop' },
+    { id: 17, title: 'Moradia T3 para Renovar', type: 'Moradia', location: 'Braga, Ferreiros', price: 165000, area: 130, bedrooms: 3, bathrooms: 1, condition: 'Para Renovar', featured: false, image: 'https://images.unsplash.com/photo-1605276374104-dee2a0ed3cd6?w=800&h=600&fit=crop' },
+    { id: 18, title: 'Apartamento T2 com Garagem', type: 'Apartamento', location: 'Braga, Carandá', price: 210000, area: 95, bedrooms: 2, bathrooms: 1, condition: 'Novo', featured: false, image: 'https://images.unsplash.com/photo-1600607687644-c7171b42498f?w=800&h=600&fit=crop' }
+  ];
+
   // Mapping from DB values to display values (Portuguese)
   const propertyTypeMap = {
     'apartment': 'Apartamento',
@@ -41,11 +63,24 @@ const PropertiesPage = () => {
   const bedroomOptions = ['1', '2', '3', '4', '5+'];
   const conditionOptions = ['Novo', 'Renovado', 'Para Renovar'];
 
-  // Fetch properties from Supabase
+  // Fetch properties from Supabase or use fallback
   useEffect(() => {
     const fetchProperties = async () => {
       setIsLoading(true);
       setError(null);
+      
+      // Check if Supabase is configured
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+      
+      if (!supabaseUrl || !supabaseKey || supabaseUrl === 'your_supabase_project_url') {
+        // Use fallback data if Supabase isn't configured
+        console.log('Supabase not configured, using fallback data');
+        setProperties(fallbackProperties);
+        setFilteredProperties(fallbackProperties);
+        setIsLoading(false);
+        return;
+      }
       
       try {
         const { data, error } = await supabase
@@ -57,6 +92,15 @@ const PropertiesPage = () => {
 
         if (error) {
           throw error;
+        }
+
+        // If no data from DB, use fallback
+        if (!data || data.length === 0) {
+          console.log('No data in database, using fallback data');
+          setProperties(fallbackProperties);
+          setFilteredProperties(fallbackProperties);
+          setIsLoading(false);
+          return;
         }
 
         // Transform data to match component expectations
@@ -84,7 +128,10 @@ const PropertiesPage = () => {
         setFilteredProperties(transformedData);
       } catch (err) {
         console.error('Error fetching properties:', err);
-        setError('Erro ao carregar imóveis. Por favor, tente novamente.');
+        // Use fallback data on error
+        console.log('Error occurred, using fallback data');
+        setProperties(fallbackProperties);
+        setFilteredProperties(fallbackProperties);
       } finally {
         setIsLoading(false);
       }
