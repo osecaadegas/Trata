@@ -9,12 +9,20 @@ const CallToAction = () => {
           Nós tratamos de toda a burocracia e marketing para que não se tenha de preocupar com nada.
         </p>
         <div className="flex flex-col sm:flex-row justify-center gap-4">
-          <button className="bg-green-accent text-white px-10 py-4 rounded-full font-bold text-lg hover:bg-emerald-600 transition-all">
+          <a 
+            href="#contactos"
+            className="bg-green-accent text-white px-10 py-4 rounded-full font-bold text-lg hover:bg-emerald-600 transition-all text-center"
+          >
             Avaliação Gratuita
-          </button>
-          <button className="border border-slate-700 px-10 py-4 rounded-full font-bold text-lg hover:bg-slate-800 transition-all">
+          </a>
+          <a 
+            href="https://wa.me/351934101523?text=Olá!%20Gostaria%20de%20falar%20com%20um%20consultor."
+            target="_blank"
+            rel="noopener noreferrer"
+            className="border border-slate-700 px-10 py-4 rounded-full font-bold text-lg hover:bg-slate-800 transition-all text-center"
+          >
             Falar com Consultor
-          </button>
+          </a>
         </div>
       </div>
       <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/10 rounded-full -mr-32 -mt-32"></div>

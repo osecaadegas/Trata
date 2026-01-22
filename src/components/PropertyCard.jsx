@@ -1,6 +1,91 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { useAuth } from '../context/AuthContext';
 
 const PropertyCard = ({ property }) => {
+  const { user } = useAuth();
+  const [isFavorite, setIsFavorite] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (user) {
+      checkIfFavorite();
+    }
+  }, [user, property.id]);
+
+  const getSupabaseHeaders = () => {
+    const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+    return {
+      'apikey': supabaseKey,
+      'Authorization': `Bearer ${supabaseKey}`,
+      'Content-Type': 'application/json'
+    };
+  };
+
+  const checkIfFavorite = async () => {
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+    if (!supabaseUrl || supabaseUrl.includes('your-project') || !user) return;
+
+    try {
+      const response = await fetch(
+        `${supabaseUrl}/rest/v1/user_favorites?user_id=eq.${user.id}&property_id=eq.${property.id}`,
+        { headers: getSupabaseHeaders() }
+      );
+      if (response.ok) {
+        const data = await response.json();
+        setIsFavorite(data.length > 0);
+      }
+    } catch (error) {
+      console.error('Error checking favorite:', error);
+    }
+  };
+
+  const toggleFavorite = async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (!user) {
+      // Show login prompt or redirect
+      alert('Faça login para guardar favoritos');
+      return;
+    }
+
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+    if (!supabaseUrl || supabaseUrl.includes('your-project')) {
+      setIsFavorite(!isFavorite);
+      return;
+    }
+
+    setLoading(true);
+    try {
+      if (isFavorite) {
+        // Remove from favorites
+        const response = await fetch(
+          `${supabaseUrl}/rest/v1/user_favorites?user_id=eq.${user.id}&property_id=eq.${property.id}`,
+          { method: 'DELETE', headers: getSupabaseHeaders() }
+        );
+        if (response.ok) {
+          setIsFavorite(false);
+        }
+      } else {
+        // Add to favorites
+        const response = await fetch(
+          `${supabaseUrl}/rest/v1/user_favorites`,
+          {
+            method: 'POST',
+            headers: { ...getSupabaseHeaders(), 'Prefer': 'return=minimal' },
+            body: JSON.stringify({ user_id: user.id, property_id: property.id })
+          }
+        );
+        if (response.ok) {
+          setIsFavorite(true);
+        }
+      }
+    } catch (error) {
+      console.error('Error toggling favorite:', error);
+    }
+    setLoading(false);
+  };
+
   return (
     <a 
       href={`#imovel/${property.id}`}
@@ -16,10 +101,13 @@ const PropertyCard = ({ property }) => {
           {property.tag}
         </div>
         <button 
-          onClick={(e) => e.preventDefault()}
-          className="absolute top-4 right-4 w-10 h-10 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center text-slate-600 hover:text-red-500 transition-colors"
+          onClick={toggleFavorite}
+          disabled={loading}
+          className={`absolute top-4 right-4 w-10 h-10 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center transition-colors ${
+            isFavorite ? 'text-red-500' : 'text-slate-600 hover:text-red-500'
+          } ${loading ? 'opacity-50' : ''}`}
         >
-          <i className="fa-regular fa-heart"></i>
+          <i className={`${isFavorite ? 'fa-solid' : 'fa-regular'} fa-heart`}></i>
         </button>
       </div>
       <div className="p-6">

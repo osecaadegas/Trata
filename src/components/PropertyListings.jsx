@@ -108,9 +108,9 @@ const PropertyListings = () => {
           <h2 className="text-3xl font-bold text-slate-900 mb-2">Imóveis em Destaque</h2>
           <p className="text-slate-500">As melhores oportunidades selecionadas para si.</p>
         </div>
-        <button className="text-emerald-600 font-bold hover:underline flex items-center">
+        <a href="#imoveis" className="text-emerald-600 font-bold hover:underline flex items-center">
           Ver todos <i className="fa-solid fa-arrow-right ml-2 text-sm"></i>
-        </button>
+        </a>
       </div>
 
       {loading ? (
