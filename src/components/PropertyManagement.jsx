@@ -85,7 +85,7 @@ const PropertyManagement = () => {
       
       let query = supabase
         .from('properties')
-        .select('*, users(name, email)', { count: 'exact' });
+        .select('*', { count: 'exact' });
 
       // Apply sorting
       if (sortBy === 'newest') {
