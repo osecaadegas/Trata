@@ -83,43 +83,65 @@ const PropertyManagement = () => {
       
       console.log('Fetching properties...');
       
-      // Build query
-      let query = supabase.from('properties').select('*', { count: 'exact' });
-
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+      
+      // Build query parameters
+      let queryParams = [];
+      
       // Apply sorting
       if (sortBy === 'newest') {
-        query = query.order('created_at', { ascending: false });
+        queryParams.push('order=created_at.desc');
       } else if (sortBy === 'oldest') {
-        query = query.order('created_at', { ascending: true });
+        queryParams.push('order=created_at.asc');
       } else if (sortBy === 'price_high') {
-        query = query.order('price', { ascending: false });
+        queryParams.push('order=price.desc');
       } else if (sortBy === 'price_low') {
-        query = query.order('price', { ascending: true });
+        queryParams.push('order=price.asc');
       }
 
       // Filter by status if not "all"
       if (filterStatus !== 'all') {
-        query = query.eq('status', filterStatus);
+        queryParams.push(`status=eq.${filterStatus}`);
       }
 
       // Filter by type if not "all"
       if (filterType !== 'all') {
-        query = query.eq('property_type', filterType);
+        queryParams.push(`property_type=eq.${filterType}`);
       }
 
-      // If not admin/configurator, only show own properties (skip for now if no created_by)
-      // Admin/Configurator see all properties
+      const queryString = queryParams.length > 0 ? `?${queryParams.join('&')}` : '';
       
-      // Execute query directly (no timeout race - it causes issues)
-      const { data, error, count } = await query;
-      
-      console.log('Properties query result:', { data, error, count });
+      // Fetch data using REST API (same approach as PropertyListings)
+      const response = await fetch(
+        `${supabaseUrl}/rest/v1/properties${queryString}`,
+        {
+          headers: {
+            'apikey': supabaseKey,
+            'Authorization': `Bearer ${supabaseKey}`,
+            'Content-Type': 'application/json',
+            'Prefer': 'count=exact'
+          }
+        }
+      );
 
-      if (error) throw error;
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      const contentRange = response.headers.get('content-range');
+      let count = 0;
+      if (contentRange) {
+        count = parseInt(contentRange.split('/')[1]) || 0;
+      }
+
+      const data = await response.json();
+      
+      console.log('Properties query result:', { data, count });
 
       setProperties(data || []);
       setFilteredProperties(data || []);
-      setTotalProperties(count || 0);
+      setTotalProperties(count || data?.length || 0);
     } catch (err) {
       console.error('Error fetching properties:', err);
       setError(err.message || 'Erro ao carregar imóveis. Verifique se a tabela "properties" existe na base de dados.');

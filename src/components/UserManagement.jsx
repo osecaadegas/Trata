@@ -43,19 +43,39 @@ const UserManagement = ({ onClose }) => {
       
       console.log('Fetching users...');
       
-      // Execute query directly
-      const { data, error: fetchError, count } = await supabase
-        .from('users')
-        .select('*', { count: 'exact' })
-        .order('created_at', { ascending: false });
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+      
+      // Fetch using REST API (same approach as PropertyListings)
+      const response = await fetch(
+        `${supabaseUrl}/rest/v1/users?order=created_at.desc`,
+        {
+          headers: {
+            'apikey': supabaseKey,
+            'Authorization': `Bearer ${supabaseKey}`,
+            'Content-Type': 'application/json',
+            'Prefer': 'count=exact'
+          }
+        }
+      );
 
-      console.log('Users query result:', { data, error: fetchError, count });
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
 
-      if (fetchError) throw fetchError;
+      const contentRange = response.headers.get('content-range');
+      let count = 0;
+      if (contentRange) {
+        count = parseInt(contentRange.split('/')[1]) || 0;
+      }
+
+      const data = await response.json();
+      
+      console.log('Users query result:', { data, count });
 
       setUsers(data || []);
       setFilteredUsers(data || []);
-      setTotalUsers(count || 0);
+      setTotalUsers(count || data?.length || 0);
     } catch (err) {
       console.error('Error fetching users:', err);
       setError(err.message || 'Erro ao carregar utilizadores. Verifique se a tabela "users" existe na base de dados.');
