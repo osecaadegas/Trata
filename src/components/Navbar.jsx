@@ -64,9 +64,10 @@ const Navbar = () => {
   ];
 
   const getRoleBadge = () => {
-    if (userRole === 'configurator') return { text: 'Configurador', color: 'bg-purple-100 text-purple-700', icon: 'fa-crown' };
-    if (userRole === 'admin') return { text: 'Admin', color: 'bg-blue-100 text-blue-700', icon: 'fa-shield-halved' };
-    if (userRole === 'seller' || userRole === 'vendedor') return { text: 'Vendedor', color: 'bg-green-100 text-green-700', icon: 'fa-briefcase' };
+    const role = userRole?.toLowerCase() || 'user';
+    if (role === 'configurator' || role === 'configurador') return { text: 'Configurador', color: 'bg-purple-100 text-purple-700', icon: 'fa-crown' };
+    if (role === 'admin') return { text: 'Admin', color: 'bg-blue-100 text-blue-700', icon: 'fa-shield-halved' };
+    if (role === 'seller' || role === 'vendedor') return { text: 'Vendedor', color: 'bg-green-100 text-green-700', icon: 'fa-briefcase' };
     return { text: 'Utilizador', color: 'bg-gray-100 text-gray-700', icon: 'fa-user' };
   };
 

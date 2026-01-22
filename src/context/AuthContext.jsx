@@ -134,11 +134,13 @@ export const AuthProvider = ({ children }) => {
         role = newUser?.role || 'user';
       } else if (userData) {
         role = userData.role || 'user';
+        console.log('User role from database:', role);
       }
 
       // Store role in localStorage for instant restore on page reload
       localStorage.setItem('trata-user-role', role);
       setUserRole(role);
+      console.log('Setting userRole to:', role);
 
       setUser({
         id: authUser.id,
@@ -174,14 +176,17 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // Normalize role for comparisons (lowercase)
+  const normalizedRole = userRole?.toLowerCase() || 'user';
+
   const value = {
     user,
     userRole,
     loading,
     logout,
-    isAdmin: userRole === 'admin' || userRole === 'configurator',
-    isConfigurator: userRole === 'configurator',
-    isSeller: userRole === 'vendedor' || userRole === 'seller' || userRole === 'admin' || userRole === 'configurator',
+    isAdmin: normalizedRole === 'admin' || normalizedRole === 'configurator' || normalizedRole === 'configurador',
+    isConfigurator: normalizedRole === 'configurator' || normalizedRole === 'configurador',
+    isSeller: normalizedRole === 'vendedor' || normalizedRole === 'seller' || normalizedRole === 'admin' || normalizedRole === 'configurator' || normalizedRole === 'configurador',
     refreshUser: checkUser
   };
 
