@@ -159,12 +159,26 @@ const PropertyManagement = () => {
     if (!confirm('Tem certeza que deseja eliminar este imóvel? Esta ação não pode ser desfeita.')) return;
 
     try {
-      const { error } = await supabase
-        .from('properties')
-        .delete()
-        .eq('id', propertyId);
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+      
+      const response = await fetch(
+        `${supabaseUrl}/rest/v1/properties?id=eq.${propertyId}`,
+        {
+          method: 'DELETE',
+          headers: {
+            'apikey': supabaseKey,
+            'Authorization': `Bearer ${supabaseKey}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
 
-      if (error) throw error;
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText);
+      }
+      
       fetchProperties();
     } catch (error) {
       console.error('Error deleting property:', error);

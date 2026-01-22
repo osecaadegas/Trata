@@ -255,6 +255,8 @@ const PropertyCreationModal = ({ isOpen, onClose, editingProperty, onSuccess }) 
     
     // Check if Supabase is configured
     const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+    const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+    
     if (!supabaseUrl || supabaseUrl.includes('your-project')) {
       setErrors({ submit: 'Base de dados não configurada. Configure as variáveis de ambiente do Supabase.' });
       return;
@@ -285,18 +287,45 @@ const PropertyCreationModal = ({ isOpen, onClose, editingProperty, onSuccess }) 
       };
 
       if (editingProperty) {
-        const { error } = await supabase
-          .from('properties')
-          .update(propertyData)
-          .eq('id', editingProperty.id);
+        // UPDATE using REST API
+        const response = await fetch(
+          `${supabaseUrl}/rest/v1/properties?id=eq.${editingProperty.id}`,
+          {
+            method: 'PATCH',
+            headers: {
+              'apikey': supabaseKey,
+              'Authorization': `Bearer ${supabaseKey}`,
+              'Content-Type': 'application/json',
+              'Prefer': 'return=minimal'
+            },
+            body: JSON.stringify(propertyData)
+          }
+        );
 
-        if (error) throw error;
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(errorText);
+        }
       } else {
-        const { error } = await supabase
-          .from('properties')
-          .insert([propertyData]);
+        // INSERT using REST API
+        const response = await fetch(
+          `${supabaseUrl}/rest/v1/properties`,
+          {
+            method: 'POST',
+            headers: {
+              'apikey': supabaseKey,
+              'Authorization': `Bearer ${supabaseKey}`,
+              'Content-Type': 'application/json',
+              'Prefer': 'return=minimal'
+            },
+            body: JSON.stringify(propertyData)
+          }
+        );
 
-        if (error) throw error;
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(errorText);
+        }
       }
 
       onSuccess?.();

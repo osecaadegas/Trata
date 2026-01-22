@@ -83,12 +83,27 @@ const UserManagement = ({ onClose }) => {
     try {
       setUpdatingUserId(userId);
       
-      const { error } = await supabase
-        .from('users')
-        .update({ role: newRole })
-        .eq('id', userId);
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+      
+      const response = await fetch(
+        `${supabaseUrl}/rest/v1/users?id=eq.${userId}`,
+        {
+          method: 'PATCH',
+          headers: {
+            'apikey': supabaseKey,
+            'Authorization': `Bearer ${supabaseKey}`,
+            'Content-Type': 'application/json',
+            'Prefer': 'return=minimal'
+          },
+          body: JSON.stringify({ role: newRole })
+        }
+      );
 
-      if (error) throw error;
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText);
+      }
 
       // Update local state
       setUsers(prev => prev.map(user => 
