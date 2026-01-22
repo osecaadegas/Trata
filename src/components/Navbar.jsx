@@ -138,19 +138,28 @@ const Navbar = () => {
             </div>
 
             {/* Desktop User/Login */}
-            <div className="hidden md:flex items-center">
+            <div className="hidden md:flex items-center gap-3">
               {user ? (
                 <div className="flex items-center gap-3">
-                  <img 
-                    src={user.picture} 
-                    alt={user.name}
-                    className="w-10 h-10 rounded-full border-2 border-emerald-500"
-                  />
+                  <a 
+                    href="#dashboard" 
+                    className="flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition-colors font-medium"
+                  >
+                    <i className="fa-solid fa-grid-2"></i>
+                    <span>Minha Área</span>
+                  </a>
+                  <a href="#dashboard" className="group">
+                    <img 
+                      src={user.picture} 
+                      alt={user.name}
+                      className="w-10 h-10 rounded-full border-2 border-emerald-500 group-hover:border-emerald-400 transition-colors"
+                    />
+                  </a>
                   <div className="hidden lg:block text-left">
-                    <p className="text-sm font-semibold text-slate-900">{user.name}</p>
+                    <a href="#dashboard" className="text-sm font-semibold text-slate-900 hover:text-emerald-600 transition-colors">{user.name}</a>
                     <button 
                       onClick={handleLogout}
-                      className="text-xs text-slate-500 hover:text-emerald-600 transition-colors"
+                      className="block text-xs text-slate-500 hover:text-emerald-600 transition-colors"
                     >
                       Sair
                     </button>
@@ -298,27 +307,42 @@ const Navbar = () => {
           {/* User Section at Bottom */}
           <div className="px-4 py-4 border-t border-gray-100 bg-gray-50">
             {user ? (
-              <div className="flex items-center justify-between gap-3">
-                <div className="flex items-center gap-3 min-w-0">
-                  <img 
-                    src={user.picture} 
-                    alt={user.name}
-                    className="w-12 h-12 rounded-full border-2 border-emerald-500 flex-shrink-0"
-                  />
-                  <div className="min-w-0">
-                    <p className="font-semibold text-slate-900 truncate">{user.name}</p>
-                    <p className="text-xs text-slate-500">
-                      {userRole === 'configurator' ? 'Configurador' : userRole === 'admin' ? 'Administrador' : 'Utilizador'}
-                    </p>
-                  </div>
-                </div>
-                <button 
-                  onClick={handleLogout}
-                  className="flex-shrink-0 px-4 py-2.5 rounded-lg bg-red-50 text-red-600 font-medium hover:bg-red-100 transition-colors"
+              <div className="space-y-3">
+                {/* Dashboard Link */}
+                <a 
+                  href="#dashboard"
+                  onClick={closeMobileMenu}
+                  className="flex items-center gap-4 px-4 py-3 rounded-xl bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition-all font-medium"
                 >
-                  <i className="fa-solid fa-sign-out-alt mr-2"></i>
-                  Sair
-                </button>
+                  <div className="w-10 h-10 rounded-lg bg-emerald-500 flex items-center justify-center">
+                    <i className="fa-solid fa-grid-2 text-white"></i>
+                  </div>
+                  <span>Minha Área</span>
+                  <i className="fa-solid fa-arrow-right ml-auto text-emerald-500"></i>
+                </a>
+                
+                <div className="flex items-center justify-between gap-3 pt-2">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <img 
+                      src={user.picture} 
+                      alt={user.name}
+                      className="w-12 h-12 rounded-full border-2 border-emerald-500 flex-shrink-0"
+                    />
+                    <div className="min-w-0">
+                      <p className="font-semibold text-slate-900 truncate">{user.name}</p>
+                      <p className="text-xs text-slate-500">
+                        {userRole === 'configurator' ? 'Configurador' : userRole === 'admin' ? 'Administrador' : 'Utilizador'}
+                      </p>
+                    </div>
+                  </div>
+                  <button 
+                    onClick={handleLogout}
+                    className="flex-shrink-0 px-4 py-2.5 rounded-lg bg-red-50 text-red-600 font-medium hover:bg-red-100 transition-colors"
+                  >
+                    <i className="fa-solid fa-sign-out-alt mr-2"></i>
+                    Sair
+                  </button>
+                </div>
               </div>
             ) : (
               <button 
