@@ -106,7 +106,9 @@ CREATE INDEX idx_msg_unread ON chat_messages(conversation_id, is_read) WHERE is_
 
 
 -- 3. USER PRESENCE TABLE (for online/offline tracking)
-CREATE TABLE IF NOT EXISTS user_presence (
+DROP TABLE IF EXISTS user_presence CASCADE;
+
+CREATE TABLE user_presence (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     user_id TEXT UNIQUE NOT NULL,
     user_name VARCHAR(255),

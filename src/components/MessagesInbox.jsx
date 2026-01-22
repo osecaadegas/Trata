@@ -957,7 +957,14 @@ const MessagesInbox = () => {
                                 </span>
                               </div>
                               
-                              <p className="text-xs text-slate-500 truncate">{conv.user_email}</p>
+                              <div className="flex items-center gap-2 mt-0.5">
+                                <span className={`w-2 h-2 rounded-full ${online ? 'bg-emerald-500' : 'bg-gray-400'}`}></span>
+                                <span className={`text-xs ${online ? 'text-emerald-600' : 'text-slate-400'}`}>
+                                  {online ? 'Online' : 'Offline'}
+                                </span>
+                                <span className="text-xs text-slate-300">•</span>
+                                <span className="text-xs text-slate-500 truncate">{conv.user_email}</span>
+                              </div>
                               
                               <div className="flex items-center gap-2 mt-1">
                                 {conv.property_title && (
@@ -1019,9 +1026,14 @@ const MessagesInbox = () => {
                           <h4 className="font-semibold text-slate-900 text-sm">
                             {selectedConversation.user_name}
                           </h4>
-                          <p className="text-xs text-slate-500">
-                            {selectedConversation.user_email} • {getLastSeenText(selectedConversation.user_last_seen)}
-                          </p>
+                          <div className="flex items-center gap-2">
+                            <span className={`w-2 h-2 rounded-full ${isUserOnline(selectedConversation.user_id) ? 'bg-emerald-500' : 'bg-gray-400'}`}></span>
+                            <span className={`text-xs ${isUserOnline(selectedConversation.user_id) ? 'text-emerald-600' : 'text-slate-400'}`}>
+                              {isUserOnline(selectedConversation.user_id) ? 'Online' : 'Offline'}
+                            </span>
+                            <span className="text-xs text-slate-300">•</span>
+                            <span className="text-xs text-slate-500 truncate">{selectedConversation.user_email}</span>
+                          </div>
                         </div>
                         
                         {/* Actions */}

@@ -20,14 +20,14 @@ const UserMessaging = ({ embedded = false }) => {
       fetchConversations();
       updatePresence();
       
-      // Poll for updates every 10 seconds
+      // Poll for updates every 5 seconds for smooth UX
       const interval = setInterval(() => {
         fetchConversations();
         updatePresence();
         if (selectedConversation) {
           fetchMessages(selectedConversation.id, true);
         }
-      }, 10000);
+      }, 5000);
       
       return () => clearInterval(interval);
     }
