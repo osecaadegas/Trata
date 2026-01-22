@@ -207,18 +207,18 @@ const ServicesPage = () => {
           {/* Benefits Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-16">
             {[
-              { icon: 'fa-piggy-bank', text: 'Sem custos iniciais', color: 'emerald' },
-              { icon: 'fa-tools', text: 'Gerimos as obras', color: 'blue' },
-              { icon: 'fa-trending-up', text: 'Valorização garantida', color: 'purple' },
-              { icon: 'fa-calendar-check', text: 'Paga só após venda', color: 'amber' },
-              { icon: 'fa-shield-heart', text: 'Risco mínimo', color: 'rose' }
+              { icon: 'fa-piggy-bank', text: 'Sem custos iniciais', bgColor: 'bg-emerald-100', textColor: 'text-emerald-600' },
+              { icon: 'fa-tools', text: 'Gerimos as obras', bgColor: 'bg-blue-100', textColor: 'text-blue-600' },
+              { icon: 'fa-chart-line', text: 'Valorização garantida', bgColor: 'bg-purple-100', textColor: 'text-purple-600' },
+              { icon: 'fa-calendar-check', text: 'Paga só após venda', bgColor: 'bg-amber-100', textColor: 'text-amber-600' },
+              { icon: 'fa-shield-heart', text: 'Risco mínimo', bgColor: 'bg-rose-100', textColor: 'text-rose-600' }
             ].map((benefit, index) => (
               <div 
                 key={index}
                 className="bg-white rounded-2xl p-6 text-center border border-gray-100 shadow-sm hover:shadow-lg transition-all duration-300"
               >
-                <div className={`w-14 h-14 mx-auto mb-4 rounded-xl flex items-center justify-center bg-${benefit.color}-100`}>
-                  <i className={`fa-solid ${benefit.icon} text-xl text-${benefit.color}-600`}></i>
+                <div className={`w-14 h-14 mx-auto mb-4 rounded-xl flex items-center justify-center ${benefit.bgColor}`}>
+                  <i className={`fa-solid ${benefit.icon} text-xl ${benefit.textColor}`}></i>
                 </div>
                 <p className="font-semibold text-slate-800">{benefit.text}</p>
               </div>
