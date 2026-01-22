@@ -169,20 +169,20 @@ const PropertyManagement = () => {
       const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
       const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
       
-      console.log('Getting session...');
-      // Get the current session token for authenticated requests
-      const { data: { session } } = await supabase.auth.getSession();
-      const accessToken = session?.access_token;
-      
-      console.log('Delete request:', {
-        propertyId,
-        hasSession: !!session,
-        hasToken: !!accessToken
-      });
-      
-      if (!accessToken) {
-        throw new Error('Não está autenticado. Faça login novamente.');
+      // Get token from localStorage (avoid blocking getSession call)
+      let accessToken = supabaseKey;
+      const storedAuth = localStorage.getItem('sb-' + supabaseUrl.split('//')[1].split('.')[0] + '-auth-token');
+      if (storedAuth) {
+        try {
+          const parsed = JSON.parse(storedAuth);
+          accessToken = parsed?.access_token || supabaseKey;
+          console.log('Using stored access token');
+        } catch (e) {
+          console.log('Could not parse stored token, using anon key');
+        }
       }
+      
+      console.log('Delete request for:', propertyId);
       
       const url = `${supabaseUrl}/rest/v1/properties?id=eq.${propertyId}`;
       console.log('DELETE URL:', url);
