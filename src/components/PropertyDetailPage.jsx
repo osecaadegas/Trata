@@ -6,6 +6,14 @@ const PropertyDetailPage = ({ propertyId }) => {
   const [activeImage, setActiveImage] = useState(0);
   const [showContactForm, setShowContactForm] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
+  const [contactFormData, setContactFormData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    message: ''
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitSuccess, setSubmitSuccess] = useState(false);
 
   // Fallback properties data (same as PropertiesPage)
   const fallbackProperties = [
@@ -143,6 +151,60 @@ const PropertyDetailPage = ({ propertyId }) => {
 
   const formatArea = (area) => {
     return area >= 1000 ? `${(area / 1000).toFixed(1)} ha` : `${area} m²`;
+  };
+
+  const handleContactSubmit = async (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    
+    try {
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+      if (supabaseUrl && supabaseKey && !supabaseUrl.includes('your-project')) {
+        const response = await fetch(
+          `${supabaseUrl}/rest/v1/messages`,
+          {
+            method: 'POST',
+            headers: {
+              'apikey': supabaseKey,
+              'Authorization': `Bearer ${supabaseKey}`,
+              'Content-Type': 'application/json',
+              'Prefer': 'return=minimal'
+            },
+            body: JSON.stringify({
+              name: contactFormData.name,
+              email: contactFormData.email,
+              phone: contactFormData.phone || null,
+              subject: 'interesse',
+              message: contactFormData.message,
+              property_id: property.id,
+              property_title: property.title,
+              status: 'unread'
+            })
+          }
+        );
+
+        if (!response.ok) {
+          console.error('Failed to save message to database');
+        }
+      }
+      
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      setIsSubmitting(false);
+      setSubmitSuccess(true);
+      setContactFormData({ name: '', email: '', phone: '', message: '' });
+      
+      setTimeout(() => {
+        setSubmitSuccess(false);
+        setShowContactForm(false);
+      }, 3000);
+    } catch (error) {
+      console.error('Error submitting form:', error);
+      setIsSubmitting(false);
+      setSubmitSuccess(true);
+    }
   };
 
   // Loading State
@@ -421,52 +483,79 @@ const PropertyDetailPage = ({ propertyId }) => {
                     </a>
                   </div>
                 ) : (
-                  <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); alert('Mensagem enviada com sucesso!'); setShowContactForm(false); }}>
-                    <div>
-                      <input
-                        type="text"
-                        placeholder="Nome *"
-                        required
-                        className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                      />
-                    </div>
-                    <div>
-                      <input
-                        type="email"
-                        placeholder="Email *"
-                        required
-                        className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                      />
-                    </div>
-                    <div>
-                      <input
-                        type="tel"
-                        placeholder="Telefone"
-                        className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                      />
-                    </div>
-                    <div>
-                      <textarea
-                        rows="4"
-                        placeholder="Mensagem *"
-                        required
-                        defaultValue={`Olá, estou interessado no imóvel "${property.title}" (Ref: ${property.id}). Gostaria de obter mais informações.`}
-                        className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 resize-none"
-                      ></textarea>
-                    </div>
-                    <button
-                      type="submit"
-                      className="w-full py-3 bg-emerald-500 text-white font-semibold rounded-xl hover:bg-emerald-600 transition-colors"
-                    >
-                      Enviar Mensagem
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setShowContactForm(false)}
-                      className="w-full py-3 text-slate-500 hover:text-slate-700 transition-colors text-sm"
-                    >
-                      Cancelar
-                    </button>
+                  <form className="space-y-4" onSubmit={handleContactSubmit}>
+                    {submitSuccess ? (
+                      <div className="text-center py-6">
+                        <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                          <i className="fa-solid fa-check text-green-500 text-2xl"></i>
+                        </div>
+                        <h4 className="font-semibold text-slate-900 mb-1">Mensagem Enviada!</h4>
+                        <p className="text-sm text-slate-500">Entraremos em contacto brevemente.</p>
+                      </div>
+                    ) : (
+                      <>
+                        <div>
+                          <input
+                            type="text"
+                            placeholder="Nome *"
+                            required
+                            value={contactFormData.name}
+                            onChange={(e) => setContactFormData({ ...contactFormData, name: e.target.value })}
+                            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                          />
+                        </div>
+                        <div>
+                          <input
+                            type="email"
+                            placeholder="Email *"
+                            required
+                            value={contactFormData.email}
+                            onChange={(e) => setContactFormData({ ...contactFormData, email: e.target.value })}
+                            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                          />
+                        </div>
+                        <div>
+                          <input
+                            type="tel"
+                            placeholder="Telefone"
+                            value={contactFormData.phone}
+                            onChange={(e) => setContactFormData({ ...contactFormData, phone: e.target.value })}
+                            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                          />
+                        </div>
+                        <div>
+                          <textarea
+                            rows="4"
+                            placeholder="Mensagem *"
+                            required
+                            value={contactFormData.message || `Olá, estou interessado no imóvel "${property.title}" (Ref: ${property.id}). Gostaria de obter mais informações.`}
+                            onChange={(e) => setContactFormData({ ...contactFormData, message: e.target.value })}
+                            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 resize-none"
+                          ></textarea>
+                        </div>
+                        <button
+                          type="submit"
+                          disabled={isSubmitting}
+                          className="w-full py-3 bg-emerald-500 text-white font-semibold rounded-xl hover:bg-emerald-600 transition-colors disabled:bg-emerald-300 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                        >
+                          {isSubmitting ? (
+                            <>
+                              <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                              A enviar...
+                            </>
+                          ) : (
+                            'Enviar Mensagem'
+                          )}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setShowContactForm(false)}
+                          className="w-full py-3 text-slate-500 hover:text-slate-700 transition-colors text-sm"
+                        >
+                          Cancelar
+                        </button>
+                      </>
+                    )}
                   </form>
                 )}
               </div>

@@ -6,7 +6,7 @@ const Navbar = () => {
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isAdminMenuOpen, setIsAdminMenuOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const { user, userRole, logout, isAdmin, isConfigurator } = useAuth();
+  const { user, userRole, logout, isAdmin, isConfigurator, isSeller } = useAuth();
 
   // Close mobile menu on route change
   useEffect(() => {
@@ -77,14 +77,14 @@ const Navbar = () => {
               ))}
               
               {/* Admin Menu - Desktop */}
-              {isAdmin && (
+              {(isAdmin || isSeller) && (
                 <div className="relative">
                   <button
                     onClick={() => setIsAdminMenuOpen(!isAdminMenuOpen)}
                     className="flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-900 text-white hover:bg-slate-800 transition-colors"
                   >
                     <i className="fa-solid fa-shield-halved"></i>
-                    Admin
+                    {isAdmin ? 'Admin' : 'Painel'}
                     <i className={`fa-solid fa-chevron-down text-xs transition-transform duration-200 ${isAdminMenuOpen ? 'rotate-180' : ''}`}></i>
                   </button>
                   
@@ -105,19 +105,30 @@ const Navbar = () => {
                         </a>
                       )}
                       
+                      {isAdmin && (
+                        <a 
+                          href="#property-management" 
+                          className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors"
+                          onClick={() => setIsAdminMenuOpen(false)}
+                        >
+                          <i className="fa-solid fa-building text-emerald-500 w-5"></i>
+                          <span className="text-sm text-slate-700">Gerir Imóveis</span>
+                        </a>
+                      )}
+                      
                       <a 
-                        href="#property-management" 
+                        href="#messages" 
                         className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors"
                         onClick={() => setIsAdminMenuOpen(false)}
                       >
-                        <i className="fa-solid fa-building text-emerald-500 w-5"></i>
-                        <span className="text-sm text-slate-700">Gerir Imóveis</span>
+                        <i className="fa-solid fa-envelope text-emerald-500 w-5"></i>
+                        <span className="text-sm text-slate-700">Mensagens</span>
                       </a>
                       
                       <div className="px-4 py-2 mt-2 border-t border-gray-100">
                         <p className="text-xs text-slate-400">
                           <i className="fa-solid fa-crown text-yellow-500 mr-1"></i>
-                          {userRole === 'configurator' ? 'Configurador' : 'Administrador'}
+                          {userRole === 'configurator' ? 'Configurador' : userRole === 'admin' ? 'Administrador' : 'Vendedor'}
                         </p>
                       </div>
                     </div>
@@ -218,10 +229,10 @@ const Navbar = () => {
             </nav>
 
             {/* Admin Section - Mobile */}
-            {isAdmin && (
+            {(isAdmin || isSeller) && (
               <div className="mt-6 pt-6 border-t border-gray-100">
                 <p className="text-xs text-slate-400 uppercase tracking-wider font-semibold px-4 mb-3">
-                  Administração
+                  {isAdmin ? 'Administração' : 'Painel do Vendedor'}
                 </p>
                 <nav className="space-y-1">
                   {isConfigurator && (
@@ -236,15 +247,27 @@ const Navbar = () => {
                       Gerir Utilizadores
                     </a>
                   )}
+                  {isAdmin && (
+                    <a 
+                      href="#property-management" 
+                      onClick={closeMobileMenu}
+                      className="flex items-center gap-4 px-4 py-4 rounded-xl text-slate-700 hover:bg-amber-50 hover:text-amber-600 transition-all font-medium"
+                    >
+                      <div className="w-10 h-10 rounded-lg bg-amber-100 flex items-center justify-center">
+                        <i className="fa-solid fa-building-user text-amber-600"></i>
+                      </div>
+                      Gerir Imóveis
+                    </a>
+                  )}
                   <a 
-                    href="#property-management" 
+                    href="#messages" 
                     onClick={closeMobileMenu}
                     className="flex items-center gap-4 px-4 py-4 rounded-xl text-slate-700 hover:bg-amber-50 hover:text-amber-600 transition-all font-medium"
                   >
                     <div className="w-10 h-10 rounded-lg bg-amber-100 flex items-center justify-center">
-                      <i className="fa-solid fa-building-user text-amber-600"></i>
+                      <i className="fa-solid fa-envelope text-amber-600"></i>
                     </div>
-                    Gerir Imóveis
+                    Mensagens
                   </a>
                 </nav>
               </div>

@@ -114,7 +114,7 @@ export const AuthProvider = ({ children }) => {
     logout,
     isAdmin: userRole === 'admin' || userRole === 'configurator',
     isConfigurator: userRole === 'configurator',
-    isSeller: userRole === 'seller' || userRole === 'admin' || userRole === 'configurator',
+    isSeller: userRole === 'vendedor' || userRole === 'seller' || userRole === 'admin' || userRole === 'configurator',
     refreshUser: checkUser
   };
 

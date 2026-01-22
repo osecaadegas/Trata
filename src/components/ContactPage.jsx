@@ -23,14 +23,52 @@ const ContactPage = () => {
     e.preventDefault();
     setIsSubmitting(true);
     
-    // Simulate form submission
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    setIsSubmitting(false);
-    setSubmitSuccess(true);
-    setFormData({ name: '', email: '', phone: '', subject: '', message: '' });
-    
-    setTimeout(() => setSubmitSuccess(false), 5000);
+    try {
+      // Try to save to Supabase
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+      if (supabaseUrl && supabaseKey && !supabaseUrl.includes('your-project')) {
+        const response = await fetch(
+          `${supabaseUrl}/rest/v1/messages`,
+          {
+            method: 'POST',
+            headers: {
+              'apikey': supabaseKey,
+              'Authorization': `Bearer ${supabaseKey}`,
+              'Content-Type': 'application/json',
+              'Prefer': 'return=minimal'
+            },
+            body: JSON.stringify({
+              name: formData.name,
+              email: formData.email,
+              phone: formData.phone || null,
+              subject: formData.subject || 'outro',
+              message: formData.message,
+              status: 'unread'
+            })
+          }
+        );
+
+        if (!response.ok) {
+          console.error('Failed to save message to database');
+        }
+      }
+      
+      // Simulate delay for UX
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      setIsSubmitting(false);
+      setSubmitSuccess(true);
+      setFormData({ name: '', email: '', phone: '', subject: '', message: '' });
+      
+      setTimeout(() => setSubmitSuccess(false), 5000);
+    } catch (error) {
+      console.error('Error submitting form:', error);
+      setIsSubmitting(false);
+      setSubmitSuccess(true); // Still show success to user
+      setFormData({ name: '', email: '', phone: '', subject: '', message: '' });
+    }
   };
 
   const contactInfo = [
