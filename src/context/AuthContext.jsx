@@ -164,15 +164,30 @@ export const AuthProvider = ({ children }) => {
 
   const logout = async () => {
     try {
-      await supabase.auth.signOut();
+      // Clear local state first
       setUser(null);
       setUserRole('user');
       localStorage.removeItem('trata-user-role');
-      // Redirect to home page after logout
+      localStorage.removeItem('trata-auth');
+      
+      // Try to sign out from Supabase (don't wait if it fails)
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      if (supabaseUrl && !supabaseUrl.includes('your-project')) {
+        supabase.auth.signOut().catch(err => console.error('Supabase signOut error:', err));
+      }
+      
+      // Force redirect to home
       window.location.hash = '#home';
       window.location.reload();
     } catch (error) {
       console.error('Error during logout:', error);
+      // Force logout even on error
+      setUser(null);
+      setUserRole('user');
+      localStorage.removeItem('trata-user-role');
+      localStorage.removeItem('trata-auth');
+      window.location.hash = '#home';
+      window.location.reload();
     }
   };
 
