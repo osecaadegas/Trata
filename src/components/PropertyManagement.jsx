@@ -167,55 +167,26 @@ const PropertyManagement = () => {
     console.log('User confirmed delete');
 
     try {
-      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-      const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+      // Use Supabase client directly - it has the active session
+      console.log('Using Supabase client for delete...');
       
-      console.log('Supabase URL:', supabaseUrl);
-      console.log('Has anon key:', !!supabaseKey);
+      const { data, error } = await supabase
+        .from('properties')
+        .delete()
+        .eq('id', propertyId)
+        .select();
       
-      // Get token from localStorage
-      const projectId = supabaseUrl.split('//')[1].split('.')[0];
-      const storageKey = `sb-${projectId}-auth-token`;
-      console.log('Looking for token in localStorage:', storageKey);
+      console.log('Delete result - data:', data);
+      console.log('Delete result - error:', error);
       
-      const storedAuth = localStorage.getItem(storageKey);
-      console.log('Found stored auth:', !!storedAuth);
-      
-      let accessToken = supabaseKey;
-      if (storedAuth) {
-        try {
-          const parsed = JSON.parse(storedAuth);
-          console.log('Parsed auth object keys:', Object.keys(parsed));
-          accessToken = parsed?.access_token || supabaseKey;
-          console.log('Using access token:', accessToken ? 'YES (length: ' + accessToken.length + ')' : 'NO');
-        } catch (e) {
-          console.error('Failed to parse token:', e);
-        }
-      } else {
-        console.log('No stored auth found, using anon key');
+      if (error) {
+        throw new Error(error.message);
       }
       
-      const url = `${supabaseUrl}/rest/v1/properties?id=eq.${propertyId}`;
-      console.log('DELETE URL:', url);
-      
-      console.log('Sending DELETE request...');
-      const response = await fetch(url, {
-        method: 'DELETE',
-        headers: {
-          'apikey': supabaseKey,
-          'Authorization': `Bearer ${accessToken}`,
-          'Content-Type': 'application/json'
-        }
-      });
-
-      console.log('DELETE response status:', response.status);
-      console.log('DELETE response statusText:', response.statusText);
-      
-      const responseText = await response.text();
-      console.log('DELETE response body:', responseText);
-
-      if (!response.ok) {
-        throw new Error(responseText || `HTTP ${response.status}`);
+      // Check if any row was actually deleted
+      if (!data || data.length === 0) {
+        console.log('No rows deleted - checking RLS policies');
+        throw new Error('Não foi possível eliminar. Verifique se tem permissões.');
       }
       
       console.log('=== DELETE SUCCESS ===');
