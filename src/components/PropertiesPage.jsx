@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { supabase } from '../lib/supabase';
 
 const PropertiesPage = () => {
   const [properties, setProperties] = useState([]);
@@ -83,16 +82,23 @@ const PropertiesPage = () => {
       }
       
       try {
-        const { data, error } = await supabase
-          .from('properties')
-          .select('*')
-          .eq('status', 'available')
-          .order('featured', { ascending: false })
-          .order('created_at', { ascending: false });
+        // Use direct fetch like PropertyListings does
+        const response = await fetch(
+          `${supabaseUrl}/rest/v1/properties?status=eq.available&order=featured.desc,created_at.desc`,
+          {
+            headers: {
+              'apikey': supabaseKey,
+              'Authorization': `Bearer ${supabaseKey}`,
+              'Content-Type': 'application/json'
+            }
+          }
+        );
 
-        if (error) {
-          throw error;
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
         }
+
+        const data = await response.json();
 
         // If no data from DB, use fallback
         if (!data || data.length === 0) {
