@@ -41,35 +41,40 @@ const UserManagement = ({ onClose }) => {
       setLoading(true);
       setError(null);
       
-      console.log('Fetching users...');
+      console.log('Fetching users via REST API...');
       
-      // Add timeout to prevent infinite loading
-      const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Request timeout after 10s')), 10000)
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+      
+      const response = await fetch(
+        `${supabaseUrl}/rest/v1/users?select=*&order=created_at.desc`,
+        {
+          headers: {
+            'apikey': supabaseKey,
+            'Authorization': `Bearer ${supabaseKey}`,
+            'Content-Type': 'application/json'
+          }
+        }
       );
-      
-      const queryPromise = supabase
-        .from('users')
-        .select('*', { count: 'exact' })
-        .order('created_at', { ascending: false });
 
-      console.log('Query started...');
-      
-      const { data, error, count } = await Promise.race([queryPromise, timeoutPromise]);
+      console.log('Response status:', response.status);
 
-      console.log('Users query result:', { data, error, count });
-
-      if (error) {
-        throw error;
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Error response:', errorText);
+        throw new Error(`HTTP ${response.status}: ${errorText}`);
       }
+
+      const data = await response.json();
+      console.log('Users fetched:', data?.length || 0, 'users');
 
       setUsers(data || []);
       setFilteredUsers(data || []);
-      setTotalUsers(count || data?.length || 0);
-      setLoading(false);
+      setTotalUsers(data?.length || 0);
     } catch (err) {
       console.error('Error fetching users:', err);
       setError(err.message || 'Erro ao carregar utilizadores.');
+    } finally {
       setLoading(false);
     }
   };
