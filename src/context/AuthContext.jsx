@@ -161,10 +161,17 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = async () => {
-    await supabase.auth.signOut();
-    setUser(null);
-    setUserRole('user');
-    localStorage.removeItem('trata-user-role');
+    try {
+      await supabase.auth.signOut();
+      setUser(null);
+      setUserRole('user');
+      localStorage.removeItem('trata-user-role');
+      // Redirect to home page after logout
+      window.location.hash = '#home';
+      window.location.reload();
+    } catch (error) {
+      console.error('Error during logout:', error);
+    }
   };
 
   const value = {
