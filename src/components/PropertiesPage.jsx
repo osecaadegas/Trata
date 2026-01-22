@@ -240,21 +240,24 @@ const PropertiesPage = () => {
           alt={property.title}
           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
         />
-        {/* Condition Badge */}
-        <div className={`absolute top-4 left-4 px-3 py-1 rounded-full text-xs font-semibold ${
-          property.condition === 'Novo' ? 'bg-emerald-500 text-white' :
-          property.condition === 'Renovado' ? 'bg-blue-500 text-white' :
-          'bg-amber-500 text-white'
-        }`}>
-          {property.condition}
-        </div>
-        {/* Featured Badge */}
-        {property.featured && (
-          <div className="absolute top-4 left-20 px-3 py-1 rounded-full text-xs font-semibold bg-yellow-500 text-white">
-            <i className="fa-solid fa-star mr-1"></i>
-            Destaque
+        {/* Badges Container */}
+        <div className="absolute top-4 left-4 flex flex-wrap gap-2">
+          {/* Condition Badge */}
+          <div className={`px-3 py-1 rounded-full text-xs font-semibold ${
+            property.condition === 'Novo' ? 'bg-emerald-500 text-white' :
+            property.condition === 'Renovado' ? 'bg-blue-500 text-white' :
+            'bg-amber-500 text-white'
+          }`}>
+            {property.condition}
           </div>
-        )}
+          {/* Featured Badge */}
+          {property.featured && (
+            <div className="px-3 py-1 rounded-full text-xs font-semibold bg-yellow-500 text-white">
+              <i className="fa-solid fa-star mr-1"></i>
+              Destaque
+            </div>
+          )}
+        </div>
         {/* Favorite Button */}
         <button 
           onClick={(e) => {
@@ -310,10 +313,13 @@ const PropertiesPage = () => {
           )}
         </div>
         {/* Button */}
-        <button className="w-full py-3 bg-gray-100 text-slate-700 font-medium rounded-xl hover:bg-emerald-500 hover:text-white transition-all duration-300 flex items-center justify-center gap-2 group/btn">
+        <a 
+          href={`#imovel/${property.id}`}
+          className="w-full py-3 bg-gray-100 text-slate-700 font-medium rounded-xl hover:bg-emerald-500 hover:text-white transition-all duration-300 flex items-center justify-center gap-2 group/btn"
+        >
           Ver Detalhes
           <i className="fa-solid fa-arrow-right text-xs group-hover/btn:translate-x-1 transition-transform"></i>
-        </button>
+        </a>
       </div>
     </div>
   );

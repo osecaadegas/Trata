@@ -11,17 +11,28 @@ import PropertyManagement from './components/PropertyManagement';
 import ContactPage from './components/ContactPage';
 import ServicesPage from './components/ServicesPage';
 import PropertiesPage from './components/PropertiesPage';
+import PropertyDetailPage from './components/PropertyDetailPage';
 
 function App() {
   const [currentPage, setCurrentPage] = useState('home');
+  const [propertyId, setPropertyId] = useState(null);
 
   useEffect(() => {
     // Simple hash-based routing
     const handleHashChange = () => {
       const hash = window.location.hash.slice(1);
       if (hash) {
-        setCurrentPage(hash);
+        // Check if it's a property detail page (e.g., #imovel/123)
+        if (hash.startsWith('imovel/')) {
+          const id = hash.split('/')[1];
+          setPropertyId(id);
+          setCurrentPage('imovel-detail');
+        } else {
+          setPropertyId(null);
+          setCurrentPage(hash);
+        }
       } else {
+        setPropertyId(null);
         setCurrentPage('home');
       }
     };
@@ -56,6 +67,13 @@ function App() {
         return (
           <>
             <PropertiesPage />
+            <Footer />
+          </>
+        );
+      case 'imovel-detail':
+        return (
+          <>
+            <PropertyDetailPage propertyId={propertyId} />
             <Footer />
           </>
         );

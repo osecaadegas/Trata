@@ -57,6 +57,7 @@ const PropertyManagement = () => {
     price: '',
     price_type: 'sale',
     property_type: 'apartment',
+    condition: 'new',
     bedrooms: '',
     bathrooms: '',
     area_sqm: '',
@@ -211,6 +212,7 @@ const PropertyManagement = () => {
       price: property.price.toString(),
       price_type: property.price_type,
       property_type: property.property_type,
+      condition: property.condition || 'new',
       bedrooms: property.bedrooms?.toString() || '',
       bathrooms: property.bathrooms?.toString() || '',
       area_sqm: property.area_sqm?.toString() || '',
@@ -249,6 +251,7 @@ const PropertyManagement = () => {
       price: '',
       price_type: 'sale',
       property_type: 'apartment',
+      condition: 'new',
       bedrooms: '',
       bathrooms: '',
       area_sqm: '',
@@ -695,6 +698,23 @@ const PropertyManagement = () => {
                       <option value="house">Moradia</option>
                       <option value="land">Terreno</option>
                       <option value="commercial">Comercial</option>
+                      <option value="farm">Quinta</option>
+                    </select>
+                  </div>
+
+                  {/* Condition */}
+                  <div>
+                    <label className="block text-sm font-semibold text-slate-700 mb-2">
+                      Estado do Imóvel *
+                    </label>
+                    <select
+                      value={formData.condition}
+                      onChange={(e) => setFormData({ ...formData, condition: e.target.value })}
+                      className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    >
+                      <option value="new">Novo</option>
+                      <option value="renovated">Renovado</option>
+                      <option value="to_renovate">Para Renovar</option>
                     </select>
                   </div>
 
