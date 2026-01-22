@@ -236,7 +236,15 @@ const MessagesInbox = () => {
     }
 
     try {
-      await fetch(`${supabaseUrl}/rest/v1/chat_messages`, {
+      console.log('Sending message with data:', {
+        conversation_id: selectedConversation.id,
+        sender_id: user?.id,
+        sender_name: user?.name || 'TRATA',
+        sender_type: 'agent',
+        message: messageText
+      });
+      
+      const response = await fetch(`${supabaseUrl}/rest/v1/chat_messages`, {
         method: 'POST',
         headers: { ...getSupabaseHeaders(), 'Prefer': 'return=minimal' },
         body: JSON.stringify({
@@ -245,6 +253,14 @@ const MessagesInbox = () => {
           sender_avatar: user?.picture, sender_type: 'agent', message: messageText
         })
       });
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Failed to send message:', response.status, errorText);
+      } else {
+        console.log('Message sent successfully');
+      }
+      
       fetchConversations();
     } catch (error) {
       console.error('Error sending message:', error);

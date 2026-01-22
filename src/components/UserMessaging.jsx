@@ -351,10 +351,10 @@ const UserMessaging = ({ embedded = false }) => {
 
   return (
     <div className="bg-white rounded-2xl shadow-sm overflow-hidden border border-gray-200" style={{ height: 'calc(100vh - 280px)', minHeight: '550px' }}>
-      <div className="grid grid-cols-1 md:grid-cols-12 h-full">
+      <div className="grid grid-cols-1 md:grid-cols-12 h-full overflow-hidden">
         
         {/* Conversations Sidebar */}
-        <div className={`md:col-span-4 lg:col-span-3 border-r border-gray-200 flex flex-col bg-gray-50 ${selectedConversation ? 'hidden md:flex' : 'flex'}`}>
+        <div className={`md:col-span-4 lg:col-span-4 border-r border-gray-200 flex flex-col min-h-0 bg-gray-50 ${selectedConversation ? 'hidden md:flex' : 'flex'}`}>
           
           {/* Sidebar Header */}
           <div className="p-4 bg-white border-b border-gray-200">
@@ -391,7 +391,7 @@ const UserMessaging = ({ embedded = false }) => {
           </div>
 
           {/* Conversations List */}
-          <div className="flex-1 overflow-y-auto">
+          <div className="flex-1 min-h-0 overflow-y-auto">
             {loading ? (
               <div className="p-4 space-y-3">
                 {[...Array(4)].map((_, i) => (
@@ -465,7 +465,7 @@ const UserMessaging = ({ embedded = false }) => {
         </div>
 
         {/* Chat Area */}
-        <div className={`md:col-span-8 lg:col-span-9 flex flex-col bg-white ${selectedConversation ? 'flex' : 'hidden md:flex'}`}>
+        <div className={`md:col-span-8 lg:col-span-8 flex flex-col h-full overflow-hidden bg-white ${selectedConversation ? 'flex' : 'hidden md:flex'}`}>
           {selectedConversation ? (
             <>
               {/* Chat Header */}
@@ -529,45 +529,53 @@ const UserMessaging = ({ embedded = false }) => {
               )}
 
               {/* Messages */}
-              <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50/50">
-                {/* Date Separator */}
-                <div className="flex items-center gap-4 my-2">
-                  <div className="flex-1 h-px bg-gray-200"></div>
-                  <span className="text-xs text-slate-400 font-medium">Início da conversa</span>
-                  <div className="flex-1 h-px bg-gray-200"></div>
-                </div>
+              <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-4 bg-gray-50">
+                {messages.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center h-full text-slate-400">
+                    <i className="fa-regular fa-comments text-5xl mb-4"></i>
+                    <p className="text-sm font-medium">Nenhuma mensagem ainda</p>
+                    <p className="text-xs mt-1">Escreva uma mensagem para começar a conversa</p>
+                  </div>
+                ) : (
+                  <>
+                    {/* Date Separator */}
+                    <div className="flex items-center gap-4 my-2">
+                      <div className="flex-1 h-px bg-gray-200"></div>
+                      <span className="text-xs text-slate-400 font-medium">Início da conversa</span>
+                      <div className="flex-1 h-px bg-gray-200"></div>
+                    </div>
 
-                {messages.map((msg, index) => {
-                  const isUser = msg.sender_type === 'user';
-                  const showAvatar = index === 0 || messages[index - 1]?.sender_type !== msg.sender_type;
-                  
-                  return (
-                    <div
-                      key={msg.id}
-                      className={`flex gap-3 ${isUser ? 'flex-row-reverse' : ''}`}
-                    >
-                      {/* Avatar */}
-                      <div className={`w-8 h-8 flex-shrink-0 ${showAvatar ? 'visible' : 'invisible'}`}>
-                        {isUser ? (
-                          <img 
-                            src={user?.picture || `https://ui-avatars.com/api/?name=${user?.name}`}
-                            alt=""
-                            className="w-8 h-8 rounded-full object-cover"
-                          />
-                        ) : (
-                          <div className="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center">
-                            <span className="text-white text-xs font-bold">T</span>
-                          </div>
-                        )}
-                      </div>
+                    {messages.map((msg, index) => {
+                      const isUser = msg.sender_type === 'user';
+                      const showAvatar = index === 0 || messages[index - 1]?.sender_type !== msg.sender_type;
                       
-                      {/* Message Bubble */}
-                      <div className={`max-w-[75%] ${isUser ? 'items-end' : 'items-start'}`}>
-                        <div className={`px-4 py-3 rounded-2xl ${
-                          isUser
-                            ? 'bg-emerald-500 text-white rounded-br-md'
-                            : 'bg-white text-slate-800 rounded-bl-md shadow-sm border border-gray-100'
-                        }`}>
+                      return (
+                        <div
+                          key={msg.id}
+                          className={`flex gap-3 ${isUser ? 'flex-row-reverse' : ''}`}
+                        >
+                          {/* Avatar */}
+                          <div className={`w-8 h-8 flex-shrink-0 ${showAvatar ? 'visible' : 'invisible'}`}>
+                            {isUser ? (
+                              <img 
+                                src={user?.picture || `https://ui-avatars.com/api/?name=${user?.name}`}
+                                alt=""
+                                className="w-8 h-8 rounded-full object-cover"
+                              />
+                            ) : (
+                              <div className="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center">
+                                <span className="text-white text-xs font-bold">T</span>
+                              </div>
+                            )}
+                          </div>
+                          
+                          {/* Message Bubble */}
+                          <div className={`max-w-[75%] ${isUser ? 'items-end' : 'items-start'}`}>
+                            <div className={`px-4 py-3 rounded-2xl ${
+                              isUser
+                                ? 'bg-emerald-500 text-white rounded-br-md'
+                                : 'bg-white text-slate-800 rounded-bl-md shadow-sm border border-gray-100'
+                            }`}>
                           <p className="text-sm whitespace-pre-wrap leading-relaxed">{msg.message}</p>
                         </div>
                         
@@ -584,6 +592,8 @@ const UserMessaging = ({ embedded = false }) => {
                     </div>
                   );
                 })}
+                  </>
+                )}
                 <div ref={messagesEndRef} />
               </div>
 
