@@ -117,3 +117,14 @@ git checkout -b new-feature v1.0.0-stable
 - Authentication required for admin operations
 - Session timeout protection implemented
 - REST API approach used for reliability
+git checkout v1.0.0-stable
+
+git checkout v1.0.0-stable
+
+git checkout v1.0.0-stable
+
+git checkout v1.0.0-stable
+
+git checkout v1.0.0-stable
+
+git checkout v1.0.0-stable

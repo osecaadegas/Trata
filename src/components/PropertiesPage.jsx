@@ -3,6 +3,31 @@ import { useAuth } from '../context/AuthContext';
 
 const PropertiesPage = () => {
   const { user } = useAuth();
+
+  const getSupabaseHeaders = () => {
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+    const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+    
+    let accessToken = supabaseKey;
+    const projectId = supabaseUrl?.split('//')[1]?.split('.')[0];
+    const storageKey = `sb-${projectId}-auth-token`;
+    const stored = localStorage.getItem(storageKey);
+    
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored);
+        if (parsed?.access_token) {
+          accessToken = parsed.access_token;
+        }
+      } catch (e) {}
+    }
+    
+    return {
+      'apikey': supabaseKey,
+      'Authorization': `Bearer ${accessToken}`,
+      'Content-Type': 'application/json'
+    };
+  };
   const [properties, setProperties] = useState([]);
   const [filteredProperties, setFilteredProperties] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -130,18 +155,11 @@ const PropertiesPage = () => {
       try {
         const response = await fetch(
           `${supabaseUrl}/rest/v1/user_favorites?select=property_id&user_id=eq.${user.id}`,
-          {
-            headers: {
-              'apikey': supabaseKey,
-              'Authorization': `Bearer ${supabaseKey}`,
-              'Content-Type': 'application/json'
-            }
-          }
+          { headers: getSupabaseHeaders() }
         );
 
         if (response.ok) {
           const data = await response.json();
-          // Extract just the property IDs
           setFavorites(data.map(f => f.property_id));
         }
       } catch (error) {
@@ -217,11 +235,7 @@ const PropertiesPage = () => {
           `${supabaseUrl}/rest/v1/user_favorites?user_id=eq.${user.id}&property_id=eq.${propertyId}`,
           {
             method: 'DELETE',
-            headers: {
-              'apikey': supabaseKey,
-              'Authorization': `Bearer ${supabaseKey}`,
-              'Content-Type': 'application/json'
-            }
+            headers: getSupabaseHeaders()
           }
         );
       } else {
@@ -230,12 +244,7 @@ const PropertiesPage = () => {
           `${supabaseUrl}/rest/v1/user_favorites`,
           {
             method: 'POST',
-            headers: {
-              'apikey': supabaseKey,
-              'Authorization': `Bearer ${supabaseKey}`,
-              'Content-Type': 'application/json',
-              'Prefer': 'return=minimal'
-            },
+            headers: { ...getSupabaseHeaders(), 'Prefer': 'return=minimal' },
             body: JSON.stringify({
               user_id: user.id,
               property_id: propertyId

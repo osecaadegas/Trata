@@ -131,7 +131,16 @@ const UserMessaging = ({ embedded = false }) => {
 
       if (response.ok) {
         const data = await response.json();
-        setConversations(data);
+        // Preserve unread_count=0 for currently selected conversation
+        setConversations(prev => {
+          return data.map(conv => {
+            // If this is the selected conversation, keep unread as 0
+            if (selectedConversation && conv.id === selectedConversation.id) {
+              return { ...conv, user_unread_count: 0 };
+            }
+            return conv;
+          });
+        });
       }
     } catch (error) {
       console.error('Error fetching conversations:', error);
@@ -199,7 +208,11 @@ const UserMessaging = ({ embedded = false }) => {
   };
 
   const selectConversation = (conversation) => {
-    setSelectedConversation(conversation);
+    // Immediately update local state to remove unread badge
+    setConversations(prev => prev.map(c => 
+      c.id === conversation.id ? { ...c, user_unread_count: 0 } : c
+    ));
+    setSelectedConversation({ ...conversation, user_unread_count: 0 });
     fetchMessages(conversation.id);
   };
 
