@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import { supabase } from '../lib/supabase';
 
 const PropertiesPage = () => {
   const [properties, setProperties] = useState([]);
   const [filteredProperties, setFilteredProperties] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [favorites, setFavorites] = useState([]);
   const [filtersOpen, setFiltersOpen] = useState(false);
@@ -12,248 +14,86 @@ const PropertiesPage = () => {
     type: '',
     location: '',
     bedrooms: '',
-    status: '',
+    condition: '',
     priceMin: 0,
     priceMax: 1000000
   });
 
   const propertiesPerPage = 12;
 
-  // Mock property data
-  const mockProperties = [
-    {
-      id: 1,
-      title: 'Apartamento T3 com Vista Mar',
-      type: 'Apartamento',
-      location: 'Braga, Centro',
-      price: 285000,
-      area: 120,
-      bedrooms: 3,
-      bathrooms: 2,
-      status: 'Novo',
-      image: 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=800&h=600&fit=crop'
-    },
-    {
-      id: 2,
-      title: 'Moradia T4 com Jardim',
-      type: 'Moradia',
-      location: 'Braga, Gualtar',
-      price: 425000,
-      area: 200,
-      bedrooms: 4,
-      bathrooms: 3,
-      status: 'Renovado',
-      image: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800&h=600&fit=crop'
-    },
-    {
-      id: 3,
-      title: 'Apartamento T2 Renovado',
-      type: 'Apartamento',
-      location: 'Braga, São Vicente',
-      price: 175000,
-      area: 85,
-      bedrooms: 2,
-      bathrooms: 1,
-      status: 'Renovado',
-      image: 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800&h=600&fit=crop'
-    },
-    {
-      id: 4,
-      title: 'Terreno Urbanizável',
-      type: 'Terreno',
-      location: 'Braga, Palmeira',
-      price: 95000,
-      area: 500,
-      bedrooms: 0,
-      bathrooms: 0,
-      status: 'Novo',
-      image: 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=800&h=600&fit=crop'
-    },
-    {
-      id: 5,
-      title: 'Moradia T5 de Luxo',
-      type: 'Moradia',
-      location: 'Braga, Bom Jesus',
-      price: 750000,
-      area: 350,
-      bedrooms: 5,
-      bathrooms: 4,
-      status: 'Novo',
-      image: 'https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=800&h=600&fit=crop'
-    },
-    {
-      id: 6,
-      title: 'Apartamento T1 para Investimento',
-      type: 'Apartamento',
-      location: 'Braga, Universidade',
-      price: 125000,
-      area: 45,
-      bedrooms: 1,
-      bathrooms: 1,
-      status: 'Para Renovar',
-      image: 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&h=600&fit=crop'
-    },
-    {
-      id: 7,
-      title: 'Moradia T3 com Piscina',
-      type: 'Moradia',
-      location: 'Braga, Fraião',
-      price: 385000,
-      area: 180,
-      bedrooms: 3,
-      bathrooms: 2,
-      status: 'Renovado',
-      image: 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800&h=600&fit=crop'
-    },
-    {
-      id: 8,
-      title: 'Apartamento T4 Duplex',
-      type: 'Apartamento',
-      location: 'Braga, Maximinos',
-      price: 320000,
-      area: 150,
-      bedrooms: 4,
-      bathrooms: 2,
-      status: 'Novo',
-      image: 'https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?w=800&h=600&fit=crop'
-    },
-    {
-      id: 9,
-      title: 'Quinta com 2 Hectares',
-      type: 'Quinta',
-      location: 'Braga, Priscos',
-      price: 550000,
-      area: 20000,
-      bedrooms: 6,
-      bathrooms: 3,
-      status: 'Para Renovar',
-      image: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800&h=600&fit=crop'
-    },
-    {
-      id: 10,
-      title: 'Apartamento T2 com Varanda',
-      type: 'Apartamento',
-      location: 'Braga, Real',
-      price: 195000,
-      area: 90,
-      bedrooms: 2,
-      bathrooms: 1,
-      status: 'Novo',
-      image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&h=600&fit=crop'
-    },
-    {
-      id: 11,
-      title: 'Moradia Geminada T3',
-      type: 'Moradia',
-      location: 'Braga, Nogueira',
-      price: 295000,
-      area: 140,
-      bedrooms: 3,
-      bathrooms: 2,
-      status: 'Renovado',
-      image: 'https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?w=800&h=600&fit=crop'
-    },
-    {
-      id: 12,
-      title: 'Loja Comercial',
-      type: 'Comercial',
-      location: 'Braga, Centro',
-      price: 180000,
-      area: 75,
-      bedrooms: 0,
-      bathrooms: 1,
-      status: 'Novo',
-      image: 'https://images.unsplash.com/photo-1582037928769-181f2644ecb7?w=800&h=600&fit=crop'
-    },
-    {
-      id: 13,
-      title: 'Apartamento T3 com Terraço',
-      type: 'Apartamento',
-      location: 'Braga, São José',
-      price: 265000,
-      area: 110,
-      bedrooms: 3,
-      bathrooms: 2,
-      status: 'Novo',
-      image: 'https://images.unsplash.com/photo-1600573472550-8090b5e0745e?w=800&h=600&fit=crop'
-    },
-    {
-      id: 14,
-      title: 'Moradia T4 Moderna',
-      type: 'Moradia',
-      location: 'Braga, Lamaçães',
-      price: 480000,
-      area: 220,
-      bedrooms: 4,
-      bathrooms: 3,
-      status: 'Novo',
-      image: 'https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?w=800&h=600&fit=crop'
-    },
-    {
-      id: 15,
-      title: 'Apartamento T1 Centro Histórico',
-      type: 'Apartamento',
-      location: 'Braga, Sé',
-      price: 145000,
-      area: 55,
-      bedrooms: 1,
-      bathrooms: 1,
-      status: 'Renovado',
-      image: 'https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?w=800&h=600&fit=crop'
-    },
-    {
-      id: 16,
-      title: 'Terreno Industrial',
-      type: 'Terreno',
-      location: 'Braga, Celeirós',
-      price: 250000,
-      area: 2000,
-      bedrooms: 0,
-      bathrooms: 0,
-      status: 'Novo',
-      image: 'https://images.unsplash.com/photo-1628744448840-55bdb2497bd4?w=800&h=600&fit=crop'
-    },
-    {
-      id: 17,
-      title: 'Moradia T3 para Renovar',
-      type: 'Moradia',
-      location: 'Braga, Ferreiros',
-      price: 165000,
-      area: 130,
-      bedrooms: 3,
-      bathrooms: 1,
-      status: 'Para Renovar',
-      image: 'https://images.unsplash.com/photo-1605276374104-dee2a0ed3cd6?w=800&h=600&fit=crop'
-    },
-    {
-      id: 18,
-      title: 'Apartamento T2 com Garagem',
-      type: 'Apartamento',
-      location: 'Braga, Carandá',
-      price: 210000,
-      area: 95,
-      bedrooms: 2,
-      bathrooms: 1,
-      status: 'Novo',
-      image: 'https://images.unsplash.com/photo-1600607687644-c7171b42498f?w=800&h=600&fit=crop'
-    }
-  ];
+  // Mapping from DB values to display values (Portuguese)
+  const propertyTypeMap = {
+    'apartment': 'Apartamento',
+    'house': 'Moradia',
+    'land': 'Terreno',
+    'farm': 'Quinta',
+    'commercial': 'Comercial'
+  };
+
+  const conditionMap = {
+    'new': 'Novo',
+    'renovated': 'Renovado',
+    'to_renovate': 'Para Renovar'
+  };
 
   const propertyTypes = ['Apartamento', 'Moradia', 'Terreno', 'Quinta', 'Comercial'];
   const locations = ['Braga, Centro', 'Braga, Gualtar', 'Braga, São Vicente', 'Braga, Bom Jesus', 'Braga, Fraião', 'Braga, Maximinos', 'Braga, Real', 'Braga, Nogueira'];
   const bedroomOptions = ['1', '2', '3', '4', '5+'];
-  const statusOptions = ['Novo', 'Renovado', 'Para Renovar'];
+  const conditionOptions = ['Novo', 'Renovado', 'Para Renovar'];
 
+  // Fetch properties from Supabase
   useEffect(() => {
-    // Simulate loading
-    setIsLoading(true);
-    setTimeout(() => {
-      setProperties(mockProperties);
-      setFilteredProperties(mockProperties);
-      setIsLoading(false);
-    }, 1000);
+    const fetchProperties = async () => {
+      setIsLoading(true);
+      setError(null);
+      
+      try {
+        const { data, error } = await supabase
+          .from('properties')
+          .select('*')
+          .eq('status', 'available')
+          .order('featured', { ascending: false })
+          .order('created_at', { ascending: false });
+
+        if (error) {
+          throw error;
+        }
+
+        // Transform data to match component expectations
+        const transformedData = data.map(property => ({
+          id: property.id,
+          title: property.title,
+          description: property.description,
+          type: propertyTypeMap[property.property_type] || property.property_type,
+          location: property.location,
+          neighborhood: property.neighborhood,
+          price: parseFloat(property.price),
+          area: property.area_sqm,
+          bedrooms: property.bedrooms,
+          bathrooms: property.bathrooms,
+          condition: conditionMap[property.condition] || property.condition,
+          features: property.features || [],
+          image: property.images && property.images.length > 0 
+            ? property.images[0] 
+            : 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&h=600&fit=crop',
+          images: property.images || [],
+          featured: property.featured
+        }));
+
+        setProperties(transformedData);
+        setFilteredProperties(transformedData);
+      } catch (err) {
+        console.error('Error fetching properties:', err);
+        setError('Erro ao carregar imóveis. Por favor, tente novamente.');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchProperties();
   }, []);
 
+  // Apply filters
   useEffect(() => {
     let result = [...properties];
 
@@ -270,8 +110,8 @@ const PropertiesPage = () => {
         result = result.filter(p => p.bedrooms === parseInt(filters.bedrooms));
       }
     }
-    if (filters.status) {
-      result = result.filter(p => p.status === filters.status);
+    if (filters.condition) {
+      result = result.filter(p => p.condition === filters.condition);
     }
     if (filters.priceMin > 0) {
       result = result.filter(p => p.price >= filters.priceMin);
@@ -299,7 +139,7 @@ const PropertiesPage = () => {
       type: '',
       location: '',
       bedrooms: '',
-      status: '',
+      condition: '',
       priceMin: 0,
       priceMax: 1000000
     });
@@ -347,14 +187,21 @@ const PropertiesPage = () => {
           alt={property.title}
           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
         />
-        {/* Status Badge */}
+        {/* Condition Badge */}
         <div className={`absolute top-4 left-4 px-3 py-1 rounded-full text-xs font-semibold ${
-          property.status === 'Novo' ? 'bg-emerald-500 text-white' :
-          property.status === 'Renovado' ? 'bg-blue-500 text-white' :
+          property.condition === 'Novo' ? 'bg-emerald-500 text-white' :
+          property.condition === 'Renovado' ? 'bg-blue-500 text-white' :
           'bg-amber-500 text-white'
         }`}>
-          {property.status}
+          {property.condition}
         </div>
+        {/* Featured Badge */}
+        {property.featured && (
+          <div className="absolute top-4 left-20 px-3 py-1 rounded-full text-xs font-semibold bg-yellow-500 text-white">
+            <i className="fa-solid fa-star mr-1"></i>
+            Destaque
+          </div>
+        )}
         {/* Favorite Button */}
         <button 
           onClick={(e) => {
@@ -417,6 +264,27 @@ const PropertiesPage = () => {
       </div>
     </div>
   );
+
+  // Error State
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white flex items-center justify-center">
+        <div className="text-center px-4">
+          <div className="w-24 h-24 mx-auto mb-6 bg-red-100 rounded-full flex items-center justify-center">
+            <i className="fa-solid fa-exclamation-circle text-4xl text-red-500"></i>
+          </div>
+          <h2 className="text-2xl font-bold text-slate-900 mb-2">Erro ao Carregar</h2>
+          <p className="text-slate-600 mb-6 max-w-md mx-auto">{error}</p>
+          <button 
+            onClick={() => window.location.reload()}
+            className="px-6 py-3 bg-emerald-500 text-white rounded-xl font-medium hover:bg-emerald-600 transition-colors"
+          >
+            Tentar Novamente
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
@@ -508,15 +376,15 @@ const PropertiesPage = () => {
                 <i className="fa-solid fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none"></i>
               </div>
 
-              {/* Status */}
+              {/* Estado/Condition */}
               <div className="relative">
                 <select
-                  value={filters.status}
-                  onChange={(e) => setFilters({...filters, status: e.target.value})}
+                  value={filters.condition}
+                  onChange={(e) => setFilters({...filters, condition: e.target.value})}
                   className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-slate-700 appearance-none cursor-pointer focus:outline-none focus:border-emerald-500 focus:bg-white transition-all"
                 >
                   <option value="">Estado</option>
-                  {statusOptions.map(opt => (
+                  {conditionOptions.map(opt => (
                     <option key={opt} value={opt}>{opt}</option>
                   ))}
                 </select>
