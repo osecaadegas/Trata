@@ -229,7 +229,7 @@ const UserMessaging = ({ embedded = false }) => {
     }
 
     try {
-      await fetch(`${supabaseUrl}/rest/v1/chat_messages`, {
+      const response = await fetch(`${supabaseUrl}/rest/v1/chat_messages`, {
         method: 'POST',
         headers: { ...getSupabaseHeaders(), 'Prefer': 'return=minimal' },
         body: JSON.stringify({
@@ -241,6 +241,11 @@ const UserMessaging = ({ embedded = false }) => {
           message: messageText
         })
       });
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Failed to send message:', response.status, errorText);
+      }
       
       // Refresh conversations to update last_message
       fetchConversations();
