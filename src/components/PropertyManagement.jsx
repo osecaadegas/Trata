@@ -156,37 +156,49 @@ const PropertyManagement = () => {
   };
 
   const handleDelete = async (propertyId) => {
-    console.log('Delete button clicked for property:', propertyId);
+    console.log('=== DELETE OPERATION START ===');
+    console.log('Property ID:', propertyId);
     
     if (!confirm('Tem certeza que deseja eliminar este imóvel? Esta ação não pode ser desfeita.')) {
       console.log('Delete cancelled by user');
       return;
     }
     
-    console.log('User confirmed delete, proceeding...');
+    console.log('User confirmed delete');
 
     try {
       const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
       const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
       
-      // Get token from localStorage (avoid blocking getSession call)
+      console.log('Supabase URL:', supabaseUrl);
+      console.log('Has anon key:', !!supabaseKey);
+      
+      // Get token from localStorage
+      const projectId = supabaseUrl.split('//')[1].split('.')[0];
+      const storageKey = `sb-${projectId}-auth-token`;
+      console.log('Looking for token in localStorage:', storageKey);
+      
+      const storedAuth = localStorage.getItem(storageKey);
+      console.log('Found stored auth:', !!storedAuth);
+      
       let accessToken = supabaseKey;
-      const storedAuth = localStorage.getItem('sb-' + supabaseUrl.split('//')[1].split('.')[0] + '-auth-token');
       if (storedAuth) {
         try {
           const parsed = JSON.parse(storedAuth);
+          console.log('Parsed auth object keys:', Object.keys(parsed));
           accessToken = parsed?.access_token || supabaseKey;
-          console.log('Using stored access token');
+          console.log('Using access token:', accessToken ? 'YES (length: ' + accessToken.length + ')' : 'NO');
         } catch (e) {
-          console.log('Could not parse stored token, using anon key');
+          console.error('Failed to parse token:', e);
         }
+      } else {
+        console.log('No stored auth found, using anon key');
       }
-      
-      console.log('Delete request for:', propertyId);
       
       const url = `${supabaseUrl}/rest/v1/properties?id=eq.${propertyId}`;
       console.log('DELETE URL:', url);
       
+      console.log('Sending DELETE request...');
       const response = await fetch(url, {
         method: 'DELETE',
         headers: {
@@ -196,19 +208,22 @@ const PropertyManagement = () => {
         }
       });
 
-      console.log('DELETE response:', response.status, response.statusText);
+      console.log('DELETE response status:', response.status);
+      console.log('DELETE response statusText:', response.statusText);
+      
+      const responseText = await response.text();
+      console.log('DELETE response body:', responseText);
 
       if (!response.ok) {
-        const errorText = await response.text();
-        console.error('DELETE error:', errorText);
-        throw new Error(errorText || `HTTP ${response.status}`);
+        throw new Error(responseText || `HTTP ${response.status}`);
       }
       
-      console.log('Delete successful, refreshing list...');
+      console.log('=== DELETE SUCCESS ===');
       alert('Imóvel eliminado com sucesso!');
       fetchProperties();
     } catch (error) {
-      console.error('Error deleting property:', error);
+      console.error('=== DELETE FAILED ===');
+      console.error('Error:', error);
       alert('Erro ao eliminar imóvel: ' + error.message);
     }
   };
