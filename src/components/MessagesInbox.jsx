@@ -3,7 +3,14 @@ import { useAuth } from '../context/AuthContext';
 
 const MessagesInbox = () => {
   const { user, userRole, isAdmin, isSeller } = useAuth();
-  const [activeView, setActiveView] = useState('contacts'); // 'contacts' or 'conversations'
+  const [activeView, setActiveView] = useState('inquiries'); // 'inquiries', 'contacts' or 'conversations'
+  
+  // Property inquiries state (from "Pedir mais informações" button)
+  const [inquiries, setInquiries] = useState([]);
+  const [inquiriesLoading, setInquiriesLoading] = useState(true);
+  const [selectedInquiry, setSelectedInquiry] = useState(null);
+  const [inquiryFilter, setInquiryFilter] = useState('all');
+  const [inquirySearch, setInquirySearch] = useState('');
   
   // Contact form messages state
   const [messages, setMessages] = useState([]);
@@ -30,13 +37,16 @@ const MessagesInbox = () => {
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
+    fetchInquiries();
     fetchMessages();
     fetchConversations();
     fetchOnlineUsers();
     
-    // Poll for conversation updates
+    // Poll for updates
     const interval = setInterval(() => {
-      if (activeView === 'conversations') {
+      if (activeView === 'inquiries') {
+        fetchInquiries();
+      } else if (activeView === 'conversations') {
         fetchConversations();
         fetchOnlineUsers();
         if (selectedConversation) {
@@ -80,6 +90,86 @@ const MessagesInbox = () => {
       'Authorization': `Bearer ${accessToken}`,
       'Content-Type': 'application/json'
     };
+  };
+
+  // ========== PROPERTY INQUIRIES (from "Pedir mais informações") ==========
+  const fetchInquiries = async () => {
+    setInquiriesLoading(true);
+    try {
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+      if (supabaseUrl && supabaseKey && !supabaseUrl.includes('your-project')) {
+        const response = await fetch(
+          `${supabaseUrl}/rest/v1/inquiries?select=*&order=created_at.desc`,
+          { headers: getSupabaseHeaders() }
+        );
+
+        if (response.ok) {
+          const data = await response.json();
+          setInquiries(data);
+        } else {
+          setInquiries([]);
+        }
+      } else {
+        setInquiries([]);
+      }
+    } catch (error) {
+      console.error('Error fetching inquiries:', error);
+      setInquiries([]);
+    }
+    setInquiriesLoading(false);
+  };
+
+  const updateInquiryStatus = async (inquiryId, newStatus) => {
+    try {
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      
+      const response = await fetch(
+        `${supabaseUrl}/rest/v1/inquiries?id=eq.${inquiryId}`,
+        {
+          method: 'PATCH',
+          headers: getSupabaseHeaders(),
+          body: JSON.stringify({ 
+            status: newStatus, 
+            updated_at: new Date().toISOString(),
+            first_response_at: newStatus === 'contacted' ? new Date().toISOString() : undefined
+          })
+        }
+      );
+
+      if (response.ok) {
+        fetchInquiries();
+        if (selectedInquiry?.id === inquiryId) {
+          setSelectedInquiry(prev => ({ ...prev, status: newStatus }));
+        }
+      }
+    } catch (error) {
+      console.error('Error updating inquiry:', error);
+    }
+  };
+
+  const deleteInquiry = async (inquiryId) => {
+    try {
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      
+      const response = await fetch(
+        `${supabaseUrl}/rest/v1/inquiries?id=eq.${inquiryId}`,
+        {
+          method: 'DELETE',
+          headers: getSupabaseHeaders()
+        }
+      );
+
+      if (response.ok) {
+        fetchInquiries();
+        if (selectedInquiry?.id === inquiryId) {
+          setSelectedInquiry(null);
+        }
+      }
+    } catch (error) {
+      console.error('Error deleting inquiry:', error);
+    }
   };
 
   // ========== CONTACT FORM MESSAGES ==========
@@ -547,7 +637,23 @@ const MessagesInbox = () => {
           {/* View Tabs */}
           <div className="flex gap-2 mt-6 bg-gray-100 p-1.5 rounded-xl w-fit">
             <button
-              onClick={() => { setActiveView('contacts'); setSelectedConversation(null); }}
+              onClick={() => { setActiveView('inquiries'); setSelectedConversation(null); setSelectedMessage(null); }}
+              className={`flex items-center gap-2 px-5 py-2.5 rounded-lg font-medium transition-all ${
+                activeView === 'inquiries'
+                  ? 'bg-white text-emerald-600 shadow-sm'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <i className="fa-solid fa-house-user"></i>
+              <span>Pedidos Imóveis</span>
+              {inquiries.filter(i => i.status === 'new').length > 0 && (
+                <span className="px-2 py-0.5 bg-red-500 text-white text-xs font-bold rounded-full">
+                  {inquiries.filter(i => i.status === 'new').length}
+                </span>
+              )}
+            </button>
+            <button
+              onClick={() => { setActiveView('contacts'); setSelectedConversation(null); setSelectedInquiry(null); }}
               className={`flex items-center gap-2 px-5 py-2.5 rounded-lg font-medium transition-all ${
                 activeView === 'contacts'
                   ? 'bg-white text-emerald-600 shadow-sm'
@@ -563,7 +669,7 @@ const MessagesInbox = () => {
               )}
             </button>
             <button
-              onClick={() => { setActiveView('conversations'); setSelectedMessage(null); }}
+              onClick={() => { setActiveView('conversations'); setSelectedMessage(null); setSelectedInquiry(null); }}
               className={`flex items-center gap-2 px-5 py-2.5 rounded-lg font-medium transition-all ${
                 activeView === 'conversations'
                   ? 'bg-white text-emerald-600 shadow-sm'
@@ -582,7 +688,28 @@ const MessagesInbox = () => {
 
           {/* Stats Cards */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
-            {activeView === 'contacts' ? (
+            {activeView === 'inquiries' ? (
+              <>
+                {[
+                  { label: 'Total', value: inquiries.length, icon: 'fa-house-user', color: 'bg-slate-500' },
+                  { label: 'Novos', value: inquiries.filter(i => i.status === 'new').length, icon: 'fa-bell', color: 'bg-red-500' },
+                  { label: 'Contactados', value: inquiries.filter(i => i.status === 'contacted').length, icon: 'fa-phone', color: 'bg-blue-500' },
+                  { label: 'Concluídos', value: inquiries.filter(i => i.status === 'completed').length, icon: 'fa-check', color: 'bg-green-500' }
+                ].map((stat, index) => (
+                  <div key={index} className="bg-white rounded-xl p-4 shadow-sm border border-gray-200">
+                    <div className="flex items-center gap-3">
+                      <div className={`w-10 h-10 ${stat.color} rounded-lg flex items-center justify-center`}>
+                        <i className={`fa-solid ${stat.icon} text-white`}></i>
+                      </div>
+                      <div>
+                        <p className="text-2xl font-bold text-slate-900">{stat.value}</p>
+                        <p className="text-sm text-gray-500">{stat.label}</p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </>
+            ) : activeView === 'contacts' ? (
               <>
                 {[
                   { label: 'Total', value: messages.length, icon: 'fa-inbox', color: 'bg-slate-500' },
@@ -635,6 +762,308 @@ const MessagesInbox = () => {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        {/* ========== INQUIRIES VIEW (Pedidos de Imóveis) ========== */}
+        {activeView === 'inquiries' && (
+          <div className="grid lg:grid-cols-3 gap-6">
+            {/* Inquiries List */}
+            <div className="lg:col-span-1 bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+              {/* Search and Filters */}
+              <div className="p-4 border-b border-gray-200">
+                <div className="relative mb-3">
+                  <i className="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                  <input
+                    type="text"
+                    placeholder="Pesquisar pedidos..."
+                    value={inquirySearch}
+                    onChange={(e) => setInquirySearch(e.target.value)}
+                    className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                  />
+                </div>
+                <div className="flex gap-2 overflow-x-auto pb-1">
+                  {[
+                    { value: 'all', label: 'Todos', icon: 'fa-inbox' },
+                    { value: 'new', label: 'Novos', icon: 'fa-bell' },
+                    { value: 'contacted', label: 'Contactados', icon: 'fa-phone' },
+                    { value: 'scheduled', label: 'Agendados', icon: 'fa-calendar' },
+                    { value: 'completed', label: 'Concluídos', icon: 'fa-check' }
+                  ].map(f => (
+                    <button
+                      key={f.value}
+                      onClick={() => setInquiryFilter(f.value)}
+                      className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm whitespace-nowrap transition-colors ${
+                        inquiryFilter === f.value
+                          ? 'bg-emerald-500 text-white'
+                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                      }`}
+                    >
+                      <i className={`fa-solid ${f.icon} text-xs`}></i>
+                      {f.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Inquiries List */}
+              <div className="overflow-y-auto max-h-[calc(100vh-380px)]">
+                {inquiriesLoading ? (
+                  <div className="p-8 text-center text-gray-500">
+                    <i className="fa-solid fa-spinner fa-spin text-2xl mb-2"></i>
+                    <p>A carregar pedidos...</p>
+                  </div>
+                ) : inquiries.filter(inq => {
+                  const matchesFilter = inquiryFilter === 'all' || inq.status === inquiryFilter;
+                  const matchesSearch = inquirySearch === '' ||
+                    inq.name?.toLowerCase().includes(inquirySearch.toLowerCase()) ||
+                    inq.email?.toLowerCase().includes(inquirySearch.toLowerCase()) ||
+                    inq.property_title?.toLowerCase().includes(inquirySearch.toLowerCase());
+                  return matchesFilter && matchesSearch;
+                }).length === 0 ? (
+                  <div className="p-8 text-center text-gray-500">
+                    <i className="fa-solid fa-house-circle-xmark text-4xl mb-3 text-gray-300"></i>
+                    <p>Nenhum pedido encontrado</p>
+                  </div>
+                ) : (
+                  inquiries.filter(inq => {
+                    const matchesFilter = inquiryFilter === 'all' || inq.status === inquiryFilter;
+                    const matchesSearch = inquirySearch === '' ||
+                      inq.name?.toLowerCase().includes(inquirySearch.toLowerCase()) ||
+                      inq.email?.toLowerCase().includes(inquirySearch.toLowerCase()) ||
+                      inq.property_title?.toLowerCase().includes(inquirySearch.toLowerCase());
+                    return matchesFilter && matchesSearch;
+                  }).map((inq) => (
+                    <div
+                      key={inq.id}
+                      onClick={() => setSelectedInquiry(inq)}
+                      className={`p-4 border-b border-gray-100 cursor-pointer hover:bg-gray-50 transition-colors ${
+                        selectedInquiry?.id === inq.id ? 'bg-emerald-50 border-l-4 border-l-emerald-500' : ''
+                      } ${inq.status === 'new' ? 'bg-blue-50/50' : ''}`}
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <h3 className={`font-semibold text-slate-900 truncate ${inq.status === 'new' ? 'font-bold' : ''}`}>
+                              {inq.name}
+                            </h3>
+                            {inq.status === 'new' && (
+                              <span className="px-2 py-0.5 bg-red-500 text-white text-xs rounded-full">Novo</span>
+                            )}
+                          </div>
+                          {inq.property_title && (
+                            <p className="text-sm text-emerald-600 truncate mt-0.5">
+                              <i className="fa-solid fa-house mr-1"></i>
+                              {inq.property_title}
+                            </p>
+                          )}
+                          <p className="text-sm text-gray-500 truncate mt-1">{inq.email}</p>
+                          <p className="text-xs text-gray-400 mt-1">
+                            {new Date(inq.created_at).toLocaleDateString('pt-PT', {
+                              day: '2-digit',
+                              month: 'short',
+                              hour: '2-digit',
+                              minute: '2-digit'
+                            })}
+                          </p>
+                        </div>
+                        <div className="flex flex-col items-end gap-1">
+                          <span className={`px-2 py-1 text-xs rounded-full ${
+                            inq.status === 'new' ? 'bg-blue-100 text-blue-700' :
+                            inq.status === 'contacted' ? 'bg-yellow-100 text-yellow-700' :
+                            inq.status === 'scheduled' ? 'bg-purple-100 text-purple-700' :
+                            inq.status === 'completed' ? 'bg-green-100 text-green-700' :
+                            'bg-gray-100 text-gray-700'
+                          }`}>
+                            {inq.status === 'new' ? 'Novo' :
+                             inq.status === 'contacted' ? 'Contactado' :
+                             inq.status === 'scheduled' ? 'Agendado' :
+                             inq.status === 'completed' ? 'Concluído' : inq.status}
+                          </span>
+                          {inq.inquiry_type && (
+                            <span className="text-xs text-gray-400">
+                              {inq.inquiry_type === 'visit' ? 'Visita' :
+                               inq.inquiry_type === 'info' ? 'Info' :
+                               inq.inquiry_type === 'price' ? 'Preço' : 'Geral'}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+
+            {/* Selected Inquiry Detail */}
+            <div className="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+              {selectedInquiry ? (
+                <div className="h-full flex flex-col">
+                  {/* Header */}
+                  <div className="p-6 border-b border-gray-200 bg-gradient-to-r from-emerald-50 to-blue-50">
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <h2 className="text-xl font-bold text-slate-900">{selectedInquiry.name}</h2>
+                        <div className="flex flex-wrap items-center gap-3 mt-2 text-sm text-gray-600">
+                          <a href={`mailto:${selectedInquiry.email}`} className="flex items-center gap-1 hover:text-emerald-600">
+                            <i className="fa-solid fa-envelope"></i>
+                            {selectedInquiry.email}
+                          </a>
+                          {selectedInquiry.phone && (
+                            <a href={`tel:${selectedInquiry.phone}`} className="flex items-center gap-1 hover:text-emerald-600">
+                              <i className="fa-solid fa-phone"></i>
+                              {selectedInquiry.phone}
+                            </a>
+                          )}
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => {
+                          if (confirm('Tem a certeza que quer eliminar este pedido?')) {
+                            deleteInquiry(selectedInquiry.id);
+                          }
+                        }}
+                        className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                        title="Eliminar pedido"
+                      >
+                        <i className="fa-solid fa-trash"></i>
+                      </button>
+                    </div>
+                    
+                    {selectedInquiry.property_title && (
+                      <div className="mt-4 p-3 bg-white rounded-lg border border-gray-200">
+                        <p className="text-sm text-gray-500 mb-1">Imóvel de interesse:</p>
+                        <p className="font-semibold text-emerald-600">
+                          <i className="fa-solid fa-house mr-2"></i>
+                          {selectedInquiry.property_title}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Content */}
+                  <div className="flex-1 p-6 overflow-y-auto">
+                    {/* Message */}
+                    <div className="mb-6">
+                      <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">Mensagem</h3>
+                      <div className="p-4 bg-gray-50 rounded-lg">
+                        <p className="text-gray-700 whitespace-pre-wrap">{selectedInquiry.message}</p>
+                      </div>
+                    </div>
+
+                    {/* Details */}
+                    <div className="grid md:grid-cols-2 gap-4 mb-6">
+                      <div className="p-4 bg-gray-50 rounded-lg">
+                        <h4 className="text-sm font-semibold text-gray-500 mb-2">Tipo de Pedido</h4>
+                        <p className="text-gray-700">
+                          {selectedInquiry.inquiry_type === 'visit' ? '📅 Agendar Visita' :
+                           selectedInquiry.inquiry_type === 'info' ? 'ℹ️ Pedir Informações' :
+                           selectedInquiry.inquiry_type === 'price' ? '💰 Negociar Preço' : '📝 Geral'}
+                        </p>
+                      </div>
+                      <div className="p-4 bg-gray-50 rounded-lg">
+                        <h4 className="text-sm font-semibold text-gray-500 mb-2">Contacto Preferido</h4>
+                        <p className="text-gray-700">
+                          {selectedInquiry.preferred_contact === 'email' ? '📧 Email' :
+                           selectedInquiry.preferred_contact === 'phone' ? '📞 Telefone' :
+                           selectedInquiry.preferred_contact === 'whatsapp' ? '💬 WhatsApp' : 'Email'}
+                        </p>
+                      </div>
+                      {selectedInquiry.preferred_time && (
+                        <div className="p-4 bg-gray-50 rounded-lg">
+                          <h4 className="text-sm font-semibold text-gray-500 mb-2">Horário Preferido</h4>
+                          <p className="text-gray-700">
+                            {selectedInquiry.preferred_time === 'morning' ? '🌅 Manhã' :
+                             selectedInquiry.preferred_time === 'afternoon' ? '☀️ Tarde' :
+                             selectedInquiry.preferred_time === 'evening' ? '🌙 Noite' : selectedInquiry.preferred_time}
+                          </p>
+                        </div>
+                      )}
+                      <div className="p-4 bg-gray-50 rounded-lg">
+                        <h4 className="text-sm font-semibold text-gray-500 mb-2">Recebido em</h4>
+                        <p className="text-gray-700">
+                          {new Date(selectedInquiry.created_at).toLocaleDateString('pt-PT', {
+                            day: '2-digit',
+                            month: 'long',
+                            year: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          })}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Status Update */}
+                    <div className="border-t border-gray-200 pt-6">
+                      <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">Atualizar Estado</h3>
+                      <div className="flex flex-wrap gap-2">
+                        {[
+                          { value: 'new', label: 'Novo', icon: 'fa-bell', color: 'bg-blue-500' },
+                          { value: 'contacted', label: 'Contactado', icon: 'fa-phone', color: 'bg-yellow-500' },
+                          { value: 'scheduled', label: 'Agendado', icon: 'fa-calendar-check', color: 'bg-purple-500' },
+                          { value: 'completed', label: 'Concluído', icon: 'fa-check', color: 'bg-green-500' },
+                          { value: 'archived', label: 'Arquivado', icon: 'fa-archive', color: 'bg-gray-500' }
+                        ].map(s => (
+                          <button
+                            key={s.value}
+                            onClick={() => updateInquiryStatus(selectedInquiry.id, s.value)}
+                            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                              selectedInquiry.status === s.value
+                                ? `${s.color} text-white shadow-lg`
+                                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                            }`}
+                          >
+                            <i className={`fa-solid ${s.icon}`}></i>
+                            {s.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Quick Actions */}
+                    <div className="border-t border-gray-200 pt-6 mt-6">
+                      <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">Ações Rápidas</h3>
+                      <div className="flex flex-wrap gap-3">
+                        <a
+                          href={`mailto:${selectedInquiry.email}?subject=Re: ${selectedInquiry.property_title || 'O seu pedido'}&body=Olá ${selectedInquiry.name},%0A%0AObrigado pelo seu contacto!%0A%0A`}
+                          className="flex items-center gap-2 px-4 py-2 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition-colors"
+                        >
+                          <i className="fa-solid fa-reply"></i>
+                          Responder por Email
+                        </a>
+                        {selectedInquiry.phone && (
+                          <>
+                            <a
+                              href={`tel:${selectedInquiry.phone}`}
+                              className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                            >
+                              <i className="fa-solid fa-phone"></i>
+                              Ligar
+                            </a>
+                            <a
+                              href={`https://wa.me/${selectedInquiry.phone.replace(/\D/g, '')}?text=Olá ${selectedInquiry.name}! Recebemos o seu pedido sobre ${selectedInquiry.property_title || 'o imóvel'}.`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex items-center gap-2 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
+                            >
+                              <i className="fa-brands fa-whatsapp"></i>
+                              WhatsApp
+                            </a>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="h-full flex items-center justify-center text-gray-400 p-8">
+                  <div className="text-center">
+                    <i className="fa-solid fa-house-user text-6xl mb-4 text-gray-200"></i>
+                    <p className="text-lg">Selecione um pedido para ver os detalhes</p>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
         
         {/* ========== CONTACTS VIEW ========== */}
         {activeView === 'contacts' && (
