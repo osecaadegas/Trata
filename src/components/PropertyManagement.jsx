@@ -156,12 +156,20 @@ const PropertyManagement = () => {
   };
 
   const handleDelete = async (propertyId) => {
-    if (!confirm('Tem certeza que deseja eliminar este imóvel? Esta ação não pode ser desfeita.')) return;
+    console.log('Delete button clicked for property:', propertyId);
+    
+    if (!confirm('Tem certeza que deseja eliminar este imóvel? Esta ação não pode ser desfeita.')) {
+      console.log('Delete cancelled by user');
+      return;
+    }
+    
+    console.log('User confirmed delete, proceeding...');
 
     try {
       const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
       const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
       
+      console.log('Getting session...');
       // Get the current session token for authenticated requests
       const { data: { session } } = await supabase.auth.getSession();
       const accessToken = session?.access_token;
@@ -169,8 +177,7 @@ const PropertyManagement = () => {
       console.log('Delete request:', {
         propertyId,
         hasSession: !!session,
-        hasToken: !!accessToken,
-        userRole: session?.user?.user_metadata
+        hasToken: !!accessToken
       });
       
       if (!accessToken) {
@@ -197,6 +204,7 @@ const PropertyManagement = () => {
         throw new Error(errorText || `HTTP ${response.status}`);
       }
       
+      console.log('Delete successful, refreshing list...');
       alert('Imóvel eliminado com sucesso!');
       fetchProperties();
     } catch (error) {
