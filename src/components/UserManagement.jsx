@@ -41,41 +41,19 @@ const UserManagement = ({ onClose }) => {
       setLoading(true);
       setError(null);
       
-      console.log('Fetching users...');
+      console.log('Fetching users with Supabase client...');
       
-      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-      const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-      
-      // Get the current session token for authenticated requests
-      const { data: { session } } = await supabase.auth.getSession();
-      const accessToken = session?.access_token || supabaseKey;
-      
-      // Fetch using REST API with authenticated user token
-      const response = await fetch(
-        `${supabaseUrl}/rest/v1/users?order=created_at.desc`,
-        {
-          headers: {
-            'apikey': supabaseKey,
-            'Authorization': `Bearer ${accessToken}`,
-            'Content-Type': 'application/json',
-            'Prefer': 'count=exact'
-          }
-        }
-      );
+      // Use Supabase client directly - it handles auth automatically
+      const { data, error, count } = await supabase
+        .from('users')
+        .select('*', { count: 'exact' })
+        .order('created_at', { ascending: false });
 
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      console.log('Users query result:', { data, error, count });
+
+      if (error) {
+        throw error;
       }
-
-      const contentRange = response.headers.get('content-range');
-      let count = 0;
-      if (contentRange) {
-        count = parseInt(contentRange.split('/')[1]) || 0;
-      }
-
-      const data = await response.json();
-      
-      console.log('Users query result:', { data, count });
 
       setUsers(data || []);
       setFilteredUsers(data || []);
