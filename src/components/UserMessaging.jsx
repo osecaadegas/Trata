@@ -43,9 +43,22 @@ const UserMessaging = ({ embedded = false }) => {
 
   const getSupabaseHeaders = () => {
     const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+    
+    // Try to get auth token from localStorage
+    let accessToken = supabaseKey;
+    const trataAuth = localStorage.getItem('trata-auth');
+    if (trataAuth) {
+      try {
+        const parsed = JSON.parse(trataAuth);
+        if (parsed?.access_token) {
+          accessToken = parsed.access_token;
+        }
+      } catch (e) {}
+    }
+    
     return {
       'apikey': supabaseKey,
-      'Authorization': `Bearer ${supabaseKey}`,
+      'Authorization': `Bearer ${accessToken}`,
       'Content-Type': 'application/json'
     };
   };
