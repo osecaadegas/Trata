@@ -859,10 +859,10 @@ const MessagesInbox = () => {
         {/* ========== CONVERSATIONS VIEW ========== */}
         {activeView === 'conversations' && (
           <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden" style={{ height: 'calc(100vh - 380px)', minHeight: '500px' }}>
-            <div className="grid grid-cols-1 lg:grid-cols-12 h-full">
+            <div className="grid grid-cols-1 lg:grid-cols-12 h-full overflow-hidden">
               
               {/* Conversations List */}
-              <div className={`lg:col-span-4 border-r border-gray-200 flex flex-col ${selectedConversation ? 'hidden lg:flex' : 'flex'}`}>
+              <div className={`lg:col-span-4 border-r border-gray-200 flex flex-col min-h-0 ${selectedConversation ? 'hidden lg:flex' : 'flex'}`}>
                 {/* Search & Filters */}
                 <div className="p-4 border-b border-gray-200 space-y-3">
                   <div className="relative">
@@ -898,7 +898,7 @@ const MessagesInbox = () => {
                 </div>
 
                 {/* List */}
-                <div className="flex-1 overflow-y-auto">
+                <div className="flex-1 min-h-0 overflow-y-auto">
                   {conversationsLoading ? (
                     <div className="p-4 space-y-3">
                       {[...Array(5)].map((_, i) => (
