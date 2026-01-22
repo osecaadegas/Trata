@@ -127,7 +127,7 @@ CREATE POLICY "Users can create chat messages in their conversations" ON public.
     EXISTS (
       SELECT 1 FROM public.conversations c 
       WHERE c.id = conversation_id 
-      AND (c.user_id = auth.uid() OR auth.uid() IS NOT NULL)
+      AND (c.user_id = auth.uid()::text OR auth.uid() IS NOT NULL)
     )
   );
 
@@ -146,12 +146,12 @@ CREATE POLICY "Users can view conversations" ON public.conversations
 
 CREATE POLICY "Users can create their own conversations" ON public.conversations
   FOR INSERT WITH CHECK (
-    user_id = auth.uid() OR user_id IS NULL OR auth.uid() IS NULL
+    user_id = auth.uid()::text OR user_id IS NULL OR auth.uid() IS NULL
   );
 
 CREATE POLICY "Users can update their own conversations" ON public.conversations
   FOR UPDATE USING (
-    user_id = auth.uid() OR 
+    user_id = auth.uid()::text OR 
     EXISTS (
       SELECT 1 FROM public.users u 
       WHERE u.id = auth.uid() 
@@ -195,13 +195,13 @@ CREATE POLICY "Users can view presence" ON public.user_presence
   FOR SELECT USING (true);
 
 CREATE POLICY "Users can manage their own presence" ON public.user_presence
-  FOR INSERT WITH CHECK (user_id = auth.uid() OR auth.uid() IS NULL);
+  FOR INSERT WITH CHECK (user_id = auth.uid()::text OR auth.uid() IS NULL);
 
 CREATE POLICY "Users can update their own presence" ON public.user_presence
-  FOR UPDATE USING (user_id = auth.uid());
+  FOR UPDATE USING (user_id = auth.uid()::text);
 
 CREATE POLICY "Users can delete their own presence" ON public.user_presence
-  FOR DELETE USING (user_id = auth.uid());
+  FOR DELETE USING (user_id = auth.uid()::text);
 
 
 -- =====================================================
