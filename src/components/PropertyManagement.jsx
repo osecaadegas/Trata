@@ -164,29 +164,44 @@ const PropertyManagement = () => {
       
       // Get the current session token for authenticated requests
       const { data: { session } } = await supabase.auth.getSession();
-      const accessToken = session?.access_token || supabaseKey;
+      const accessToken = session?.access_token;
       
-      const response = await fetch(
-        `${supabaseUrl}/rest/v1/properties?id=eq.${propertyId}`,
-        {
-          method: 'DELETE',
-          headers: {
-            'apikey': supabaseKey,
-            'Authorization': `Bearer ${accessToken}`,
-            'Content-Type': 'application/json'
-          }
+      console.log('Delete request:', {
+        propertyId,
+        hasSession: !!session,
+        hasToken: !!accessToken,
+        userRole: session?.user?.user_metadata
+      });
+      
+      if (!accessToken) {
+        throw new Error('Não está autenticado. Faça login novamente.');
+      }
+      
+      const url = `${supabaseUrl}/rest/v1/properties?id=eq.${propertyId}`;
+      console.log('DELETE URL:', url);
+      
+      const response = await fetch(url, {
+        method: 'DELETE',
+        headers: {
+          'apikey': supabaseKey,
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json'
         }
-      );
+      });
+
+      console.log('DELETE response:', response.status, response.statusText);
 
       if (!response.ok) {
         const errorText = await response.text();
-        throw new Error(errorText);
+        console.error('DELETE error:', errorText);
+        throw new Error(errorText || `HTTP ${response.status}`);
       }
       
+      alert('Imóvel eliminado com sucesso!');
       fetchProperties();
     } catch (error) {
       console.error('Error deleting property:', error);
-      alert('Erro ao eliminar imóvel');
+      alert('Erro ao eliminar imóvel: ' + error.message);
     }
   };
 
