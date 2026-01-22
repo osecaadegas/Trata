@@ -97,30 +97,11 @@ const MessagesInbox = () => {
   // ========== CONVERSATIONS (Chat) ==========
   const fetchConversations = async () => {
     const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-    if (!supabaseUrl || supabaseUrl.includes('your-project')) {
-      // Demo data
-      setConversations([
-        { 
-          id: '1', user_id: 'user-1', user_name: 'Miguel Monsanto', user_email: 'miguel@email.com',
-          user_avatar: 'https://ui-avatars.com/api/?name=Miguel+Monsanto&background=10b981&color=fff',
-          property_title: 'Apartamento T3 Vista Mar',
-          property_image: 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=400&h=300&fit=crop',
-          subject: 'Informações sobre o apartamento', last_message: 'Obrigado pela sua resposta!',
-          last_message_at: new Date(Date.now() - 1000 * 60 * 30).toISOString(),
-          last_message_by: 'user', agent_unread_count: 1, status: 'active', priority: 'normal',
-          user_last_seen: new Date(Date.now() - 1000 * 60 * 5).toISOString()
-        },
-        { 
-          id: '2', user_id: 'user-2', user_name: 'Ana Silva', user_email: 'ana.silva@email.com',
-          user_avatar: 'https://ui-avatars.com/api/?name=Ana+Silva&background=3b82f6&color=fff',
-          property_title: 'Moradia T4 com Jardim',
-          property_image: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=400&h=300&fit=crop',
-          subject: 'Agendamento de visita', last_message: 'Sábado às 15h está confirmado.',
-          last_message_at: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(),
-          last_message_by: 'agent', agent_unread_count: 0, status: 'active', priority: 'high',
-          user_last_seen: new Date(Date.now() - 1000 * 60 * 60).toISOString()
-        }
-      ]);
+    const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+    
+    if (!supabaseUrl || !supabaseKey) {
+      console.error('Supabase not configured');
+      setConversations([]);
       setConversationsLoading(false);
       return;
     }
@@ -142,8 +123,8 @@ const MessagesInbox = () => {
 
   const fetchOnlineUsers = async () => {
     const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-    if (!supabaseUrl || supabaseUrl.includes('your-project')) {
-      setOnlineUsers(['user-1']);
+    if (!supabaseUrl) {
+      setOnlineUsers([]);
       return;
     }
 
@@ -165,12 +146,8 @@ const MessagesInbox = () => {
     if (!silent) setConversationsLoading(true);
     
     const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-    if (!supabaseUrl || supabaseUrl.includes('your-project')) {
-      setChatMessages([
-        { id: '1', sender_type: 'user', sender_name: 'Miguel Monsanto', message: 'Olá! Gostaria de saber mais informações.', created_at: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(), is_read: true },
-        { id: '2', sender_type: 'agent', sender_name: 'TRATA', message: 'Bom dia! Claro, terei todo o gosto em ajudar.', created_at: new Date(Date.now() - 1000 * 60 * 60 * 23).toISOString(), is_read: true },
-        { id: '3', sender_type: 'user', sender_name: 'Miguel Monsanto', message: 'Obrigado pela sua resposta!', created_at: new Date(Date.now() - 1000 * 60 * 30).toISOString(), is_read: false },
-      ]);
+    if (!supabaseUrl) {
+      setChatMessages([]);
       if (!silent) setConversationsLoading(false);
       return;
     }

@@ -55,13 +55,11 @@ const UserDashboard = () => {
     setLoading(true);
     try {
       const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-      if (!supabaseUrl || supabaseUrl.includes('your-project')) {
-        // Demo data
-        setFavorites([
-          { id: '1', property: { id: '1', title: 'Apartamento T3 Vista Mar', price: 285000, location: 'Braga, Centro', image: 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=800&h=600&fit=crop', bedrooms: 3, bathrooms: 2, area: 120 } },
-          { id: '2', property: { id: '2', title: 'Moradia T4 com Jardim', price: 425000, location: 'Braga, Gualtar', image: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800&h=600&fit=crop', bedrooms: 4, bathrooms: 3, area: 200 } },
-          { id: '3', property: { id: '5', title: 'Moradia T5 de Luxo', price: 750000, location: 'Braga, Bom Jesus', image: 'https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=800&h=600&fit=crop', bedrooms: 5, bathrooms: 4, area: 350 } },
-        ]);
+      const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+      
+      if (!supabaseUrl || !supabaseKey) {
+        console.error('Supabase not configured');
+        setFavorites([]);
         setLoading(false);
         return;
       }
@@ -138,26 +136,11 @@ const UserDashboard = () => {
     setLoading(true);
     try {
       const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-      if (!supabaseUrl || supabaseUrl.includes('your-project')) {
-        // Demo data
-        setConversations([
-          { 
-            id: '1', 
-            property_title: 'Apartamento T3 Vista Mar', 
-            property_image: 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=400&h=300&fit=crop',
-            last_message: 'Olá! Gostaria de agendar uma visita.',
-            last_message_at: new Date(Date.now() - 1000 * 60 * 30).toISOString(),
-            unread_count: 2
-          },
-          { 
-            id: '2', 
-            property_title: 'Moradia T4 com Jardim', 
-            property_image: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=400&h=300&fit=crop',
-            last_message: 'O imóvel ainda está disponível?',
-            last_message_at: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(),
-            unread_count: 0
-          },
-        ]);
+      const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+      
+      if (!supabaseUrl || !supabaseKey) {
+        console.error('Supabase not configured');
+        setConversations([]);
         setLoading(false);
         return;
       }
@@ -180,14 +163,11 @@ const UserDashboard = () => {
   const fetchMessages = async (conversationId) => {
     try {
       const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-      if (!supabaseUrl || supabaseUrl.includes('your-project')) {
-        // Demo messages
-        setMessages([
-          { id: '1', message: 'Olá! Gostaria de agendar uma visita ao apartamento.', sender_type: 'user', created_at: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString() },
-          { id: '2', message: 'Bom dia! Claro, temos disponibilidade para sábado às 10h ou 15h. Qual prefere?', sender_type: 'admin', sender_name: 'TRATA', created_at: new Date(Date.now() - 1000 * 60 * 60).toISOString() },
-          { id: '3', message: 'Sábado às 15h seria perfeito!', sender_type: 'user', created_at: new Date(Date.now() - 1000 * 60 * 30).toISOString() },
-          { id: '4', message: 'Perfeito! Fica agendado. O endereço é Rua das Flores, 123, Braga. Até sábado!', sender_type: 'admin', sender_name: 'TRATA', created_at: new Date(Date.now() - 1000 * 60 * 15).toISOString() },
-        ]);
+      const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+      
+      if (!supabaseUrl || !supabaseKey) {
+        console.error('Supabase not configured');
+        setMessages([]);
         return;
       }
 
