@@ -11,88 +11,8 @@ const MessagesInbox = () => {
   const [showReplyModal, setShowReplyModal] = useState(false);
   const [replyText, setReplyText] = useState('');
   const [notes, setNotes] = useState('');
-
-  // Fallback mock data for development
-  const mockMessages = [
-    {
-      id: '1',
-      name: 'João Silva',
-      email: 'joao.silva@email.com',
-      phone: '+351 912 345 678',
-      subject: 'comprar',
-      message: 'Olá, estou interessado no apartamento T3 em Lisboa. Gostaria de agendar uma visita para o próximo fim de semana. Obrigado.',
-      property_id: '1',
-      property_title: 'Apartamento T3 Vista Mar',
-      status: 'unread',
-      created_at: '2026-01-22T10:30:00Z',
-      notes: ''
-    },
-    {
-      id: '2',
-      name: 'Maria Santos',
-      email: 'maria.santos@gmail.com',
-      phone: '+351 923 456 789',
-      subject: 'vender',
-      message: 'Bom dia, gostaria de saber mais informações sobre como vender o meu imóvel através da TRATA. Tenho uma moradia em Braga.',
-      property_id: null,
-      property_title: null,
-      status: 'read',
-      created_at: '2026-01-21T14:15:00Z',
-      notes: 'Cliente interessado em venda. Agendar chamada.'
-    },
-    {
-      id: '3',
-      name: 'Pedro Costa',
-      email: 'pedro.costa@empresa.pt',
-      phone: '+351 934 567 890',
-      subject: 'arrendar',
-      message: 'Preciso de um apartamento T2 para arrendar na zona do Porto. Orçamento até 800€/mês. Disponibilidade imediata.',
-      property_id: null,
-      property_title: null,
-      status: 'replied',
-      created_at: '2026-01-20T09:00:00Z',
-      notes: 'Enviada lista de imóveis disponíveis'
-    },
-    {
-      id: '4',
-      name: 'Ana Ferreira',
-      email: 'ana.f@outlook.com',
-      phone: '+351 961 234 567',
-      subject: 'avaliacao',
-      message: 'Gostaria de solicitar uma avaliação gratuita do meu apartamento T2 em Guimarães. Quando seria possível?',
-      property_id: null,
-      property_title: null,
-      status: 'unread',
-      created_at: '2026-01-22T08:45:00Z',
-      notes: ''
-    },
-    {
-      id: '5',
-      name: 'Ricardo Mendes',
-      email: 'ricardo.mendes@mail.com',
-      phone: '+351 915 678 901',
-      subject: 'comprar',
-      message: 'Vi a moradia V4 em Barcelos e estou muito interessado. Qual é a disponibilidade para visita? Também gostaria de saber se há margem de negociação no preço.',
-      property_id: '3',
-      property_title: 'Moradia V4 com Jardim',
-      status: 'read',
-      created_at: '2026-01-19T16:30:00Z',
-      notes: 'Visita agendada para 25/01'
-    },
-    {
-      id: '6',
-      name: 'Sofia Oliveira',
-      email: 'sofia.oliveira@email.pt',
-      phone: '+351 926 789 012',
-      subject: 'parceria',
-      message: 'Represento uma empresa de construção civil e gostaríamos de explorar possíveis parcerias com a TRATA para novos empreendimentos.',
-      property_id: null,
-      property_title: null,
-      status: 'archived',
-      created_at: '2026-01-15T11:00:00Z',
-      notes: 'Parceria não se enquadra no momento'
-    }
-  ];
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [messageToDelete, setMessageToDelete] = useState(null);
 
   useEffect(() => {
     fetchMessages();
@@ -101,7 +21,6 @@ const MessagesInbox = () => {
   const fetchMessages = async () => {
     setLoading(true);
     try {
-      // Try to fetch from Supabase
       const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
       const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
@@ -119,17 +38,18 @@ const MessagesInbox = () => {
 
         if (response.ok) {
           const data = await response.json();
-          setMessages(data.length > 0 ? data : mockMessages);
+          setMessages(data);
         } else {
-          setMessages(mockMessages);
+          console.error('Failed to fetch messages');
+          setMessages([]);
         }
       } else {
-        // Use mock data
-        setMessages(mockMessages);
+        console.warn('Supabase not configured - no messages available');
+        setMessages([]);
       }
     } catch (error) {
       console.error('Error fetching messages:', error);
-      setMessages(mockMessages);
+      setMessages([]);
     }
     setLoading(false);
   };
@@ -202,6 +122,48 @@ const MessagesInbox = () => {
     } catch (error) {
       console.error('Error updating message notes:', error);
     }
+  };
+
+  const deleteMessage = async (messageId) => {
+    try {
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+      if (supabaseUrl && supabaseKey && !supabaseUrl.includes('your-project')) {
+        const response = await fetch(
+          `${supabaseUrl}/rest/v1/messages?id=eq.${messageId}`,
+          {
+            method: 'DELETE',
+            headers: {
+              'apikey': supabaseKey,
+              'Authorization': `Bearer ${supabaseKey}`,
+              'Content-Type': 'application/json'
+            }
+          }
+        );
+
+        if (response.ok) {
+          // Remove from local state
+          setMessages(prev => prev.filter(msg => msg.id !== messageId));
+          if (selectedMessage?.id === messageId) {
+            setSelectedMessage(null);
+          }
+          setShowDeleteConfirm(false);
+          setMessageToDelete(null);
+        } else {
+          console.error('Failed to delete message');
+          alert('Erro ao eliminar mensagem');
+        }
+      }
+    } catch (error) {
+      console.error('Error deleting message:', error);
+      alert('Erro ao eliminar mensagem');
+    }
+  };
+
+  const confirmDelete = (message) => {
+    setMessageToDelete(message);
+    setShowDeleteConfirm(true);
   };
 
   const handleSelectMessage = (message) => {
@@ -554,6 +516,17 @@ const MessagesInbox = () => {
                       Restaurar
                     </button>
                   )}
+                  
+                  {/* Delete button - only for admins */}
+                  {isAdmin && (
+                    <button
+                      onClick={() => confirmDelete(selectedMessage)}
+                      className="inline-flex items-center gap-2 px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors"
+                    >
+                      <i className="fa-solid fa-trash"></i>
+                      Eliminar
+                    </button>
+                  )}
                 </div>
               </div>
             ) : (
@@ -594,6 +567,40 @@ const MessagesInbox = () => {
           ))}
         </div>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteConfirm && messageToDelete && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6">
+            <div className="text-center">
+              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i className="fa-solid fa-trash text-red-500 text-2xl"></i>
+              </div>
+              <h3 className="text-xl font-bold text-slate-900 mb-2">Eliminar Mensagem?</h3>
+              <p className="text-slate-600 mb-6">
+                Tem a certeza que deseja eliminar a mensagem de <strong>{messageToDelete.name}</strong>? Esta ação não pode ser revertida.
+              </p>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => {
+                    setShowDeleteConfirm(false);
+                    setMessageToDelete(null);
+                  }}
+                  className="flex-1 py-3 bg-gray-100 text-gray-700 font-semibold rounded-xl hover:bg-gray-200 transition-colors"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={() => deleteMessage(messageToDelete.id)}
+                  className="flex-1 py-3 bg-red-500 text-white font-semibold rounded-xl hover:bg-red-600 transition-colors"
+                >
+                  Eliminar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
