@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
+import { useAuth } from '../context/AuthContext';
 
 const PropertyDetailPage = ({ propertyId }) => {
+  const { user } = useAuth();
   const [property, setProperty] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [activeImage, setActiveImage] = useState(0);
   const [showContactForm, setShowContactForm] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
+  const [favoriteLoading, setFavoriteLoading] = useState(false);
   const [contactFormData, setContactFormData] = useState({
     name: '',
     email: '',
@@ -140,6 +143,105 @@ const PropertyDetailPage = ({ propertyId }) => {
       fetchProperty();
     }
   }, [propertyId]);
+
+  // Check if property is in user's favorites
+  useEffect(() => {
+    const checkFavorite = async () => {
+      if (!user || !propertyId) {
+        setIsFavorite(false);
+        return;
+      }
+
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+      
+      if (!supabaseUrl || !supabaseKey || supabaseUrl.includes('your-project')) {
+        return;
+      }
+
+      try {
+        const response = await fetch(
+          `${supabaseUrl}/rest/v1/user_favorites?user_id=eq.${user.id}&property_id=eq.${propertyId}`,
+          {
+            headers: {
+              'apikey': supabaseKey,
+              'Authorization': `Bearer ${supabaseKey}`,
+              'Content-Type': 'application/json'
+            }
+          }
+        );
+
+        if (response.ok) {
+          const data = await response.json();
+          setIsFavorite(data.length > 0);
+        }
+      } catch (error) {
+        console.error('Error checking favorite:', error);
+      }
+    };
+
+    checkFavorite();
+  }, [user, propertyId]);
+
+  const toggleFavorite = async () => {
+    if (!user) {
+      alert('Faça login para guardar favoritos');
+      return;
+    }
+
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+    const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+    // Optimistic update
+    setIsFavorite(prev => !prev);
+
+    // Skip database call if Supabase not configured
+    if (!supabaseUrl || !supabaseKey || supabaseUrl.includes('your-project')) {
+      return;
+    }
+
+    setFavoriteLoading(true);
+    try {
+      if (isFavorite) {
+        // Remove from favorites
+        await fetch(
+          `${supabaseUrl}/rest/v1/user_favorites?user_id=eq.${user.id}&property_id=eq.${propertyId}`,
+          {
+            method: 'DELETE',
+            headers: {
+              'apikey': supabaseKey,
+              'Authorization': `Bearer ${supabaseKey}`,
+              'Content-Type': 'application/json'
+            }
+          }
+        );
+      } else {
+        // Add to favorites
+        await fetch(
+          `${supabaseUrl}/rest/v1/user_favorites`,
+          {
+            method: 'POST',
+            headers: {
+              'apikey': supabaseKey,
+              'Authorization': `Bearer ${supabaseKey}`,
+              'Content-Type': 'application/json',
+              'Prefer': 'return=minimal'
+            },
+            body: JSON.stringify({
+              user_id: user.id,
+              property_id: propertyId
+            })
+          }
+        );
+      }
+    } catch (error) {
+      console.error('Error toggling favorite:', error);
+      // Revert on error
+      setIsFavorite(prev => !prev);
+    } finally {
+      setFavoriteLoading(false);
+    }
+  };
 
   const formatPrice = (price) => {
     return new Intl.NumberFormat('pt-PT', {
@@ -298,10 +400,11 @@ const PropertyDetailPage = ({ propertyId }) => {
                 </div>
                 {/* Favorite Button */}
                 <button
-                  onClick={() => setIsFavorite(!isFavorite)}
+                  onClick={toggleFavorite}
+                  disabled={favoriteLoading}
                   className={`absolute top-4 right-4 w-12 h-12 rounded-full flex items-center justify-center transition-all ${
                     isFavorite ? 'bg-red-500 text-white' : 'bg-white/90 text-slate-600 hover:text-red-500'
-                  }`}
+                  } ${favoriteLoading ? 'opacity-50 cursor-wait' : ''}`}
                 >
                   <i className={`${isFavorite ? 'fa-solid' : 'fa-regular'} fa-heart text-xl`}></i>
                 </button>

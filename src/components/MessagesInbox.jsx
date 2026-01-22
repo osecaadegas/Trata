@@ -296,6 +296,33 @@ const MessagesInbox = () => {
               Voltar à Gestão
             </a>
           </div>
+
+          {/* Stats Cards - Below Header */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
+            {[
+              { label: 'Total', value: messages.length, icon: 'fa-inbox', color: 'bg-slate-500' },
+              { label: 'Não Lidas', value: messages.filter(m => m.status === 'unread').length, icon: 'fa-envelope', color: 'bg-red-500' },
+              { label: 'Respondidas', value: messages.filter(m => m.status === 'replied').length, icon: 'fa-reply', color: 'bg-green-500' },
+              { label: 'Esta Semana', value: messages.filter(m => {
+                const msgDate = new Date(m.created_at);
+                const weekAgo = new Date();
+                weekAgo.setDate(weekAgo.getDate() - 7);
+                return msgDate > weekAgo;
+              }).length, icon: 'fa-calendar-week', color: 'bg-blue-500' }
+            ].map((stat, index) => (
+              <div key={index} className="bg-white rounded-xl p-4 shadow-sm border border-gray-200">
+                <div className="flex items-center gap-3">
+                  <div className={`w-10 h-10 ${stat.color} rounded-lg flex items-center justify-center`}>
+                    <i className={`fa-solid ${stat.icon} text-white`}></i>
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold text-slate-900">{stat.value}</p>
+                    <p className="text-sm text-gray-500">{stat.label}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -538,33 +565,6 @@ const MessagesInbox = () => {
               </div>
             )}
           </div>
-        </div>
-
-        {/* Stats Cards */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
-          {[
-            { label: 'Total', value: messages.length, icon: 'fa-inbox', color: 'bg-slate-500' },
-            { label: 'Não Lidas', value: messages.filter(m => m.status === 'unread').length, icon: 'fa-envelope', color: 'bg-red-500' },
-            { label: 'Respondidas', value: messages.filter(m => m.status === 'replied').length, icon: 'fa-reply', color: 'bg-green-500' },
-            { label: 'Esta Semana', value: messages.filter(m => {
-              const msgDate = new Date(m.created_at);
-              const weekAgo = new Date();
-              weekAgo.setDate(weekAgo.getDate() - 7);
-              return msgDate > weekAgo;
-            }).length, icon: 'fa-calendar-week', color: 'bg-blue-500' }
-          ].map((stat, index) => (
-            <div key={index} className="bg-white rounded-xl p-4 shadow-sm border border-gray-200">
-              <div className="flex items-center gap-3">
-                <div className={`w-10 h-10 ${stat.color} rounded-lg flex items-center justify-center`}>
-                  <i className={`fa-solid ${stat.icon} text-white`}></i>
-                </div>
-                <div>
-                  <p className="text-2xl font-bold text-slate-900">{stat.value}</p>
-                  <p className="text-sm text-gray-500">{stat.label}</p>
-                </div>
-              </div>
-            </div>
-          ))}
         </div>
       </div>
 

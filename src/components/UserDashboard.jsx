@@ -65,17 +65,70 @@ const UserDashboard = () => {
         return;
       }
 
-      const response = await fetch(
-        `${supabaseUrl}/rest/v1/user_favorites?select=*,property:properties(*)&user_id=eq.${user.id}&order=created_at.desc`,
+      // First, get the user's favorites
+      const favoritesResponse = await fetch(
+        `${supabaseUrl}/rest/v1/user_favorites?user_id=eq.${user.id}&order=created_at.desc`,
         { headers: getSupabaseHeaders() }
       );
 
-      if (response.ok) {
-        const data = await response.json();
-        setFavorites(data);
+      if (!favoritesResponse.ok) {
+        console.error('Failed to fetch favorites');
+        setFavorites([]);
+        setLoading(false);
+        return;
+      }
+
+      const favoritesData = await favoritesResponse.json();
+      
+      if (favoritesData.length === 0) {
+        setFavorites([]);
+        setLoading(false);
+        return;
+      }
+
+      // Get property IDs
+      const propertyIds = favoritesData.map(f => f.property_id).filter(Boolean);
+      
+      if (propertyIds.length === 0) {
+        setFavorites([]);
+        setLoading(false);
+        return;
+      }
+
+      // Fetch properties details
+      const propertiesResponse = await fetch(
+        `${supabaseUrl}/rest/v1/properties?id=in.(${propertyIds.join(',')})`,
+        { headers: getSupabaseHeaders() }
+      );
+
+      if (propertiesResponse.ok) {
+        const propertiesData = await propertiesResponse.json();
+        
+        // Combine favorites with property data
+        const combinedData = favoritesData.map(fav => {
+          const prop = propertiesData.find(p => p.id === fav.property_id);
+          return {
+            id: fav.id,
+            property: prop ? {
+              id: prop.id,
+              title: prop.title,
+              price: parseFloat(prop.price),
+              location: prop.location,
+              image: prop.images?.[0] || 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&h=600&fit=crop',
+              bedrooms: prop.bedrooms,
+              bathrooms: prop.bathrooms,
+              area: prop.area_sqm
+            } : null
+          };
+        }).filter(f => f.property !== null);
+
+        setFavorites(combinedData);
+      } else {
+        setFavorites([]);
       }
     } catch (error) {
       console.error('Error fetching favorites:', error);
+      setFavorites([]);
     }
     setLoading(false);
   };

@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react';
+import { useAuth } from '../context/AuthContext';
 
 const PropertiesPage = () => {
+  const { user } = useAuth();
   const [properties, setProperties] = useState([]);
   const [filteredProperties, setFilteredProperties] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [favorites, setFavorites] = useState([]);
+  const [favoritesLoading, setFavoritesLoading] = useState(false);
   const [filtersOpen, setFiltersOpen] = useState(false);
   
   const [filters, setFilters] = useState({
@@ -146,6 +149,46 @@ const PropertiesPage = () => {
     fetchProperties();
   }, []);
 
+  // Fetch user's favorites from database
+  useEffect(() => {
+    const fetchFavorites = async () => {
+      if (!user) {
+        setFavorites([]);
+        return;
+      }
+
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+      
+      if (!supabaseUrl || !supabaseKey || supabaseUrl.includes('your-project')) {
+        return;
+      }
+
+      try {
+        const response = await fetch(
+          `${supabaseUrl}/rest/v1/user_favorites?select=property_id&user_id=eq.${user.id}`,
+          {
+            headers: {
+              'apikey': supabaseKey,
+              'Authorization': `Bearer ${supabaseKey}`,
+              'Content-Type': 'application/json'
+            }
+          }
+        );
+
+        if (response.ok) {
+          const data = await response.json();
+          // Extract just the property IDs
+          setFavorites(data.map(f => f.property_id));
+        }
+      } catch (error) {
+        console.error('Error fetching favorites:', error);
+      }
+    };
+
+    fetchFavorites();
+  }, [user]);
+
   // Apply filters
   useEffect(() => {
     let result = [...properties];
@@ -181,10 +224,71 @@ const PropertiesPage = () => {
   const startIndex = (currentPage - 1) * propertiesPerPage;
   const currentProperties = filteredProperties.slice(startIndex, startIndex + propertiesPerPage);
 
-  const toggleFavorite = (id) => {
-    setFavorites(prev => 
-      prev.includes(id) ? prev.filter(f => f !== id) : [...prev, id]
-    );
+  const toggleFavorite = async (propertyId) => {
+    if (!user) {
+      // If not logged in, show alert or open login modal
+      alert('Faça login para guardar favoritos');
+      return;
+    }
+
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+    const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+    const isFavorite = favorites.includes(propertyId);
+
+    // Optimistic update
+    if (isFavorite) {
+      setFavorites(prev => prev.filter(f => f !== propertyId));
+    } else {
+      setFavorites(prev => [...prev, propertyId]);
+    }
+
+    // Skip database call if Supabase not configured
+    if (!supabaseUrl || !supabaseKey || supabaseUrl.includes('your-project')) {
+      return;
+    }
+
+    try {
+      if (isFavorite) {
+        // Remove from favorites
+        await fetch(
+          `${supabaseUrl}/rest/v1/user_favorites?user_id=eq.${user.id}&property_id=eq.${propertyId}`,
+          {
+            method: 'DELETE',
+            headers: {
+              'apikey': supabaseKey,
+              'Authorization': `Bearer ${supabaseKey}`,
+              'Content-Type': 'application/json'
+            }
+          }
+        );
+      } else {
+        // Add to favorites
+        await fetch(
+          `${supabaseUrl}/rest/v1/user_favorites`,
+          {
+            method: 'POST',
+            headers: {
+              'apikey': supabaseKey,
+              'Authorization': `Bearer ${supabaseKey}`,
+              'Content-Type': 'application/json',
+              'Prefer': 'return=minimal'
+            },
+            body: JSON.stringify({
+              user_id: user.id,
+              property_id: propertyId
+            })
+          }
+        );
+      }
+    } catch (error) {
+      console.error('Error toggling favorite:', error);
+      // Revert on error
+      if (isFavorite) {
+        setFavorites(prev => [...prev, propertyId]);
+      } else {
+        setFavorites(prev => prev.filter(f => f !== propertyId));
+      }
+    }
   };
 
   const clearFilters = () => {

@@ -10,4 +10,12 @@ if (!supabaseUrl || !supabaseAnonKey) {
   console.error('❌ Supabase credentials not found! Check Vercel environment variables.');
 }
 
-export const supabase = createClient(supabaseUrl || '', supabaseAnonKey || '');
+export const supabase = createClient(supabaseUrl || '', supabaseAnonKey || '', {
+  auth: {
+    persistSession: true,
+    storageKey: 'trata-auth',
+    storage: window.localStorage,
+    autoRefreshToken: true,
+    detectSessionInUrl: true
+  }
+});
