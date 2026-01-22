@@ -315,7 +315,7 @@ const PropertyManagement = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-8">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
               <h1 className="text-3xl font-bold text-slate-900 flex items-center gap-3">
                 <i className="fa-solid fa-building text-emerald-500"></i>
@@ -325,16 +325,25 @@ const PropertyManagement = () => {
                 Gerir propriedades, fotos e informações
               </p>
             </div>
-            <button
-              onClick={() => {
-                resetForm();
-                setShowAddModal(true);
-              }}
-              className="bg-emerald-500 text-white px-6 py-3 rounded-xl font-semibold hover:bg-emerald-600 transition-all shadow-sm flex items-center gap-2"
-            >
-              <i className="fa-solid fa-plus"></i>
-              Adicionar Imóvel
-            </button>
+            <div className="flex flex-wrap gap-3">
+              <a
+                href="#conversations"
+                className="bg-white border border-gray-200 text-slate-700 px-5 py-3 rounded-xl font-semibold hover:bg-gray-50 transition-all shadow-sm flex items-center gap-2"
+              >
+                <i className="fa-solid fa-headset text-emerald-500"></i>
+                Conversas
+              </a>
+              <button
+                onClick={() => {
+                  resetForm();
+                  setShowAddModal(true);
+                }}
+                className="bg-emerald-500 text-white px-6 py-3 rounded-xl font-semibold hover:bg-emerald-600 transition-all shadow-sm flex items-center gap-2"
+              >
+                <i className="fa-solid fa-plus"></i>
+                Adicionar Imóvel
+              </button>
+            </div>
           </div>
         </div>
 

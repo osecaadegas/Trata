@@ -14,6 +14,7 @@ import PropertiesPage from './components/PropertiesPage';
 import PropertyDetailPage from './components/PropertyDetailPage';
 import MessagesInbox from './components/MessagesInbox';
 import UserDashboard from './components/UserDashboard';
+import AdminConversations from './components/AdminConversations';
 
 function App() {
   const [currentPage, setCurrentPage] = useState('home');
@@ -53,6 +54,8 @@ function App() {
         return <PropertyManagement />;
       case 'messages':
         return <MessagesInbox />;
+      case 'conversations':
+        return <AdminConversations />;
       case 'dashboard':
         return <UserDashboard />;
       case 'contactos':
