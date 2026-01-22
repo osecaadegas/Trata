@@ -8,6 +8,7 @@ const AdminConversations = () => {
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [sendingMessage, setSendingMessage] = useState(false);
   const [filter, setFilter] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
@@ -52,76 +53,27 @@ const AdminConversations = () => {
   const fetchConversations = async () => {
     const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
     if (!supabaseUrl || supabaseUrl.includes('your-project')) {
-      // Demo data
-      setConversations([
-        { 
-          id: '1',
-          user_id: 'user-1',
-          user_name: 'Miguel Monsanto',
-          user_email: 'miguel@email.com',
-          user_avatar: 'https://ui-avatars.com/api/?name=Miguel+Monsanto&background=10b981&color=fff',
-          property_title: 'Apartamento T3 Vista Mar',
-          property_image: 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=400&h=300&fit=crop',
-          subject: 'Informações sobre o apartamento',
-          last_message: 'Obrigado pela sua resposta! Vou analisar.',
-          last_message_at: new Date(Date.now() - 1000 * 60 * 30).toISOString(),
-          last_message_by: 'user',
-          agent_unread_count: 1,
-          status: 'active',
-          priority: 'normal',
-          user_last_seen: new Date(Date.now() - 1000 * 60 * 5).toISOString()
-        },
-        { 
-          id: '2',
-          user_id: 'user-2',
-          user_name: 'Ana Silva',
-          user_email: 'ana.silva@email.com',
-          user_avatar: 'https://ui-avatars.com/api/?name=Ana+Silva&background=3b82f6&color=fff',
-          property_title: 'Moradia T4 com Jardim',
-          property_image: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=400&h=300&fit=crop',
-          subject: 'Agendamento de visita',
-          last_message: 'Perfeito! Sábado às 15h está confirmado.',
-          last_message_at: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(),
-          last_message_by: 'agent',
-          agent_unread_count: 0,
-          status: 'active',
-          priority: 'high',
-          user_last_seen: new Date(Date.now() - 1000 * 60 * 60).toISOString()
-        },
-        { 
-          id: '3',
-          user_id: 'user-3',
-          user_name: 'Pedro Costa',
-          user_email: 'pedro@email.com',
-          user_avatar: 'https://ui-avatars.com/api/?name=Pedro+Costa&background=f59e0b&color=fff',
-          property_title: 'Moradia T5 de Luxo',
-          property_image: 'https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=400&h=300&fit=crop',
-          subject: 'Proposta de compra',
-          last_message: 'Gostaria de fazer uma proposta de 700.000€',
-          last_message_at: new Date(Date.now() - 1000 * 60 * 60 * 5).toISOString(),
-          last_message_by: 'user',
-          agent_unread_count: 3,
-          status: 'active',
-          priority: 'urgent',
-          user_last_seen: new Date(Date.now() - 1000 * 60 * 10).toISOString()
-        }
-      ]);
+      setError('Base de dados não configurada. Configure as variáveis de ambiente do Supabase.');
       setLoading(false);
       return;
     }
 
     try {
+      setError(null);
       const response = await fetch(
         `${supabaseUrl}/rest/v1/conversations?order=last_message_at.desc`,
         { headers: getSupabaseHeaders() }
       );
 
-      if (response.ok) {
-        const data = await response.json();
-        setConversations(data);
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
-    } catch (error) {
-      console.error('Error fetching conversations:', error);
+
+      const data = await response.json();
+      setConversations(data || []);
+    } catch (err) {
+      console.error('Error fetching conversations:', err);
+      setError(err.message || 'Erro ao carregar conversas.');
     }
     setLoading(false);
   };
@@ -129,7 +81,6 @@ const AdminConversations = () => {
   const fetchOnlineUsers = async () => {
     const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
     if (!supabaseUrl || supabaseUrl.includes('your-project')) {
-      setOnlineUsers(['user-1', 'user-3']);
       return;
     }
 
@@ -153,13 +104,6 @@ const AdminConversations = () => {
     
     const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
     if (!supabaseUrl || supabaseUrl.includes('your-project')) {
-      setMessages([
-        { id: '1', sender_type: 'user', sender_name: 'Miguel Monsanto', message: 'Olá! Gostaria de saber mais informações sobre o apartamento T3 com vista mar.', created_at: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(), is_read: true },
-        { id: '2', sender_type: 'agent', sender_name: 'TRATA', message: 'Bom dia! O apartamento tem 120m², 3 quartos, 2 casas de banho, varanda com vista mar e estacionamento. O preço é 285.000€. Tem interesse em agendar uma visita?', created_at: new Date(Date.now() - 1000 * 60 * 60 * 23).toISOString(), is_read: true },
-        { id: '3', sender_type: 'user', sender_name: 'Miguel Monsanto', message: 'Sim, gostaria de visitar. Qual a disponibilidade?', created_at: new Date(Date.now() - 1000 * 60 * 60 * 22).toISOString(), is_read: true },
-        { id: '4', sender_type: 'agent', sender_name: 'TRATA', message: 'Temos disponibilidade: quinta às 10h ou 16h, sexta às 14h, ou sábado às 11h.', created_at: new Date(Date.now() - 1000 * 60 * 60 * 21).toISOString(), is_read: true },
-        { id: '5', sender_type: 'user', sender_name: 'Miguel Monsanto', message: 'Obrigado pela sua resposta! Vou analisar.', created_at: new Date(Date.now() - 1000 * 60 * 30).toISOString(), is_read: false },
-      ]);
       if (!silent) setLoading(false);
       return;
     }
@@ -172,7 +116,7 @@ const AdminConversations = () => {
 
       if (response.ok) {
         const data = await response.json();
-        setMessages(data);
+        setMessages(data || []);
         markMessagesRead(conversationId);
       }
     } catch (error) {
@@ -471,6 +415,19 @@ const AdminConversations = () => {
                         </div>
                       </div>
                     ))}
+                  </div>
+                ) : error ? (
+                  <div className="p-8 text-center">
+                    <i className="fa-solid fa-exclamation-triangle text-4xl mb-3 text-amber-500"></i>
+                    <p className="text-slate-700 font-medium mb-2">Erro ao carregar</p>
+                    <p className="text-slate-500 text-sm mb-4">{error}</p>
+                    <button
+                      onClick={fetchConversations}
+                      className="px-4 py-2 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition-colors text-sm"
+                    >
+                      <i className="fa-solid fa-refresh mr-2"></i>
+                      Tentar novamente
+                    </button>
                   </div>
                 ) : filteredConversations.length === 0 ? (
                   <div className="p-8 text-center text-slate-500">

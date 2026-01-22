@@ -9,6 +9,7 @@ const UserManagement = ({ onClose }) => {
   const [users, setUsers] = useState([]);
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [totalUsers, setTotalUsers] = useState(0);
@@ -38,19 +39,29 @@ const UserManagement = ({ onClose }) => {
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      const { data, error, count } = await supabase
+      setError(null);
+      
+      // Check if Supabase is configured
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      if (!supabaseUrl || supabaseUrl.includes('your-project')) {
+        setError('Base de dados não configurada. Configure as variáveis de ambiente do Supabase.');
+        setLoading(false);
+        return;
+      }
+      
+      const { data, error: fetchError, count } = await supabase
         .from('users')
         .select('*', { count: 'exact' })
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (fetchError) throw fetchError;
 
       setUsers(data || []);
       setFilteredUsers(data || []);
       setTotalUsers(count || 0);
-    } catch (error) {
-      console.error('Error fetching users:', error);
-      alert('Erro ao carregar utilizadores');
+    } catch (err) {
+      console.error('Error fetching users:', err);
+      setError(err.message || 'Erro ao carregar utilizadores. Verifique a ligação à base de dados.');
     } finally {
       setLoading(false);
     }
@@ -228,6 +239,21 @@ const UserManagement = ({ onClose }) => {
               <div className="text-center">
                 <i className="fa-solid fa-spinner fa-spin text-4xl text-emerald-500 mb-4"></i>
                 <p className="text-slate-500">A carregar utilizadores...</p>
+              </div>
+            </div>
+          ) : error ? (
+            <div className="flex items-center justify-center py-20">
+              <div className="text-center">
+                <i className="fa-solid fa-exclamation-triangle text-4xl text-amber-500 mb-4"></i>
+                <p className="text-slate-700 font-medium mb-2">Erro ao carregar utilizadores</p>
+                <p className="text-slate-500 text-sm max-w-md">{error}</p>
+                <button
+                  onClick={fetchUsers}
+                  className="mt-4 px-4 py-2 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition-colors"
+                >
+                  <i className="fa-solid fa-refresh mr-2"></i>
+                  Tentar novamente
+                </button>
               </div>
             </div>
           ) : currentUsers.length === 0 ? (

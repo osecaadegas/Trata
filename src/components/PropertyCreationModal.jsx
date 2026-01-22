@@ -253,6 +253,13 @@ const PropertyCreationModal = ({ isOpen, onClose, editingProperty, onSuccess }) 
   const handleSubmit = async (asDraft = false) => {
     if (!validateStep(currentStep)) return;
     
+    // Check if Supabase is configured
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+    if (!supabaseUrl || supabaseUrl.includes('your-project')) {
+      setErrors({ submit: 'Base de dados não configurada. Configure as variáveis de ambiente do Supabase.' });
+      return;
+    }
+    
     setIsSubmitting(true);
     
     try {
@@ -297,7 +304,7 @@ const PropertyCreationModal = ({ isOpen, onClose, editingProperty, onSuccess }) 
       resetForm();
     } catch (error) {
       console.error('Error saving property:', error);
-      setErrors({ submit: error.message });
+      setErrors({ submit: error.message || 'Erro ao guardar imóvel. Verifique a ligação à base de dados.' });
     } finally {
       setIsSubmitting(false);
     }
