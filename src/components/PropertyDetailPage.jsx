@@ -9,6 +9,7 @@ const PropertyDetailPage = ({ propertyId }) => {
   const [showContactForm, setShowContactForm] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
   const [favoriteLoading, setFavoriteLoading] = useState(false);
+  const [show3DTour, setShow3DTour] = useState(false);
   const [contactFormData, setContactFormData] = useState({
     name: '',
     email: '',
@@ -17,28 +18,6 @@ const PropertyDetailPage = ({ propertyId }) => {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
-
-  // Fallback properties data (same as PropertiesPage)
-  const fallbackProperties = [
-    { id: 1, title: 'Apartamento T3 com Vista Mar', type: 'Apartamento', location: 'Braga, Centro', price: 285000, area: 120, bedrooms: 3, bathrooms: 2, condition: 'Novo', featured: true, description: 'Magnífico apartamento T3 com vista mar, acabamentos de luxo, cozinha totalmente equipada e varanda ampla. Localizado em zona premium com fácil acesso a transportes e serviços.', features: ['Varanda', 'Cozinha Equipada', 'Estacionamento', 'Elevador'], images: ['https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=800&h=600&fit=crop', 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800&h=600&fit=crop', 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&h=600&fit=crop'] },
-    { id: 2, title: 'Moradia T4 com Jardim', type: 'Moradia', location: 'Braga, Gualtar', price: 425000, area: 200, bedrooms: 4, bathrooms: 3, condition: 'Renovado', featured: true, description: 'Espaçosa moradia T4 com amplo jardim, garagem para 2 carros e acabamentos de qualidade. Zona residencial tranquila com excelente exposição solar.', features: ['Jardim', 'Garagem', 'Lareira', 'Churrasqueira'], images: ['https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800&h=600&fit=crop', 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800&h=600&fit=crop'] },
-    { id: 3, title: 'Apartamento T2 Renovado', type: 'Apartamento', location: 'Braga, São Vicente', price: 175000, area: 85, bedrooms: 2, bathrooms: 1, condition: 'Renovado', featured: false, description: 'Apartamento T2 totalmente renovado, com cozinha moderna e casa de banho nova. Excelente localização perto de escolas e comércio.', features: ['Cozinha Equipada', 'Vidros Duplos', 'Aquecimento Central'], images: ['https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800&h=600&fit=crop'] },
-    { id: 4, title: 'Terreno Urbanizável', type: 'Terreno', location: 'Braga, Palmeira', price: 95000, area: 500, bedrooms: 0, bathrooms: 0, condition: 'Novo', featured: false, description: 'Terreno urbanizável com 500m², excelente para construção de moradia. Infraestruturas disponíveis e boa exposição solar.', features: ['Água', 'Luz', 'Saneamento'], images: ['https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=800&h=600&fit=crop'] },
-    { id: 5, title: 'Moradia T5 de Luxo', type: 'Moradia', location: 'Braga, Bom Jesus', price: 750000, area: 350, bedrooms: 5, bathrooms: 4, condition: 'Novo', featured: true, description: 'Moradia de luxo T5 com piscina, jardim paisagístico e acabamentos premium. Vista panorâmica e privacidade total.', features: ['Piscina', 'Jardim', 'Garagem', 'Domótica', 'Painéis Solares'], images: ['https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=800&h=600&fit=crop', 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800&h=600&fit=crop'] },
-    { id: 6, title: 'Apartamento T1 para Investimento', type: 'Apartamento', location: 'Braga, Universidade', price: 125000, area: 45, bedrooms: 1, bathrooms: 1, condition: 'Para Renovar', featured: false, description: 'Apartamento T1 com grande potencial de rentabilidade, ideal para investimento ou primeira casa. Necessita de algumas obras de modernização.', features: ['Perto da Universidade', 'Transportes'], images: ['https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&h=600&fit=crop'] },
-    { id: 7, title: 'Moradia T3 com Piscina', type: 'Moradia', location: 'Braga, Fraião', price: 385000, area: 180, bedrooms: 3, bathrooms: 2, condition: 'Renovado', featured: true, description: 'Moradia T3 com piscina aquecida, zona de barbecue e garagem. Excelente para família, em zona muito sossegada.', features: ['Piscina Aquecida', 'Churrasqueira', 'Garagem', 'Alarme'], images: ['https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800&h=600&fit=crop', 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800&h=600&fit=crop'] },
-    { id: 8, title: 'Apartamento T4 Duplex', type: 'Apartamento', location: 'Braga, Maximinos', price: 320000, area: 150, bedrooms: 4, bathrooms: 2, condition: 'Novo', featured: false, description: 'Fantástico apartamento duplex T4 com terraço privativo. Acabamentos modernos e muita luz natural.', features: ['Terraço', 'Duplex', 'Garagem', 'Arrecadação'], images: ['https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?w=800&h=600&fit=crop'] },
-    { id: 9, title: 'Quinta com 2 Hectares', type: 'Quinta', location: 'Braga, Priscos', price: 550000, area: 20000, bedrooms: 6, bathrooms: 3, condition: 'Para Renovar', featured: false, description: 'Quinta rústica com 2 hectares, casa principal para renovar e várias dependências. Grande potencial turístico ou agrícola.', features: ['Terreno Agrícola', 'Poço', 'Anexos', 'Vinha'], images: ['https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800&h=600&fit=crop'] },
-    { id: 10, title: 'Apartamento T2 com Varanda', type: 'Apartamento', location: 'Braga, Real', price: 195000, area: 90, bedrooms: 2, bathrooms: 1, condition: 'Novo', featured: false, description: 'Apartamento T2 com varanda generosa, orientação sul e excelente luminosidade. Prédio com elevador e garagem.', features: ['Varanda', 'Elevador', 'Garagem', 'Orientação Sul'], images: ['https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&h=600&fit=crop'] },
-    { id: 11, title: 'Moradia Geminada T3', type: 'Moradia', location: 'Braga, Nogueira', price: 295000, area: 140, bedrooms: 3, bathrooms: 2, condition: 'Renovado', featured: false, description: 'Moradia geminada T3 com quintal e garagem. Zona residencial familiar com boa vizinhança e acessos.', features: ['Quintal', 'Garagem', 'Lareira'], images: ['https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?w=800&h=600&fit=crop'] },
-    { id: 12, title: 'Loja Comercial', type: 'Comercial', location: 'Braga, Centro', price: 180000, area: 75, bedrooms: 0, bathrooms: 1, condition: 'Novo', featured: false, description: 'Espaço comercial em zona de grande movimento, com montra ampla e boas condições. Ideal para comércio ou serviços.', features: ['Montra', 'WC', 'Zona de Grande Movimento'], images: ['https://images.unsplash.com/photo-1582037928769-181f2644ecb7?w=800&h=600&fit=crop'] },
-    { id: 13, title: 'Apartamento T3 com Terraço', type: 'Apartamento', location: 'Braga, São José', price: 265000, area: 110, bedrooms: 3, bathrooms: 2, condition: 'Novo', featured: false, description: 'Último piso com terraço privativo de 30m². Vista desafogada e muita privacidade. Acabamentos de qualidade.', features: ['Terraço', 'Último Piso', 'Vista Desafogada', 'Garagem'], images: ['https://images.unsplash.com/photo-1600573472550-8090b5e0745e?w=800&h=600&fit=crop'] },
-    { id: 14, title: 'Moradia T4 Moderna', type: 'Moradia', location: 'Braga, Lamaçães', price: 480000, area: 220, bedrooms: 4, bathrooms: 3, condition: 'Novo', featured: true, description: 'Moradia contemporânea T4 com linhas modernas, piscina e jardim. Domótica e eficiência energética A+.', features: ['Piscina', 'Domótica', 'Eficiência A+', 'Painéis Solares'], images: ['https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?w=800&h=600&fit=crop', 'https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=800&h=600&fit=crop'] },
-    { id: 15, title: 'Apartamento T1 Centro Histórico', type: 'Apartamento', location: 'Braga, Sé', price: 145000, area: 55, bedrooms: 1, bathrooms: 1, condition: 'Renovado', featured: false, description: 'Charmoso T1 no centro histórico, totalmente renovado mantendo características originais. Ideal para turismo ou habitação.', features: ['Centro Histórico', 'Renovado', 'Características Originais'], images: ['https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?w=800&h=600&fit=crop'] },
-    { id: 16, title: 'Terreno Industrial', type: 'Terreno', location: 'Braga, Celeirós', price: 250000, area: 2000, bedrooms: 0, bathrooms: 0, condition: 'Novo', featured: false, description: 'Terreno industrial com 2000m², junto a zona industrial consolidada. Todas as infraestruturas disponíveis.', features: ['Zona Industrial', 'Infraestruturas', 'Bons Acessos'], images: ['https://images.unsplash.com/photo-1628744448840-55bdb2497bd4?w=800&h=600&fit=crop'] },
-    { id: 17, title: 'Moradia T3 para Renovar', type: 'Moradia', location: 'Braga, Ferreiros', price: 165000, area: 130, bedrooms: 3, bathrooms: 1, condition: 'Para Renovar', featured: false, description: 'Moradia T3 com bom potencial, necessita de obras de modernização. Terreno com 300m² e boa localização.', features: ['Terreno 300m²', 'Potencial de Valorização'], images: ['https://images.unsplash.com/photo-1605276374104-dee2a0ed3cd6?w=800&h=600&fit=crop'] },
-    { id: 18, title: 'Apartamento T2 com Garagem', type: 'Apartamento', location: 'Braga, Carandá', price: 210000, area: 95, bedrooms: 2, bathrooms: 1, condition: 'Novo', featured: false, description: 'Excelente T2 com garagem box e arrecadação. Cozinha equipada, roupeiros embutidos e excelentes acabamentos.', features: ['Garagem Box', 'Arrecadação', 'Cozinha Equipada', 'Roupeiros'], images: ['https://images.unsplash.com/photo-1600607687644-c7171b42498f?w=800&h=600&fit=crop'] }
-  ];
 
   // Mapping from DB values to display values (Portuguese)
   const propertyTypeMap = {
@@ -55,6 +34,15 @@ const PropertyDetailPage = ({ propertyId }) => {
     'to_renovate': 'Para Renovar'
   };
 
+  const getSupabaseHeaders = () => {
+    const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+    return {
+      'apikey': supabaseKey,
+      'Authorization': `Bearer ${supabaseKey}`,
+      'Content-Type': 'application/json'
+    };
+  };
+
   useEffect(() => {
     const fetchProperty = async () => {
       setIsLoading(true);
@@ -62,19 +50,8 @@ const PropertyDetailPage = ({ propertyId }) => {
       const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
       const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
       
-      // Check if we have a numeric ID (fallback data) or UUID (database)
-      const isNumericId = !isNaN(parseInt(propertyId)) && parseInt(propertyId) <= 18;
-      
-      if (!supabaseUrl || !supabaseKey || supabaseUrl === 'your_supabase_project_url' || isNumericId) {
-        // Use fallback data
-        const foundProperty = fallbackProperties.find(p => p.id.toString() === propertyId.toString());
-        if (foundProperty) {
-          setProperty({
-            ...foundProperty,
-            image: foundProperty.images?.[0] || foundProperty.image,
-            images: foundProperty.images || [foundProperty.image]
-          });
-        }
+      if (!supabaseUrl || !supabaseKey || supabaseUrl.includes('your-project')) {
+        console.error('Supabase not configured');
         setIsLoading(false);
         return;
       }
@@ -82,13 +59,7 @@ const PropertyDetailPage = ({ propertyId }) => {
       try {
         const response = await fetch(
           `${supabaseUrl}/rest/v1/properties?id=eq.${propertyId}`,
-          {
-            headers: {
-              'apikey': supabaseKey,
-              'Authorization': `Bearer ${supabaseKey}`,
-              'Content-Type': 'application/json'
-            }
-          }
+          { headers: getSupabaseHeaders() }
         );
 
         if (!response.ok) {
@@ -105,35 +76,24 @@ const PropertyDetailPage = ({ propertyId }) => {
             description: prop.description,
             type: propertyTypeMap[prop.property_type] || prop.property_type,
             location: prop.location,
+            neighborhood: prop.neighborhood,
             price: parseFloat(prop.price),
+            priceType: prop.price_type,
             area: prop.area_sqm,
             bedrooms: prop.bedrooms,
             bathrooms: prop.bathrooms,
             condition: conditionMap[prop.condition] || prop.condition,
             features: prop.features || [],
             images: prop.images || ['https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&h=600&fit=crop'],
-            featured: prop.featured
+            featured: prop.featured,
+            virtualTourUrl: prop.virtual_tour_url,
+            videoUrl: prop.video_url,
+            yearBuilt: prop.year_built,
+            energyRating: prop.energy_rating
           });
-        } else {
-          // Try fallback
-          const foundProperty = fallbackProperties.find(p => p.id.toString() === propertyId.toString());
-          if (foundProperty) {
-            setProperty({
-              ...foundProperty,
-              images: foundProperty.images || [foundProperty.image]
-            });
-          }
         }
       } catch (err) {
         console.error('Error fetching property:', err);
-        // Try fallback
-        const foundProperty = fallbackProperties.find(p => p.id.toString() === propertyId.toString());
-        if (foundProperty) {
-          setProperty({
-            ...foundProperty,
-            images: foundProperty.images || [foundProperty.image]
-          });
-        }
       } finally {
         setIsLoading(false);
       }
@@ -153,22 +113,12 @@ const PropertyDetailPage = ({ propertyId }) => {
       }
 
       const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-      const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-      
-      if (!supabaseUrl || !supabaseKey || supabaseUrl.includes('your-project')) {
-        return;
-      }
+      if (!supabaseUrl || supabaseUrl.includes('your-project')) return;
 
       try {
         const response = await fetch(
           `${supabaseUrl}/rest/v1/user_favorites?user_id=eq.${user.id}&property_id=eq.${propertyId}`,
-          {
-            headers: {
-              'apikey': supabaseKey,
-              'Authorization': `Bearer ${supabaseKey}`,
-              'Content-Type': 'application/json'
-            }
-          }
+          { headers: getSupabaseHeaders() }
         );
 
         if (response.ok) {
@@ -190,54 +140,34 @@ const PropertyDetailPage = ({ propertyId }) => {
     }
 
     const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-    const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-
-    // Optimistic update
-    setIsFavorite(prev => !prev);
-
-    // Skip database call if Supabase not configured
-    if (!supabaseUrl || !supabaseKey || supabaseUrl.includes('your-project')) {
+    if (!supabaseUrl || supabaseUrl.includes('your-project')) {
+      setIsFavorite(prev => !prev);
       return;
     }
 
     setFavoriteLoading(true);
+    const wasFavorite = isFavorite;
+    setIsFavorite(!isFavorite);
+
     try {
-      if (isFavorite) {
-        // Remove from favorites
+      if (wasFavorite) {
         await fetch(
           `${supabaseUrl}/rest/v1/user_favorites?user_id=eq.${user.id}&property_id=eq.${propertyId}`,
-          {
-            method: 'DELETE',
-            headers: {
-              'apikey': supabaseKey,
-              'Authorization': `Bearer ${supabaseKey}`,
-              'Content-Type': 'application/json'
-            }
-          }
+          { method: 'DELETE', headers: getSupabaseHeaders() }
         );
       } else {
-        // Add to favorites
         await fetch(
           `${supabaseUrl}/rest/v1/user_favorites`,
           {
             method: 'POST',
-            headers: {
-              'apikey': supabaseKey,
-              'Authorization': `Bearer ${supabaseKey}`,
-              'Content-Type': 'application/json',
-              'Prefer': 'return=minimal'
-            },
-            body: JSON.stringify({
-              user_id: user.id,
-              property_id: propertyId
-            })
+            headers: { ...getSupabaseHeaders(), 'Prefer': 'return=minimal' },
+            body: JSON.stringify({ user_id: user.id, property_id: propertyId })
           }
         );
       }
     } catch (error) {
       console.error('Error toggling favorite:', error);
-      // Revert on error
-      setIsFavorite(prev => !prev);
+      setIsFavorite(wasFavorite);
     } finally {
       setFavoriteLoading(false);
     }
@@ -261,38 +191,22 @@ const PropertyDetailPage = ({ propertyId }) => {
     
     try {
       const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-      const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-
-      if (supabaseUrl && supabaseKey && !supabaseUrl.includes('your-project')) {
-        const response = await fetch(
-          `${supabaseUrl}/rest/v1/messages`,
-          {
-            method: 'POST',
-            headers: {
-              'apikey': supabaseKey,
-              'Authorization': `Bearer ${supabaseKey}`,
-              'Content-Type': 'application/json',
-              'Prefer': 'return=minimal'
-            },
-            body: JSON.stringify({
-              name: contactFormData.name,
-              email: contactFormData.email,
-              phone: contactFormData.phone || null,
-              subject: 'interesse',
-              message: contactFormData.message,
-              property_id: property.id,
-              property_title: property.title,
-              status: 'unread'
-            })
-          }
-        );
-
-        if (!response.ok) {
-          console.error('Failed to save message to database');
-        }
+      if (supabaseUrl && !supabaseUrl.includes('your-project')) {
+        await fetch(`${supabaseUrl}/rest/v1/messages`, {
+          method: 'POST',
+          headers: { ...getSupabaseHeaders(), 'Prefer': 'return=minimal' },
+          body: JSON.stringify({
+            name: contactFormData.name,
+            email: contactFormData.email,
+            phone: contactFormData.phone || null,
+            subject: 'interesse',
+            message: contactFormData.message,
+            property_id: property.id,
+            property_title: property.title,
+            status: 'unread'
+          })
+        });
       }
-      
-      await new Promise(resolve => setTimeout(resolve, 500));
       
       setIsSubmitting(false);
       setSubmitSuccess(true);
@@ -305,7 +219,6 @@ const PropertyDetailPage = ({ propertyId }) => {
     } catch (error) {
       console.error('Error submitting form:', error);
       setIsSubmitting(false);
-      setSubmitSuccess(true);
     }
   };
 
@@ -316,13 +229,11 @@ const PropertyDetailPage = ({ propertyId }) => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="animate-pulse">
             <div className="h-8 bg-gray-200 rounded w-48 mb-8"></div>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              <div className="h-96 bg-gray-200 rounded-2xl"></div>
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
+              <div className="lg:col-span-3 h-[500px] bg-gray-200 rounded-2xl"></div>
               <div className="space-y-4">
-                <div className="h-8 bg-gray-200 rounded w-3/4"></div>
-                <div className="h-6 bg-gray-200 rounded w-1/2"></div>
-                <div className="h-12 bg-gray-200 rounded w-1/3"></div>
-                <div className="h-32 bg-gray-200 rounded"></div>
+                <div className="h-80 bg-gray-200 rounded-xl"></div>
+                <div className="h-40 bg-gray-200 rounded-xl"></div>
               </div>
             </div>
           </div>
@@ -355,161 +266,309 @@ const PropertyDetailPage = ({ propertyId }) => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Back Button */}
+      {/* Header with Title & Price */}
       <div className="bg-white border-b border-gray-100">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <a
-            href="#imoveis"
-            className="inline-flex items-center gap-2 text-slate-600 hover:text-emerald-600 transition-colors"
-          >
-            <i className="fa-solid fa-arrow-left"></i>
-            <span>Voltar aos imóveis</span>
-          </a>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+            <div>
+              <a
+                href="#imoveis"
+                className="inline-flex items-center gap-2 text-slate-500 hover:text-emerald-600 transition-colors text-sm mb-3"
+              >
+                <i className="fa-solid fa-arrow-left"></i>
+                Voltar aos imóveis
+              </a>
+              <h1 className="text-2xl lg:text-3xl font-bold text-slate-900">{property.title}</h1>
+              <p className="flex items-center gap-2 text-slate-500 mt-1">
+                <i className="fa-solid fa-location-dot text-emerald-500"></i>
+                {property.location}
+              </p>
+            </div>
+            <div className="text-left md:text-right">
+              <p className="text-3xl font-bold text-emerald-600">{formatPrice(property.price)}</p>
+              <p className="text-sm text-slate-500">
+                {property.priceType === 'rent' ? 'por mês' : 'Venda'}
+              </p>
+            </div>
+          </div>
         </div>
       </div>
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Left Column - Images & Details */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* Image Gallery */}
-            <div className="bg-white rounded-2xl overflow-hidden shadow-sm">
-              {/* Main Image */}
-              <div className="relative h-[400px] lg:h-[500px]">
-                <img
-                  src={property.images[activeImage]}
-                  alt={property.title}
-                  className="w-full h-full object-cover"
-                />
-                {/* Badges */}
-                <div className="absolute top-4 left-4 flex flex-wrap gap-2">
-                  <span className={`px-4 py-2 rounded-full text-sm font-semibold ${
-                    property.condition === 'Novo' ? 'bg-emerald-500 text-white' :
-                    property.condition === 'Renovado' ? 'bg-blue-500 text-white' :
-                    'bg-amber-500 text-white'
-                  }`}>
-                    {property.condition}
+        
+        {/* Image Gallery Section - Main + Vertical Thumbnails */}
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 mb-8">
+          {/* Main Image */}
+          <div className="lg:col-span-3 relative">
+            <div className="relative h-[350px] lg:h-[480px] rounded-2xl overflow-hidden bg-gray-100">
+              <img
+                src={property.images[activeImage]}
+                alt={property.title}
+                className="w-full h-full object-cover"
+              />
+              {/* Badges */}
+              <div className="absolute top-4 left-4 flex flex-wrap gap-2">
+                <span className={`px-4 py-2 rounded-full text-sm font-semibold ${
+                  property.condition === 'Novo' ? 'bg-emerald-500 text-white' :
+                  property.condition === 'Renovado' ? 'bg-blue-500 text-white' :
+                  'bg-amber-500 text-white'
+                }`}>
+                  {property.condition}
+                </span>
+                {property.featured && (
+                  <span className="px-4 py-2 rounded-full text-sm font-semibold bg-yellow-500 text-white">
+                    <i className="fa-solid fa-star mr-1"></i>
+                    Destaque
                   </span>
-                  {property.featured && (
-                    <span className="px-4 py-2 rounded-full text-sm font-semibold bg-yellow-500 text-white">
-                      <i className="fa-solid fa-star mr-1"></i>
-                      Destaque
-                    </span>
-                  )}
-                </div>
-                {/* Favorite Button */}
-                <button
-                  onClick={toggleFavorite}
-                  disabled={favoriteLoading}
-                  className={`absolute top-4 right-4 w-12 h-12 rounded-full flex items-center justify-center transition-all ${
-                    isFavorite ? 'bg-red-500 text-white' : 'bg-white/90 text-slate-600 hover:text-red-500'
-                  } ${favoriteLoading ? 'opacity-50 cursor-wait' : ''}`}
-                >
-                  <i className={`${isFavorite ? 'fa-solid' : 'fa-regular'} fa-heart text-xl`}></i>
-                </button>
-                {/* Navigation Arrows */}
-                {property.images.length > 1 && (
-                  <>
-                    <button
-                      onClick={() => setActiveImage(prev => prev === 0 ? property.images.length - 1 : prev - 1)}
-                      className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/90 text-slate-700 flex items-center justify-center hover:bg-white transition-colors"
-                    >
-                      <i className="fa-solid fa-chevron-left"></i>
-                    </button>
-                    <button
-                      onClick={() => setActiveImage(prev => prev === property.images.length - 1 ? 0 : prev + 1)}
-                      className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/90 text-slate-700 flex items-center justify-center hover:bg-white transition-colors"
-                    >
-                      <i className="fa-solid fa-chevron-right"></i>
-                    </button>
-                  </>
                 )}
               </div>
-              {/* Thumbnails */}
+              {/* Favorite Button */}
+              <button
+                onClick={toggleFavorite}
+                disabled={favoriteLoading}
+                className={`absolute top-4 right-4 w-12 h-12 rounded-full flex items-center justify-center transition-all shadow-lg ${
+                  isFavorite ? 'bg-red-500 text-white' : 'bg-white text-slate-600 hover:text-red-500'
+                } ${favoriteLoading ? 'opacity-50 cursor-wait' : ''}`}
+              >
+                <i className={`${isFavorite ? 'fa-solid' : 'fa-regular'} fa-heart text-xl`}></i>
+              </button>
+              {/* Navigation Arrows */}
               {property.images.length > 1 && (
-                <div className="p-4 flex gap-3 overflow-x-auto">
-                  {property.images.map((img, index) => (
-                    <button
-                      key={index}
-                      onClick={() => setActiveImage(index)}
-                      className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all ${
-                        activeImage === index ? 'border-emerald-500' : 'border-transparent opacity-60 hover:opacity-100'
-                      }`}
-                    >
-                      <img src={img} alt={`Imagem ${index + 1}`} className="w-full h-full object-cover" />
-                    </button>
-                  ))}
-                </div>
+                <>
+                  <button
+                    onClick={() => setActiveImage(prev => prev === 0 ? property.images.length - 1 : prev - 1)}
+                    className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/90 text-slate-700 flex items-center justify-center hover:bg-white transition-colors shadow-lg"
+                  >
+                    <i className="fa-solid fa-chevron-left"></i>
+                  </button>
+                  <button
+                    onClick={() => setActiveImage(prev => prev === property.images.length - 1 ? 0 : prev + 1)}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/90 text-slate-700 flex items-center justify-center hover:bg-white transition-colors shadow-lg"
+                  >
+                    <i className="fa-solid fa-chevron-right"></i>
+                  </button>
+                </>
               )}
+              {/* Image Counter */}
+              <div className="absolute bottom-4 right-4 bg-black/60 text-white px-3 py-1 rounded-full text-sm">
+                {activeImage + 1} / {property.images.length}
+              </div>
+            </div>
+          </div>
+
+          {/* Right Column: Vertical Gallery + Virtual Tour */}
+          <div className="lg:col-span-1 space-y-4">
+            {/* Gallery Section */}
+            <div className="bg-white rounded-xl p-4 shadow-sm">
+              <h3 className="font-semibold text-slate-700 mb-3 flex items-center gap-2">
+                <i className="fa-solid fa-images text-emerald-500"></i>
+                Galeria
+              </h3>
+              <div className="space-y-2 max-h-[260px] overflow-y-auto pr-1 custom-scrollbar">
+                {property.images.map((img, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setActiveImage(index)}
+                    className={`w-full h-16 rounded-lg overflow-hidden border-2 transition-all ${
+                      activeImage === index 
+                        ? 'border-emerald-500 ring-2 ring-emerald-500/30' 
+                        : 'border-transparent opacity-70 hover:opacity-100'
+                    }`}
+                  >
+                    <img src={img} alt={`Imagem ${index + 1}`} className="w-full h-full object-cover" />
+                  </button>
+                ))}
+              </div>
             </div>
 
-            {/* Property Details */}
-            <div className="bg-white rounded-2xl p-6 lg:p-8 shadow-sm">
-              <h2 className="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2">
-                <i className="fa-solid fa-info-circle text-emerald-500"></i>
-                Detalhes do Imóvel
-              </h2>
-              
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                <div className="text-center p-4 bg-gray-50 rounded-xl">
-                  <i className="fa-solid fa-ruler-combined text-2xl text-emerald-500 mb-2"></i>
-                  <p className="text-sm text-slate-500">Área</p>
-                  <p className="text-lg font-bold text-slate-900">{formatArea(property.area)}</p>
+            {/* Virtual Tour Section */}
+            <div className="bg-white rounded-xl p-4 shadow-sm">
+              <h3 className="font-semibold text-slate-700 mb-3 flex items-center gap-2">
+                <i className="fa-solid fa-cube text-emerald-500"></i>
+                Tour Virtual
+              </h3>
+              <button
+                onClick={() => setShow3DTour(true)}
+                className="w-full h-28 rounded-lg overflow-hidden relative group"
+              >
+                <img 
+                  src={property.images[0]} 
+                  alt="Tour Virtual" 
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                />
+                <div className="absolute inset-0 bg-black/40 flex items-center justify-center group-hover:bg-black/50 transition-colors">
+                  <div className="w-12 h-12 bg-white/90 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <i className="fa-solid fa-play text-emerald-600 text-lg ml-1"></i>
+                  </div>
                 </div>
+                <span className="absolute bottom-2 left-2 text-white text-xs bg-black/50 px-2 py-1 rounded">
+                  <i className="fa-solid fa-vr-cardboard mr-1"></i>
+                  Tour 360°
+                </span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* 3D Tour Modal */}
+        {show3DTour && (
+          <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
+            <div className="bg-white rounded-2xl w-full max-w-5xl overflow-hidden">
+              <div className="flex items-center justify-between p-4 border-b">
+                <h3 className="font-bold text-lg flex items-center gap-2">
+                  <i className="fa-solid fa-cube text-emerald-500"></i>
+                  Tour Virtual - {property.title}
+                </h3>
+                <button
+                  onClick={() => setShow3DTour(false)}
+                  className="w-10 h-10 rounded-full hover:bg-gray-100 flex items-center justify-center transition-colors"
+                >
+                  <i className="fa-solid fa-times text-xl"></i>
+                </button>
+              </div>
+              <div className="aspect-video bg-gray-900 flex items-center justify-center">
+                {property.virtualTourUrl ? (
+                  <iframe
+                    src={property.virtualTourUrl}
+                    width="100%"
+                    height="100%"
+                    allowFullScreen
+                    className="w-full h-full"
+                  ></iframe>
+                ) : (
+                  <div className="text-center text-white p-8">
+                    <div className="w-20 h-20 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <i className="fa-solid fa-cube text-4xl opacity-70"></i>
+                    </div>
+                    <p className="text-xl font-semibold mb-2">Tour virtual em breve disponível</p>
+                    <p className="text-sm text-gray-400">Contacte-nos para agendar uma visita presencial</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Content Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Left Column - Details */}
+          <div className="lg:col-span-2 space-y-6">
+            
+            {/* Quick Stats */}
+            <div className="bg-white rounded-2xl p-6 shadow-sm">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                 {property.bedrooms > 0 && (
-                  <div className="text-center p-4 bg-gray-50 rounded-xl">
+                  <div className="text-center p-4 bg-emerald-50 rounded-xl">
                     <i className="fa-solid fa-bed text-2xl text-emerald-500 mb-2"></i>
+                    <p className="text-2xl font-bold text-slate-900">{property.bedrooms}</p>
                     <p className="text-sm text-slate-500">Quartos</p>
-                    <p className="text-lg font-bold text-slate-900">{property.bedrooms}</p>
                   </div>
                 )}
                 {property.bathrooms > 0 && (
-                  <div className="text-center p-4 bg-gray-50 rounded-xl">
+                  <div className="text-center p-4 bg-emerald-50 rounded-xl">
                     <i className="fa-solid fa-bath text-2xl text-emerald-500 mb-2"></i>
-                    <p className="text-sm text-slate-500">WC</p>
-                    <p className="text-lg font-bold text-slate-900">{property.bathrooms}</p>
+                    <p className="text-2xl font-bold text-slate-900">{property.bathrooms}</p>
+                    <p className="text-sm text-slate-500">Casas de Banho</p>
                   </div>
                 )}
-                <div className="text-center p-4 bg-gray-50 rounded-xl">
-                  <i className="fa-solid fa-building text-2xl text-emerald-500 mb-2"></i>
-                  <p className="text-sm text-slate-500">Tipo</p>
-                  <p className="text-lg font-bold text-slate-900">{property.type}</p>
+                <div className="text-center p-4 bg-emerald-50 rounded-xl">
+                  <i className="fa-solid fa-ruler-combined text-2xl text-emerald-500 mb-2"></i>
+                  <p className="text-2xl font-bold text-slate-900">{formatArea(property.area)}</p>
+                  <p className="text-sm text-slate-500">Área</p>
                 </div>
+                {property.yearBuilt && (
+                  <div className="text-center p-4 bg-emerald-50 rounded-xl">
+                    <i className="fa-solid fa-calendar text-2xl text-emerald-500 mb-2"></i>
+                    <p className="text-2xl font-bold text-slate-900">{property.yearBuilt}</p>
+                    <p className="text-sm text-slate-500">Ano</p>
+                  </div>
+                )}
               </div>
             </div>
 
-            {/* Description */}
-            <div className="bg-white rounded-2xl p-6 lg:p-8 shadow-sm">
+            {/* Property Description */}
+            <div className="bg-white rounded-2xl p-6 shadow-sm">
               <h2 className="text-xl font-bold text-slate-900 mb-4 flex items-center gap-2">
                 <i className="fa-solid fa-file-lines text-emerald-500"></i>
-                Descrição
+                Descrição do Imóvel
               </h2>
-              <p className="text-slate-600 leading-relaxed">
+              <p className="text-slate-600 leading-relaxed whitespace-pre-line">
                 {property.description || 'Sem descrição disponível para este imóvel.'}
               </p>
             </div>
 
             {/* Features */}
             {property.features && property.features.length > 0 && (
-              <div className="bg-white rounded-2xl p-6 lg:p-8 shadow-sm">
-                <h2 className="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2">
+              <div className="bg-white rounded-2xl p-6 shadow-sm">
+                <h2 className="text-xl font-bold text-slate-900 mb-4 flex items-center gap-2">
                   <i className="fa-solid fa-list-check text-emerald-500"></i>
                   Características
                 </h2>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                   {property.features.map((feature, index) => (
-                    <div key={index} className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
-                      <i className="fa-solid fa-check text-emerald-500"></i>
-                      <span className="text-slate-700">{feature}</span>
+                    <div key={index} className="flex items-center gap-3 p-3 bg-emerald-50 rounded-xl">
+                      <i className="fa-solid fa-check-circle text-emerald-500"></i>
+                      <span className="text-slate-700 text-sm">{feature}</span>
                     </div>
                   ))}
                 </div>
               </div>
             )}
 
+            {/* Property Details Grid */}
+            <div className="bg-white rounded-2xl p-6 shadow-sm">
+              <h2 className="text-xl font-bold text-slate-900 mb-4 flex items-center gap-2">
+                <i className="fa-solid fa-info-circle text-emerald-500"></i>
+                Detalhes
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="flex justify-between py-3 border-b border-gray-100">
+                  <span className="text-slate-500">Tipo</span>
+                  <span className="font-medium text-slate-900">{property.type}</span>
+                </div>
+                <div className="flex justify-between py-3 border-b border-gray-100">
+                  <span className="text-slate-500">Estado</span>
+                  <span className="font-medium text-slate-900">{property.condition}</span>
+                </div>
+                <div className="flex justify-between py-3 border-b border-gray-100">
+                  <span className="text-slate-500">Área</span>
+                  <span className="font-medium text-slate-900">{formatArea(property.area)}</span>
+                </div>
+                {property.bedrooms > 0 && (
+                  <div className="flex justify-between py-3 border-b border-gray-100">
+                    <span className="text-slate-500">Quartos</span>
+                    <span className="font-medium text-slate-900">{property.bedrooms}</span>
+                  </div>
+                )}
+                {property.bathrooms > 0 && (
+                  <div className="flex justify-between py-3 border-b border-gray-100">
+                    <span className="text-slate-500">Casas de Banho</span>
+                    <span className="font-medium text-slate-900">{property.bathrooms}</span>
+                  </div>
+                )}
+                {property.yearBuilt && (
+                  <div className="flex justify-between py-3 border-b border-gray-100">
+                    <span className="text-slate-500">Ano de Construção</span>
+                    <span className="font-medium text-slate-900">{property.yearBuilt}</span>
+                  </div>
+                )}
+                {property.energyRating && (
+                  <div className="flex justify-between py-3 border-b border-gray-100">
+                    <span className="text-slate-500">Certificação Energética</span>
+                    <span className={`font-medium px-2 py-0.5 rounded ${
+                      property.energyRating.startsWith('A') ? 'bg-green-100 text-green-700' :
+                      property.energyRating.startsWith('B') ? 'bg-lime-100 text-lime-700' :
+                      property.energyRating.startsWith('C') ? 'bg-yellow-100 text-yellow-700' :
+                      'bg-orange-100 text-orange-700'
+                    }`}>{property.energyRating}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+
             {/* Location */}
-            <div className="bg-white rounded-2xl p-6 lg:p-8 shadow-sm">
+            <div className="bg-white rounded-2xl p-6 shadow-sm">
               <h2 className="text-xl font-bold text-slate-900 mb-4 flex items-center gap-2">
                 <i className="fa-solid fa-location-dot text-emerald-500"></i>
                 Localização
@@ -530,29 +589,9 @@ const PropertyDetailPage = ({ propertyId }) => {
             </div>
           </div>
 
-          {/* Right Column - Contact Card */}
+          {/* Right Column - Contact */}
           <div className="lg:col-span-1">
-            <div className="sticky top-24 space-y-6">
-              {/* Price Card */}
-              <div className="bg-white rounded-2xl p-6 shadow-sm">
-                <span className="text-xs font-medium text-emerald-600 uppercase tracking-wider">
-                  {property.type}
-                </span>
-                <h1 className="text-2xl font-bold text-slate-900 mt-1 mb-2">
-                  {property.title}
-                </h1>
-                <p className="flex items-center gap-2 text-slate-500 mb-4">
-                  <i className="fa-solid fa-location-dot text-emerald-500"></i>
-                  {property.location}
-                </p>
-                <div className="border-t border-gray-100 pt-4">
-                  <p className="text-sm text-slate-500 mb-1">Preço</p>
-                  <p className="text-3xl font-bold text-emerald-600">
-                    {formatPrice(property.price)}
-                  </p>
-                </div>
-              </div>
-
+            <div className="sticky top-24 space-y-4">
               {/* Contact Card */}
               <div className="bg-white rounded-2xl p-6 shadow-sm">
                 <h3 className="text-lg font-bold text-slate-900 mb-4">
@@ -576,7 +615,7 @@ const PropertyDetailPage = ({ propertyId }) => {
                       +351 934 101 523
                     </a>
                     <a
-                      href="https://wa.me/351934101523"
+                      href={`https://wa.me/351934101523?text=${encodeURIComponent(`Olá! Estou interessado no imóvel: ${property.title} - ${window.location.href}`)}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="w-full py-3 bg-green-500 text-white font-semibold rounded-xl hover:bg-green-600 transition-colors flex items-center justify-center gap-2"
@@ -597,49 +636,41 @@ const PropertyDetailPage = ({ propertyId }) => {
                       </div>
                     ) : (
                       <>
-                        <div>
-                          <input
-                            type="text"
-                            placeholder="Nome *"
-                            required
-                            value={contactFormData.name}
-                            onChange={(e) => setContactFormData({ ...contactFormData, name: e.target.value })}
-                            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                          />
-                        </div>
-                        <div>
-                          <input
-                            type="email"
-                            placeholder="Email *"
-                            required
-                            value={contactFormData.email}
-                            onChange={(e) => setContactFormData({ ...contactFormData, email: e.target.value })}
-                            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                          />
-                        </div>
-                        <div>
-                          <input
-                            type="tel"
-                            placeholder="Telefone"
-                            value={contactFormData.phone}
-                            onChange={(e) => setContactFormData({ ...contactFormData, phone: e.target.value })}
-                            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                          />
-                        </div>
-                        <div>
-                          <textarea
-                            rows="4"
-                            placeholder="Mensagem *"
-                            required
-                            value={contactFormData.message || `Olá, estou interessado no imóvel "${property.title}" (Ref: ${property.id}). Gostaria de obter mais informações.`}
-                            onChange={(e) => setContactFormData({ ...contactFormData, message: e.target.value })}
-                            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 resize-none"
-                          ></textarea>
-                        </div>
+                        <input
+                          type="text"
+                          placeholder="Nome *"
+                          required
+                          value={contactFormData.name}
+                          onChange={(e) => setContactFormData({ ...contactFormData, name: e.target.value })}
+                          className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                        />
+                        <input
+                          type="email"
+                          placeholder="Email *"
+                          required
+                          value={contactFormData.email}
+                          onChange={(e) => setContactFormData({ ...contactFormData, email: e.target.value })}
+                          className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                        />
+                        <input
+                          type="tel"
+                          placeholder="Telefone"
+                          value={contactFormData.phone}
+                          onChange={(e) => setContactFormData({ ...contactFormData, phone: e.target.value })}
+                          className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                        />
+                        <textarea
+                          rows="4"
+                          placeholder="Mensagem *"
+                          required
+                          value={contactFormData.message || `Olá, estou interessado no imóvel "${property.title}". Gostaria de obter mais informações.`}
+                          onChange={(e) => setContactFormData({ ...contactFormData, message: e.target.value })}
+                          className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 resize-none"
+                        ></textarea>
                         <button
                           type="submit"
                           disabled={isSubmitting}
-                          className="w-full py-3 bg-emerald-500 text-white font-semibold rounded-xl hover:bg-emerald-600 transition-colors disabled:bg-emerald-300 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                          className="w-full py-3 bg-emerald-500 text-white font-semibold rounded-xl hover:bg-emerald-600 transition-colors disabled:bg-emerald-300 flex items-center justify-center gap-2"
                         >
                           {isSubmitting ? (
                             <>
@@ -653,7 +684,7 @@ const PropertyDetailPage = ({ propertyId }) => {
                         <button
                           type="button"
                           onClick={() => setShowContactForm(false)}
-                          className="w-full py-3 text-slate-500 hover:text-slate-700 transition-colors text-sm"
+                          className="w-full py-2 text-slate-500 hover:text-slate-700 transition-colors text-sm"
                         >
                           Cancelar
                         </button>
@@ -668,8 +699,11 @@ const PropertyDetailPage = ({ propertyId }) => {
                 <h3 className="text-sm font-semibold text-slate-700 mb-3">Partilhar</h3>
                 <div className="flex gap-3">
                   <button
-                    onClick={() => navigator.clipboard.writeText(window.location.href)}
-                    className="flex-1 py-2 bg-gray-100 text-slate-600 rounded-lg hover:bg-gray-200 transition-colors flex items-center justify-center gap-2"
+                    onClick={() => {
+                      navigator.clipboard.writeText(window.location.href);
+                      alert('Link copiado!');
+                    }}
+                    className="flex-1 py-2 bg-gray-100 text-slate-600 rounded-lg hover:bg-gray-200 transition-colors flex items-center justify-center gap-2 text-sm"
                   >
                     <i className="fa-solid fa-link"></i>
                     Copiar link
@@ -691,6 +725,11 @@ const PropertyDetailPage = ({ propertyId }) => {
                     <i className="fa-brands fa-facebook-f"></i>
                   </a>
                 </div>
+              </div>
+
+              {/* Reference */}
+              <div className="text-center text-sm text-slate-400">
+                Ref: {property.id}
               </div>
             </div>
           </div>

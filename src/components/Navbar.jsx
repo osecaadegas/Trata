@@ -6,9 +6,19 @@ const Navbar = () => {
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isAdminMenuOpen, setIsAdminMenuOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const { user, userRole, logout, isAdmin, isConfigurator, isSeller } = useAuth();
 
-  // Close mobile menu on route change
+  // Handle scroll effect
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 10);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Close menus on route change
   useEffect(() => {
     const handleHashChange = () => {
       setIsMobileMenuOpen(false);
@@ -25,19 +35,26 @@ const Navbar = () => {
     } else {
       document.body.style.overflow = '';
     }
-    return () => {
-      document.body.style.overflow = '';
-    };
+    return () => { document.body.style.overflow = ''; };
   }, [isMobileMenuOpen]);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (isAdminMenuOpen && !e.target.closest('.admin-menu-container')) {
+        setIsAdminMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isAdminMenuOpen]);
 
   const handleLogout = async () => {
     await logout();
     setIsMobileMenuOpen(false);
   };
 
-  const closeMobileMenu = () => {
-    setIsMobileMenuOpen(false);
-  };
+  const closeMobileMenu = () => setIsMobileMenuOpen(false);
 
   const navLinks = [
     { href: '#home', label: 'Início', icon: 'fa-home' },
@@ -46,139 +63,160 @@ const Navbar = () => {
     { href: '#contactos', label: 'Contactos', icon: 'fa-envelope' },
   ];
 
-  const socialLinks = [
-    { href: '#', icon: 'fa-facebook-f', label: 'Facebook' },
-    { href: '#', icon: 'fa-instagram', label: 'Instagram' },
-    { href: '#', icon: 'fa-linkedin-in', label: 'LinkedIn' },
-    { href: 'https://wa.me/351934101523', icon: 'fa-whatsapp', label: 'WhatsApp', external: true },
+  const getRoleBadge = () => {
+    if (userRole === 'configurator') return { text: 'Configurador', color: 'bg-purple-100 text-purple-700', icon: 'fa-crown' };
+    if (userRole === 'admin') return { text: 'Admin', color: 'bg-blue-100 text-blue-700', icon: 'fa-shield-halved' };
+    if (userRole === 'seller') return { text: 'Vendedor', color: 'bg-green-100 text-green-700', icon: 'fa-briefcase' };
+    return { text: 'Utilizador', color: 'bg-gray-100 text-gray-700', icon: 'fa-user' };
+  };
+
+  const adminMenuItems = [
+    ...(isConfigurator ? [{ href: '#user-management', label: 'Gerir Utilizadores', icon: 'fa-users-gear', color: 'text-purple-500', bgColor: 'bg-purple-50', description: 'Funções e permissões' }] : []),
+    ...(isAdmin ? [{ href: '#property-management', label: 'Gerir Imóveis', icon: 'fa-building', color: 'text-emerald-500', bgColor: 'bg-emerald-50', description: 'Propriedades e listagens' }] : []),
+    { href: '#messages', label: 'Mensagens', icon: 'fa-inbox', color: 'text-blue-500', bgColor: 'bg-blue-50', description: 'Caixa de entrada' },
   ];
 
   return (
     <>
       {/* Main Navigation */}
-      <nav className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-100">
+      <nav className={`sticky top-0 z-50 transition-all duration-300 ${
+        scrolled 
+          ? 'bg-white/98 backdrop-blur-lg shadow-sm border-b border-gray-100' 
+          : 'bg-white border-b border-gray-100'
+      }`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-20 items-center">
+          <div className="flex justify-between h-16 lg:h-18 items-center">
             {/* Logo */}
-            <a href="#home" className="flex items-center gap-2 z-10">
+            <a href="#home" className="flex items-center gap-2.5 z-10 group">
               <img 
                 src="/trata.jpg" 
                 alt="TRATA Logo" 
-                className="h-10 w-10 object-contain rounded-lg"
+                className="h-9 w-9 object-contain rounded-lg shadow-sm group-hover:scale-105 transition-transform"
               />
-              <span className="text-3xl font-bold tracking-tighter text-slate-900">
-                TRA<span className="text-green-accent">TA</span>
+              <span className="text-2xl font-bold tracking-tighter text-slate-900">
+                TRA<span className="text-emerald-500">TA</span>
               </span>
             </a>
             
             {/* Desktop Navigation */}
-            <div className="hidden md:flex space-x-8 font-medium text-slate-600 items-center">
+            <div className="hidden lg:flex items-center gap-1">
               {navLinks.map((link) => (
                 <a 
                   key={link.href}
                   href={link.href} 
-                  className="hover:text-emerald-500 transition-colors"
+                  className="px-4 py-2 text-sm font-medium text-slate-600 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-all"
                 >
                   {link.label}
                 </a>
               ))}
-              
-              {/* Admin Menu - Desktop */}
+            </div>
+
+            {/* Desktop Right Section */}
+            <div className="hidden lg:flex items-center gap-3">
+              {/* Admin Panel Button - Desktop */}
               {(isAdmin || isSeller) && (
-                <div className="relative">
+                <div className="relative admin-menu-container">
                   <button
                     onClick={() => setIsAdminMenuOpen(!isAdminMenuOpen)}
-                    className="flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-900 text-white hover:bg-slate-800 transition-colors"
+                    className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all ${
+                      isAdminMenuOpen 
+                        ? 'bg-slate-900 text-white' 
+                        : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                    }`}
                   >
-                    <i className="fa-solid fa-shield-halved"></i>
-                    {isAdmin ? 'Admin' : 'Painel'}
-                    <i className={`fa-solid fa-chevron-down text-xs transition-transform duration-200 ${isAdminMenuOpen ? 'rotate-180' : ''}`}></i>
+                    <i className="fa-solid fa-grid-2"></i>
+                    <span>Painel</span>
+                    <i className={`fa-solid fa-chevron-down text-[10px] transition-transform duration-200 ${isAdminMenuOpen ? 'rotate-180' : ''}`}></i>
                   </button>
                   
+                  {/* Desktop Dropdown */}
                   {isAdminMenuOpen && (
-                    <div className="absolute top-full right-0 mt-2 w-56 bg-white rounded-xl shadow-xl border border-gray-100 py-2 z-50">
-                      <div className="px-4 py-2 border-b border-gray-100">
-                        <p className="text-xs text-slate-400 uppercase tracking-wider">Gestão</p>
+                    <div className="absolute top-full right-0 mt-2 w-72 bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden animate-fade-in">
+                      {/* Header */}
+                      <div className="px-4 py-3 bg-gradient-to-r from-slate-50 to-gray-50 border-b border-gray-100">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Área de Gestão</span>
+                          <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${getRoleBadge().color}`}>
+                            <i className={`fa-solid ${getRoleBadge().icon} mr-1`}></i>
+                            {getRoleBadge().text}
+                          </span>
+                        </div>
                       </div>
                       
-                      {isConfigurator && (
+                      {/* Menu Items */}
+                      <div className="py-2">
+                        {adminMenuItems.map((item) => (
+                          <a 
+                            key={item.href}
+                            href={item.href} 
+                            className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors group"
+                            onClick={() => setIsAdminMenuOpen(false)}
+                          >
+                            <div className={`w-10 h-10 rounded-xl ${item.bgColor} flex items-center justify-center group-hover:scale-105 transition-transform`}>
+                              <i className={`fa-solid ${item.icon} ${item.color}`}></i>
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-semibold text-slate-800">{item.label}</p>
+                              <p className="text-xs text-slate-400">{item.description}</p>
+                            </div>
+                            <i className="fa-solid fa-chevron-right text-xs text-slate-300 group-hover:text-slate-500 transition-colors"></i>
+                          </a>
+                        ))}
+                      </div>
+
+                      {/* Quick Stats Footer */}
+                      <div className="px-4 py-3 bg-gray-50 border-t border-gray-100">
                         <a 
-                          href="#user-management" 
-                          className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors"
+                          href="#property-management"
                           onClick={() => setIsAdminMenuOpen(false)}
+                          className="flex items-center justify-center gap-2 w-full py-2.5 bg-emerald-500 text-white text-sm font-semibold rounded-xl hover:bg-emerald-600 transition-colors"
                         >
-                          <i className="fa-solid fa-users-gear text-emerald-500 w-5"></i>
-                          <span className="text-sm text-slate-700">Gerir Utilizadores</span>
+                          <i className="fa-solid fa-plus"></i>
+                          Adicionar Imóvel
                         </a>
-                      )}
-                      
-                      {isAdmin && (
-                        <a 
-                          href="#property-management" 
-                          className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors"
-                          onClick={() => setIsAdminMenuOpen(false)}
-                        >
-                          <i className="fa-solid fa-building text-emerald-500 w-5"></i>
-                          <span className="text-sm text-slate-700">Gerir Imóveis</span>
-                        </a>
-                      )}
-                      
-                      <a 
-                        href="#messages" 
-                        className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors"
-                        onClick={() => setIsAdminMenuOpen(false)}
-                      >
-                        <i className="fa-solid fa-envelope text-emerald-500 w-5"></i>
-                        <span className="text-sm text-slate-700">Mensagens</span>
-                      </a>
-                      
-                      <div className="px-4 py-2 mt-2 border-t border-gray-100">
-                        <p className="text-xs text-slate-400">
-                          <i className="fa-solid fa-crown text-yellow-500 mr-1"></i>
-                          {userRole === 'configurator' ? 'Configurador' : userRole === 'admin' ? 'Administrador' : 'Vendedor'}
-                        </p>
                       </div>
                     </div>
                   )}
                 </div>
               )}
-            </div>
 
-            {/* Desktop User/Login */}
-            <div className="hidden md:flex items-center gap-3">
+              {/* User Section */}
               {user ? (
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2">
                   <a 
                     href="#dashboard" 
-                    className="flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition-colors font-medium"
+                    className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition-colors text-sm font-semibold"
                   >
-                    <i className="fa-solid fa-grid-2"></i>
-                    <span>Minha Área</span>
+                    <i className="fa-solid fa-th-large"></i>
+                    <span className="hidden xl:inline">Minha Área</span>
                   </a>
-                  <a href="#dashboard" className="group">
+                  <a href="#dashboard" className="group relative">
                     <img 
                       src={user.picture} 
                       alt={user.name}
-                      className="w-10 h-10 rounded-full border-2 border-emerald-500 group-hover:border-emerald-400 transition-colors"
+                      className="w-10 h-10 rounded-xl border-2 border-emerald-200 group-hover:border-emerald-400 transition-colors object-cover"
                     />
+                    {(isAdmin || isSeller) && (
+                      <span className="absolute -bottom-0.5 -right-0.5 w-4 h-4 bg-emerald-500 rounded-full border-2 border-white flex items-center justify-center">
+                        <i className="fa-solid fa-check text-[8px] text-white"></i>
+                      </span>
+                    )}
                   </a>
-                  <div className="hidden lg:block text-left">
-                    <a href="#dashboard" className="text-sm font-semibold text-slate-900 hover:text-emerald-600 transition-colors">{user.name}</a>
-                    <button 
-                      onClick={handleLogout}
-                      className="block text-xs text-slate-500 hover:text-emerald-600 transition-colors"
-                    >
-                      Sair
-                    </button>
-                  </div>
+                  <button 
+                    onClick={handleLogout}
+                    className="p-2.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
+                    title="Sair"
+                  >
+                    <i className="fa-solid fa-right-from-bracket"></i>
+                  </button>
                 </div>
               ) : (
                 <button 
                   onClick={() => setIsLoginOpen(true)}
-                  className="bg-green-accent text-white px-6 py-2.5 rounded-full font-semibold hover:bg-emerald-600 transition-all shadow-sm flex items-center gap-2"
+                  className="flex items-center gap-2 px-5 py-2.5 bg-emerald-500 text-white rounded-xl text-sm font-semibold hover:bg-emerald-600 transition-all shadow-sm hover:shadow-md hover:shadow-emerald-500/20"
                 >
                   <i className="fa-solid fa-user"></i>
-                  <span className="hidden sm:inline">Iniciar Sessão</span>
+                  <span>Entrar</span>
                 </button>
               )}
             </div>
@@ -186,11 +224,10 @@ const Navbar = () => {
             {/* Mobile Menu Button */}
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="md:hidden flex items-center justify-center w-12 h-12 rounded-xl bg-gray-100 text-slate-700 hover:bg-emerald-100 hover:text-emerald-600 transition-all z-10"
+              className="lg:hidden flex items-center justify-center w-11 h-11 rounded-xl bg-gray-100 text-slate-700 hover:bg-emerald-100 hover:text-emerald-600 transition-all z-10"
               aria-label={isMobileMenuOpen ? 'Fechar menu' : 'Abrir menu'}
-              aria-expanded={isMobileMenuOpen}
             >
-              <i className={`fa-solid ${isMobileMenuOpen ? 'fa-xmark' : 'fa-bars'} text-xl transition-transform duration-200`}></i>
+              <i className={`fa-solid ${isMobileMenuOpen ? 'fa-xmark' : 'fa-bars'} text-lg transition-transform duration-200`}></i>
             </button>
           </div>
         </div>
@@ -198,166 +235,132 @@ const Navbar = () => {
 
       {/* Mobile Menu Overlay */}
       <div 
-        className={`md:hidden fixed inset-0 bg-black/50 z-[60] transition-opacity duration-300 ${
+        className={`lg:hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[60] transition-opacity duration-300 ${
           isMobileMenuOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
         }`}
         onClick={closeMobileMenu}
-        aria-hidden="true"
       />
 
       {/* Mobile Menu Panel */}
       <div 
-        className={`md:hidden fixed top-0 right-0 h-full w-full max-w-sm bg-white z-[70] shadow-2xl transform transition-transform duration-300 ease-out ${
+        className={`lg:hidden fixed top-0 right-0 h-full w-full max-w-sm bg-white z-[70] shadow-2xl transform transition-transform duration-300 ease-out ${
           isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
       >
-        {/* Mobile Menu Header */}
-        <div className="flex items-center justify-between h-20 px-6 border-b border-gray-100">
-          <span className="text-2xl font-bold tracking-tighter text-slate-900">
-            TRA<span className="text-green-accent">TA</span>
+        {/* Mobile Header */}
+        <div className="flex items-center justify-between h-16 px-5 border-b border-gray-100 bg-gray-50">
+          <span className="text-xl font-bold tracking-tighter text-slate-900">
+            TRA<span className="text-emerald-500">TA</span>
           </span>
           <button
             onClick={closeMobileMenu}
-            className="flex items-center justify-center w-10 h-10 rounded-lg bg-gray-100 text-slate-600 hover:bg-red-100 hover:text-red-600 transition-all"
-            aria-label="Fechar menu"
+            className="flex items-center justify-center w-10 h-10 rounded-xl bg-white text-slate-600 hover:bg-red-50 hover:text-red-500 transition-all shadow-sm"
           >
             <i className="fa-solid fa-xmark text-lg"></i>
           </button>
         </div>
 
-        <div className="flex flex-col h-[calc(100%-5rem)] overflow-hidden">
-          {/* Navigation Links */}
-          <div className="flex-1 overflow-y-auto px-4 py-6">
-            <nav className="space-y-1">
-              {navLinks.map((link) => (
-                <a 
-                  key={link.href}
-                  href={link.href} 
-                  onClick={closeMobileMenu}
-                  className="flex items-center gap-4 px-4 py-4 rounded-xl text-slate-700 hover:bg-emerald-50 hover:text-emerald-600 transition-all font-medium active:scale-98"
-                >
-                  <div className="w-10 h-10 rounded-lg bg-emerald-100 flex items-center justify-center">
-                    <i className={`fa-solid ${link.icon} text-emerald-600`}></i>
+        <div className="flex flex-col h-[calc(100%-4rem)] overflow-hidden">
+          <div className="flex-1 overflow-y-auto">
+            {/* User Info (if logged in) */}
+            {user && (
+              <div className="px-5 py-4 border-b border-gray-100 bg-gradient-to-r from-emerald-50 to-teal-50">
+                <div className="flex items-center gap-3">
+                  <img 
+                    src={user.picture} 
+                    alt={user.name}
+                    className="w-12 h-12 rounded-xl border-2 border-emerald-200 object-cover"
+                  />
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-slate-900 truncate">{user.name}</p>
+                    <span className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full ${getRoleBadge().color}`}>
+                      <i className={`fa-solid ${getRoleBadge().icon} text-[10px]`}></i>
+                      {getRoleBadge().text}
+                    </span>
                   </div>
-                  {link.label}
-                </a>
-              ))}
-            </nav>
+                </div>
+              </div>
+            )}
+
+            {/* Navigation Links */}
+            <div className="px-4 py-4">
+              <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider px-3 mb-2">Navegação</p>
+              <nav className="space-y-1">
+                {navLinks.map((link) => (
+                  <a 
+                    key={link.href}
+                    href={link.href} 
+                    onClick={closeMobileMenu}
+                    className="flex items-center gap-3 px-3 py-3 rounded-xl text-slate-700 hover:bg-emerald-50 hover:text-emerald-600 transition-all font-medium"
+                  >
+                    <div className="w-9 h-9 rounded-lg bg-gray-100 flex items-center justify-center">
+                      <i className={`fa-solid ${link.icon} text-slate-500`}></i>
+                    </div>
+                    {link.label}
+                  </a>
+                ))}
+              </nav>
+            </div>
 
             {/* Admin Section - Mobile */}
             {(isAdmin || isSeller) && (
-              <div className="mt-6 pt-6 border-t border-gray-100">
-                <p className="text-xs text-slate-400 uppercase tracking-wider font-semibold px-4 mb-3">
-                  {isAdmin ? 'Administração' : 'Painel do Vendedor'}
+              <div className="px-4 py-4 border-t border-gray-100">
+                <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider px-3 mb-2">
+                  Área de Gestão
                 </p>
                 <nav className="space-y-1">
-                  {isConfigurator && (
+                  {adminMenuItems.map((item) => (
                     <a 
-                      href="#user-management" 
+                      key={item.href}
+                      href={item.href} 
                       onClick={closeMobileMenu}
-                      className="flex items-center gap-4 px-4 py-4 rounded-xl text-slate-700 hover:bg-amber-50 hover:text-amber-600 transition-all font-medium"
+                      className="flex items-center gap-3 px-3 py-3 rounded-xl text-slate-700 hover:bg-gray-50 transition-all font-medium"
                     >
-                      <div className="w-10 h-10 rounded-lg bg-amber-100 flex items-center justify-center">
-                        <i className="fa-solid fa-users-gear text-amber-600"></i>
+                      <div className={`w-9 h-9 rounded-lg ${item.bgColor} flex items-center justify-center`}>
+                        <i className={`fa-solid ${item.icon} ${item.color}`}></i>
                       </div>
-                      Gerir Utilizadores
-                    </a>
-                  )}
-                  {isAdmin && (
-                    <a 
-                      href="#property-management" 
-                      onClick={closeMobileMenu}
-                      className="flex items-center gap-4 px-4 py-4 rounded-xl text-slate-700 hover:bg-amber-50 hover:text-amber-600 transition-all font-medium"
-                    >
-                      <div className="w-10 h-10 rounded-lg bg-amber-100 flex items-center justify-center">
-                        <i className="fa-solid fa-building-user text-amber-600"></i>
+                      <div className="flex-1">
+                        <p className="text-sm font-semibold">{item.label}</p>
+                        <p className="text-xs text-slate-400">{item.description}</p>
                       </div>
-                      Gerir Imóveis
                     </a>
-                  )}
-                  <a 
-                    href="#messages" 
-                    onClick={closeMobileMenu}
-                    className="flex items-center gap-4 px-4 py-4 rounded-xl text-slate-700 hover:bg-amber-50 hover:text-amber-600 transition-all font-medium"
-                  >
-                    <div className="w-10 h-10 rounded-lg bg-amber-100 flex items-center justify-center">
-                      <i className="fa-solid fa-envelope text-amber-600"></i>
-                    </div>
-                    Mensagens
-                  </a>
+                  ))}
                 </nav>
               </div>
             )}
 
-            {/* Social Links */}
-            <div className="mt-6 pt-6 border-t border-gray-100">
-              <p className="text-xs text-slate-400 uppercase tracking-wider font-semibold px-4 mb-4">
-                Redes Sociais
-              </p>
-              <div className="flex gap-3 px-4">
-                {socialLinks.map((social) => (
-                  <a 
-                    key={social.label}
-                    href={social.href}
-                    target={social.external ? '_blank' : undefined}
-                    rel={social.external ? 'noopener noreferrer' : undefined}
-                    className="w-12 h-12 rounded-xl bg-gray-100 flex items-center justify-center text-slate-600 hover:bg-emerald-500 hover:text-white transition-all active:scale-95"
-                    aria-label={social.label}
-                  >
-                    <i className={`fa-brands ${social.icon} text-lg`}></i>
-                  </a>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* User Section at Bottom */}
-          <div className="px-4 py-4 border-t border-gray-100 bg-gray-50">
-            {user ? (
-              <div className="space-y-3">
-                {/* Dashboard Link */}
+            {/* Quick Action */}
+            {user && (
+              <div className="px-4 py-4 border-t border-gray-100">
                 <a 
                   href="#dashboard"
                   onClick={closeMobileMenu}
-                  className="flex items-center gap-4 px-4 py-3 rounded-xl bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition-all font-medium"
+                  className="flex items-center justify-center gap-2 w-full py-3 bg-emerald-500 text-white rounded-xl font-semibold hover:bg-emerald-600 transition-colors"
                 >
-                  <div className="w-10 h-10 rounded-lg bg-emerald-500 flex items-center justify-center">
-                    <i className="fa-solid fa-grid-2 text-white"></i>
-                  </div>
-                  <span>Minha Área</span>
-                  <i className="fa-solid fa-arrow-right ml-auto text-emerald-500"></i>
+                  <i className="fa-solid fa-th-large"></i>
+                  Minha Área
                 </a>
-                
-                <div className="flex items-center justify-between gap-3 pt-2">
-                  <div className="flex items-center gap-3 min-w-0">
-                    <img 
-                      src={user.picture} 
-                      alt={user.name}
-                      className="w-12 h-12 rounded-full border-2 border-emerald-500 flex-shrink-0"
-                    />
-                    <div className="min-w-0">
-                      <p className="font-semibold text-slate-900 truncate">{user.name}</p>
-                      <p className="text-xs text-slate-500">
-                        {userRole === 'configurator' ? 'Configurador' : userRole === 'admin' ? 'Administrador' : 'Utilizador'}
-                      </p>
-                    </div>
-                  </div>
-                  <button 
-                    onClick={handleLogout}
-                    className="flex-shrink-0 px-4 py-2.5 rounded-lg bg-red-50 text-red-600 font-medium hover:bg-red-100 transition-colors"
-                  >
-                    <i className="fa-solid fa-sign-out-alt mr-2"></i>
-                    Sair
-                  </button>
-                </div>
               </div>
+            )}
+          </div>
+
+          {/* Bottom Action */}
+          <div className="px-4 py-4 border-t border-gray-100 bg-gray-50">
+            {user ? (
+              <button 
+                onClick={handleLogout}
+                className="flex items-center justify-center gap-2 w-full py-3 bg-red-50 text-red-600 rounded-xl font-semibold hover:bg-red-100 transition-colors"
+              >
+                <i className="fa-solid fa-right-from-bracket"></i>
+                Terminar Sessão
+              </button>
             ) : (
               <button 
                 onClick={() => {
                   setIsLoginOpen(true);
                   setIsMobileMenuOpen(false);
                 }}
-                className="w-full bg-gradient-to-r from-emerald-500 to-teal-500 text-white py-4 rounded-xl font-semibold hover:from-emerald-600 hover:to-teal-600 transition-all shadow-lg shadow-emerald-500/30 flex items-center justify-center gap-2"
+                className="flex items-center justify-center gap-2 w-full py-3.5 bg-emerald-500 text-white rounded-xl font-semibold hover:bg-emerald-600 transition-colors shadow-lg shadow-emerald-500/20"
               >
                 <i className="fa-solid fa-user"></i>
                 Iniciar Sessão
