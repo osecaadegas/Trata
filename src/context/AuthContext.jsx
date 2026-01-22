@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
-import { supabase, getAuthToken } from '../lib/supabase';
+import { supabase } from '../lib/supabase';
 
 const AuthContext = createContext();
 
@@ -11,65 +11,60 @@ export const useAuth = () => {
   return context;
 };
 
+// Helper to get auth data from Supabase's storage
+const getStoredAuth = () => {
+  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+  if (!supabaseUrl) return null;
+  
+  const projectId = supabaseUrl.split('//')[1]?.split('.')[0];
+  const storageKey = `sb-${projectId}-auth-token`;
+  const stored = localStorage.getItem(storageKey);
+  
+  if (stored) {
+    try {
+      return JSON.parse(stored);
+    } catch (e) {
+      return null;
+    }
+  }
+  return null;
+};
+
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [userRole, setUserRole] = useState('user'); // default role
+  const [userRole, setUserRole] = useState('user');
   const [loading, setLoading] = useState(true);
   const isInitialized = useRef(false);
 
   useEffect(() => {
-    // Prevent double initialization
     if (isInitialized.current) return;
     isInitialized.current = true;
 
-    // Restore role from localStorage immediately
+    // IMMEDIATELY restore from localStorage for instant UI
+    const storedAuth = getStoredAuth();
     const storedRole = localStorage.getItem('trata-user-role');
-    if (storedRole) {
-      setUserRole(storedRole);
+    
+    if (storedAuth?.user) {
+      console.log('Restoring user from localStorage');
+      setUser({
+        id: storedAuth.user.id,
+        name: storedAuth.user.user_metadata?.full_name || storedAuth.user.email,
+        email: storedAuth.user.email,
+        picture: storedAuth.user.user_metadata?.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(storedAuth.user.email)}`
+      });
+      if (storedRole) {
+        setUserRole(storedRole);
+      }
+      setLoading(false);
     }
 
-    // Initialize session
-    const initSession = async () => {
-      try {
-        const { data: { session }, error } = await supabase.auth.getSession();
-        
-        if (error) {
-          console.error('Session error:', error);
-          // Don't clear user on error - might be temporary
-          setLoading(false);
-          return;
-        }
-        
-        if (session?.user) {
-          await loadUserWithRole(session.user);
-        } else {
-          // Check if we have a stored session that might be valid
-          const token = getAuthToken();
-          if (!token) {
-            // No session anywhere, clear state
-            setUser(null);
-            setUserRole('user');
-            localStorage.removeItem('trata-user-role');
-          }
-          // If token exists, keep current state - session might recover
-        }
-      } catch (error) {
-        console.error('Error initializing session:', error);
-        // On error, don't clear session - might be network issue
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    initSession();
-
-    // Listen for auth changes - but be careful not to log out unnecessarily
+    // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log('Auth state changed:', event);
       
-      // Only handle specific events
-      if (event === 'SIGNED_IN') {
+      if (event === 'SIGNED_IN' || event === 'INITIAL_SESSION') {
         if (session?.user) {
+          console.log('Loading user with role...');
           await loadUserWithRole(session.user);
         }
         // Clean up OAuth tokens from URL
@@ -78,17 +73,17 @@ export const AuthProvider = ({ children }) => {
         }
       } else if (event === 'TOKEN_REFRESHED') {
         console.log('Token refreshed successfully');
-        // Session is still valid, nothing to do
       } else if (event === 'SIGNED_OUT') {
-        // Only clear on explicit sign out
         setUser(null);
         setUserRole('user');
         localStorage.removeItem('trata-user-role');
       }
-      // Ignore INITIAL_SESSION and other events to prevent unwanted logouts
       
       setLoading(false);
     });
+
+    // Set loading false after a timeout if nothing happened
+    setTimeout(() => setLoading(false), 2000);
 
     return () => subscription.unsubscribe();
   }, []);
