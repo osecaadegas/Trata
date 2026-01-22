@@ -170,17 +170,24 @@ const MessagesInbox = () => {
     }
 
     try {
+      console.log('Fetching messages for conversation:', conversationId);
       const response = await fetch(
         `${supabaseUrl}/rest/v1/chat_messages?conversation_id=eq.${conversationId}&order=created_at.asc`,
         { headers: getSupabaseHeaders() }
       );
+      console.log('Chat messages response status:', response.status);
       if (response.ok) {
         const data = await response.json();
+        console.log('Chat messages data:', data);
         setChatMessages(data);
         markChatMessagesRead(conversationId);
+      } else {
+        console.error('Failed to fetch chat messages:', await response.text());
+        setChatMessages([]);
       }
     } catch (error) {
       console.error('Error fetching chat messages:', error);
+      setChatMessages([]);
     }
     if (!silent) setConversationsLoading(false);
   };
@@ -1087,7 +1094,14 @@ const MessagesInbox = () => {
 
                     {/* Messages */}
                     <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-4 bg-gray-50">
-                      {chatMessages.map((msg) => {
+                      {chatMessages.length === 0 ? (
+                        <div className="flex flex-col items-center justify-center h-full text-slate-400">
+                          <i className="fa-regular fa-comments text-5xl mb-4"></i>
+                          <p className="text-sm">Nenhuma mensagem ainda</p>
+                          <p className="text-xs mt-1">Escreva uma mensagem para começar a conversa</p>
+                        </div>
+                      ) : (
+                        chatMessages.map((msg) => {
                         const isAgent = msg.sender_type === 'agent';
                         
                         return (
@@ -1121,7 +1135,8 @@ const MessagesInbox = () => {
                             </div>
                           </div>
                         );
-                      })}
+                      })
+                      )}
                       <div ref={messagesEndRef} />
                     </div>
 
