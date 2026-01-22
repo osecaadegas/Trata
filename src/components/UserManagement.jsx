@@ -43,18 +43,11 @@ const UserManagement = ({ onClose }) => {
       
       console.log('Fetching users...');
       
-      // Create a timeout promise
-      const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Timeout: A consulta demorou demasiado tempo')), 10000)
-      );
-      
-      // Race between the query and the timeout
-      const queryPromise = supabase
+      // Execute query directly
+      const { data, error: fetchError, count } = await supabase
         .from('users')
         .select('*', { count: 'exact' })
         .order('created_at', { ascending: false });
-      
-      const { data, error: fetchError, count } = await Promise.race([queryPromise, timeoutPromise]);
 
       console.log('Users query result:', { data, error: fetchError, count });
 

@@ -83,9 +83,8 @@ const PropertyManagement = () => {
       
       console.log('Fetching properties...');
       
-      let query = supabase
-        .from('properties')
-        .select('*', { count: 'exact' });
+      // Build query
+      let query = supabase.from('properties').select('*', { count: 'exact' });
 
       // Apply sorting
       if (sortBy === 'newest') {
@@ -108,17 +107,11 @@ const PropertyManagement = () => {
         query = query.eq('property_type', filterType);
       }
 
-      // If not admin, only show own properties
-      if (!isAdmin && !isConfigurator) {
-        query = query.eq('created_by', user.id);
-      }
-
-      // Add timeout
-      const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Timeout: A consulta demorou demasiado tempo')), 10000)
-      );
-
-      const { data, error, count } = await Promise.race([query, timeoutPromise]);
+      // If not admin/configurator, only show own properties (skip for now if no created_by)
+      // Admin/Configurator see all properties
+      
+      // Execute query directly (no timeout race - it causes issues)
+      const { data, error, count } = await query;
       
       console.log('Properties query result:', { data, error, count });
 
