@@ -327,11 +327,11 @@ const PropertyManagement = () => {
             </div>
             <div className="flex flex-wrap gap-3">
               <a
-                href="#conversations"
+                href="#messages"
                 className="bg-white border border-gray-200 text-slate-700 px-5 py-3 rounded-xl font-semibold hover:bg-gray-50 transition-all shadow-sm flex items-center gap-2"
               >
                 <i className="fa-solid fa-headset text-emerald-500"></i>
-                Conversas
+                Mensagens
               </a>
               <button
                 onClick={() => {
