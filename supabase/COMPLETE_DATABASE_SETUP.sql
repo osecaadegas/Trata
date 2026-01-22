@@ -5,7 +5,7 @@
 -- INSTRUÇÕES:
 -- 1. Vai ao Supabase Dashboard → SQL Editor
 -- 2. Cria uma nova query
--- 3. Cola TODO este código
+-- 3. Cola ESTE CÓDIGO COMPLETO (todo o conteúdo deste ficheiro)
 -- 4. Clica "Run" 
 --
 -- IMPORTANTE: Este script faz "DROP" de todas as tabelas existentes!
