@@ -13,9 +13,26 @@ if (!supabaseUrl || !supabaseAnonKey) {
 export const supabase = createClient(supabaseUrl || '', supabaseAnonKey || '', {
   auth: {
     persistSession: true,
-    storageKey: 'trata-auth',
-    storage: window.localStorage,
     autoRefreshToken: true,
-    detectSessionInUrl: true
+    detectSessionInUrl: true,
+    flowType: 'pkce',
+    // Don't use custom storage key - let Supabase use its default
   }
 });
+
+// Helper to get auth token for REST API calls
+export const getAuthToken = () => {
+  const projectId = supabaseUrl?.split('//')[1]?.split('.')[0];
+  const storageKey = `sb-${projectId}-auth-token`;
+  const stored = localStorage.getItem(storageKey);
+  
+  if (stored) {
+    try {
+      const parsed = JSON.parse(stored);
+      return parsed?.access_token || null;
+    } catch (e) {
+      return null;
+    }
+  }
+  return null;
+};

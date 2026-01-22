@@ -170,41 +170,26 @@ const PropertyManagement = () => {
       const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
       const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
       
-      // Try to get token from trata-auth (our custom storage)
-      let accessToken = null;
-      const trataAuth = localStorage.getItem('trata-auth');
-      if (trataAuth) {
+      // Get token from Supabase's default storage
+      let accessToken = supabaseKey;
+      const projectId = supabaseUrl.split('//')[1].split('.')[0];
+      const storageKey = `sb-${projectId}-auth-token`;
+      const stored = localStorage.getItem(storageKey);
+      
+      if (stored) {
         try {
-          const parsed = JSON.parse(trataAuth);
-          accessToken = parsed?.access_token;
-          console.log('Found token in trata-auth:', !!accessToken);
+          const parsed = JSON.parse(stored);
+          if (parsed?.access_token) {
+            accessToken = parsed.access_token;
+            console.log('Found auth token');
+          }
         } catch (e) {
-          console.log('Could not parse trata-auth');
+          console.log('Could not parse auth token');
         }
-      }
-      
-      // If no token found, try Supabase default storage
-      if (!accessToken) {
-        const projectId = supabaseUrl.split('//')[1].split('.')[0];
-        const sbAuth = localStorage.getItem(`sb-${projectId}-auth-token`);
-        if (sbAuth) {
-          try {
-            const parsed = JSON.parse(sbAuth);
-            accessToken = parsed?.access_token;
-            console.log('Found token in sb-auth:', !!accessToken);
-          } catch (e) {}
-        }
-      }
-      
-      // Fallback to anon key
-      if (!accessToken) {
-        console.log('No auth token found, using anon key');
-        accessToken = supabaseKey;
       }
       
       const url = `${supabaseUrl}/rest/v1/properties?id=eq.${propertyId}`;
       console.log('DELETE URL:', url);
-      console.log('Using token length:', accessToken?.length);
       
       const response = await fetch(url, {
         method: 'DELETE',

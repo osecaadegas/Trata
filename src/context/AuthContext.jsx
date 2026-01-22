@@ -1,5 +1,5 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { supabase } from '../lib/supabase';
+import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
+import { supabase, getAuthToken } from '../lib/supabase';
 
 const AuthContext = createContext();
 
@@ -15,58 +15,47 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [userRole, setUserRole] = useState('user'); // default role
   const [loading, setLoading] = useState(true);
+  const isInitialized = useRef(false);
 
   useEffect(() => {
-    // Check for stored session immediately on mount
-    const storedSession = localStorage.getItem('trata-auth');
-    if (storedSession) {
-      try {
-        const parsed = JSON.parse(storedSession);
-        if (parsed?.user) {
-          // Restore user immediately from localStorage for instant UI
-          setUser({
-            id: parsed.user.id,
-            name: parsed.user.user_metadata?.full_name || parsed.user.email,
-            email: parsed.user.email,
-            picture: parsed.user.user_metadata?.avatar_url || `https://ui-avatars.com/api/?name=${parsed.user.email}`
-          });
-          // Restore role from localStorage
-          const storedRole = localStorage.getItem('trata-user-role');
-          if (storedRole) {
-            setUserRole(storedRole);
-          }
-        }
-      } catch (e) {
-        console.log('Could not parse stored session');
-      }
+    // Prevent double initialization
+    if (isInitialized.current) return;
+    isInitialized.current = true;
+
+    // Restore role from localStorage immediately
+    const storedRole = localStorage.getItem('trata-user-role');
+    if (storedRole) {
+      setUserRole(storedRole);
     }
 
-    // Then validate with Supabase
+    // Initialize session
     const initSession = async () => {
       try {
-        // Get session from Supabase (validates token)
-        const { data: { session } } = await supabase.auth.getSession();
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error('Session error:', error);
+          // Don't clear user on error - might be temporary
+          setLoading(false);
+          return;
+        }
         
         if (session?.user) {
           await loadUserWithRole(session.user);
-          
-          // Store the access token for API calls
-          const authData = {
-            user: session.user,
-            access_token: session.access_token
-          };
-          localStorage.setItem('trata-auth', JSON.stringify(authData));
-          console.log('Stored auth token on init');
         } else {
-          // No valid session, clear everything
-          setUser(null);
-          setUserRole('user');
-          localStorage.removeItem('trata-user-role');
-          localStorage.removeItem('trata-auth');
+          // Check if we have a stored session that might be valid
+          const token = getAuthToken();
+          if (!token) {
+            // No session anywhere, clear state
+            setUser(null);
+            setUserRole('user');
+            localStorage.removeItem('trata-user-role');
+          }
+          // If token exists, keep current state - session might recover
         }
       } catch (error) {
         console.error('Error initializing session:', error);
-        // On error, still keep any stored session for offline-ish experience
+        // On error, don't clear session - might be network issue
       } finally {
         setLoading(false);
       }
@@ -74,41 +63,30 @@ export const AuthProvider = ({ children }) => {
 
     initSession();
 
-    // Listen for auth changes
+    // Listen for auth changes - but be careful not to log out unnecessarily
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log('Auth state changed:', event);
       
-      if (event === 'TOKEN_REFRESHED') {
-        console.log('Token refreshed successfully');
-        // Update stored token
-        if (session?.access_token) {
-          const stored = JSON.parse(localStorage.getItem('trata-auth') || '{}');
-          stored.access_token = session.access_token;
-          localStorage.setItem('trata-auth', JSON.stringify(stored));
+      // Only handle specific events
+      if (event === 'SIGNED_IN') {
+        if (session?.user) {
+          await loadUserWithRole(session.user);
         }
-      }
-      
-      if (session?.user) {
-        await loadUserWithRole(session.user);
-        
-        // Store the access token for API calls
-        const authData = {
-          user: session.user,
-          access_token: session.access_token
-        };
-        localStorage.setItem('trata-auth', JSON.stringify(authData));
-        console.log('Stored auth token in trata-auth');
-        
-        // Clean up OAuth tokens from URL hash after successful login
-        if (event === 'SIGNED_IN' && window.location.hash.includes('access_token')) {
+        // Clean up OAuth tokens from URL
+        if (window.location.hash.includes('access_token')) {
           window.history.replaceState(null, '', window.location.pathname + window.location.search);
         }
+      } else if (event === 'TOKEN_REFRESHED') {
+        console.log('Token refreshed successfully');
+        // Session is still valid, nothing to do
       } else if (event === 'SIGNED_OUT') {
+        // Only clear on explicit sign out
         setUser(null);
         setUserRole('user');
         localStorage.removeItem('trata-user-role');
-        localStorage.removeItem('trata-auth');
       }
+      // Ignore INITIAL_SESSION and other events to prevent unwanted logouts
+      
       setLoading(false);
     });
 

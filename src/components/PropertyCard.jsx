@@ -13,14 +13,18 @@ const PropertyCard = ({ property }) => {
   }, [user, property.id]);
 
   const getSupabaseHeaders = () => {
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
     const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
     
-    // Try to get auth token from localStorage
+    // Get auth token from Supabase's default storage
     let accessToken = supabaseKey;
-    const trataAuth = localStorage.getItem('trata-auth');
-    if (trataAuth) {
+    const projectId = supabaseUrl?.split('//')[1]?.split('.')[0];
+    const storageKey = `sb-${projectId}-auth-token`;
+    const stored = localStorage.getItem(storageKey);
+    
+    if (stored) {
       try {
-        const parsed = JSON.parse(trataAuth);
+        const parsed = JSON.parse(stored);
         if (parsed?.access_token) {
           accessToken = parsed.access_token;
         }
