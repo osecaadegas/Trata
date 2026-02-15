@@ -21,7 +21,7 @@ const SellerValueSection = () => {
     {
       number: '03',
       title: 'Recebe Mais, Sem Risco',
-      description: 'Só cobramos quando vender — e normalmente por um valor superior.',
+      description: 'Só cobramos quando vender.',
       icon: 'fa-handshake',
       detail: 'O nosso sucesso depende do seu. Interesses 100% alinhados.'
     },
