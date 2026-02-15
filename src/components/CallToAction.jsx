@@ -10,12 +10,6 @@ const CallToAction = () => {
         </p>
         <div className="flex flex-col sm:flex-row justify-center gap-4">
           <a 
-            href="#contactos"
-            className="bg-green-accent text-white px-10 py-4 rounded-full font-bold text-lg hover:bg-emerald-600 transition-all text-center"
-          >
-            Avaliação Gratuita
-          </a>
-          <a 
             href="https://wa.me/351934101523?text=Olá!%20Gostaria%20de%20falar%20com%20um%20consultor."
             target="_blank"
             rel="noopener noreferrer"
