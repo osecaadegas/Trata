@@ -91,7 +91,7 @@ function App() {
         return (
           <>
             <Hero />
-            <SellerValueSection />
+            {/* <SellerValueSection /> */}
             <PropertyListings />
             <CallToAction />
             <Footer />
