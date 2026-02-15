@@ -137,7 +137,7 @@ export function inquiryNotificationTemplate({
                 <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="background-color: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
                     <!-- Header -->
                     <tr>
-                        <td style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); padding: 24px; text-align: center;">
+                        <td style="background: linear-gradient(135deg, #7cfa27 0%, #6de01f 100%); padding: 24px; text-align: center;">
                             <h1 style="color: white; margin: 0; font-size: 24px; font-weight: 700;">🔔 Novo Pedido de Contacto</h1>
                         </td>
                     </tr>
@@ -146,7 +146,7 @@ export function inquiryNotificationTemplate({
                     <tr>
                         <td style="padding: 32px;">
                             <!-- Client Info -->
-                            <div style="background-color: #ecfdf5; border-radius: 8px; padding: 20px; margin-bottom: 24px; border-left: 4px solid #10b981;">
+                            <div style="background-color: #f0fde4; border-radius: 8px; padding: 20px; margin-bottom: 24px; border-left: 4px solid #7cfa27;">
                                 <h3 style="color: #065f46; margin: 0 0 12px; font-size: 16px;">Dados do Cliente</h3>
                                 <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
                                     <tr>
@@ -186,7 +186,7 @@ export function inquiryNotificationTemplate({
                                 <h3 style="color: #075985; margin: 0 0 12px; font-size: 16px;">🏠 Imóvel</h3>
                                 <p style="color: #1f2937; font-size: 16px; font-weight: 600; margin: 0 0 8px;">${propertyTitle}</p>
                                 ${propertyLocation ? `<p style="color: #6b7280; font-size: 14px; margin: 0 0 4px;">📍 ${propertyLocation}</p>` : ''}
-                                ${propertyPrice ? `<p style="color: #059669; font-size: 16px; font-weight: 600; margin: 8px 0 0;">💰 ${formatPrice(propertyPrice)}</p>` : ''}
+                                ${propertyPrice ? `<p style="color: #6de01f; font-size: 16px; font-weight: 600; margin: 8px 0 0;">💰 ${formatPrice(propertyPrice)}</p>` : ''}
                             </div>
                             ` : ''}
                             

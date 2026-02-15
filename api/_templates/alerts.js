@@ -218,7 +218,7 @@ export function propertyAlertTemplate({ property, unsubscribeUrl, viewPropertyUr
                             </p>
                             
                             <!-- Price -->
-                            <p style="color: #059669; font-size: 28px; font-weight: 700; margin: 0 0 24px;">
+                            <p style="color: #6de01f; font-size: 28px; font-weight: 700; margin: 0 0 24px;">
                                 ${formatPrice(property.price)}
                             </p>
                             

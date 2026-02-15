@@ -175,7 +175,7 @@ function unsubscribeSuccessHtml(email) {
         .icon {
             width: 80px;
             height: 80px;
-            background: #10b981;
+            background: #7cfa27;
             border-radius: 50%;
             display: flex;
             align-items: center;

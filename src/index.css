@@ -41,12 +41,12 @@ body {
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-    background: #10b981;
+    background: #7cfa27;
     border-radius: 10px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: #059669;
+    background: #6de01f;
 }
 
 /* Slide-up animation */
