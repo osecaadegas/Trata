@@ -16,13 +16,16 @@ const Hero = () => {
 
   return (
     <section id="home" className="relative min-h-[90vh] flex items-center overflow-hidden">
-      {/* Background Image with Gradient Overlay */}
+      {/* Background Image */}
       <div 
         className="absolute inset-0 bg-cover bg-center"
         style={{
-          backgroundImage: `linear-gradient(rgba(255,255,255,0.92), rgba(255,255,255,0.85)), url('https://images.unsplash.com/photo-1560518883-ce09059eeffa?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80')`
+          backgroundImage: `url('https://images.unsplash.com/photo-1560518883-ce09059eeffa?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80')`
         }}
       ></div>
+      
+      {/* Blur Overlay */}
+      <div className="absolute inset-0 backdrop-blur-sm bg-white/30"></div>
       
       {/* Decorative Elements */}
       <div className="absolute top-20 right-10 w-72 h-72 bg-emerald-400/10 rounded-full blur-3xl"></div>
