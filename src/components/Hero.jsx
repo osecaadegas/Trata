@@ -140,7 +140,7 @@ const Hero = () => {
                 <p className="text-2xl font-bold text-slate-900">90%</p>
               </div>
             </div>
-            <p className="text-xs text-slate-500">Dos proprietários que venderam acima do valor de mercado</p>
+            <p className="text-xs text-slate-500">Dos proprietários venderam acima do valor de mercado</p>
           </div>
 
           {/* Right floating card */}
