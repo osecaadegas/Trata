@@ -20,17 +20,17 @@ const SellerValueSection = () => {
     },
     {
       number: '03',
-      title: 'Venda ao Melhor Preço',
-      description: 'Promovemos e negociamos a venda para maximizar o valor final.',
-      icon: 'fa-chart-line',
-      detail: 'Marketing profissional, fotografia, e negociação especializada.'
-    },
-    {
-      number: '04',
       title: 'Recebe Mais, Sem Risco',
       description: 'Só cobramos quando vender — e normalmente por um valor superior.',
       icon: 'fa-handshake',
       detail: 'O nosso sucesso depende do seu. Interesses 100% alinhados.'
+    },
+    {
+      number: '04',
+      title: 'Venda ao Melhor Preço',
+      description: 'Promovemos e negociamos a venda para maximizar o valor final.',
+      icon: 'fa-chart-line',
+      detail: 'Marketing profissional, fotografia, e negociação especializada.'
     }
   ];
 
