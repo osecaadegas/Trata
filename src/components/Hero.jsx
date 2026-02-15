@@ -16,13 +16,17 @@ const Hero = () => {
 
   return (
     <section id="home" className="relative min-h-[90vh] flex items-center overflow-hidden">
-      {/* Background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-slate-50 via-white to-emerald-50/30"></div>
+      {/* Background Image with Gradient Overlay */}
+      <div 
+        className="absolute inset-0 bg-cover bg-center"
+        style={{
+          backgroundImage: `linear-gradient(rgba(255,255,255,0.92), rgba(255,255,255,0.85)), url('https://images.unsplash.com/photo-1560518883-ce09059eeffa?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80')`
+        }}
+      ></div>
       
       {/* Decorative Elements */}
       <div className="absolute top-20 right-10 w-72 h-72 bg-emerald-400/10 rounded-full blur-3xl"></div>
       <div className="absolute bottom-20 left-10 w-96 h-96 bg-emerald-300/10 rounded-full blur-3xl"></div>
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-gradient-to-r from-emerald-100/20 to-transparent rounded-full blur-3xl"></div>
       
       {/* Grid Pattern Overlay */}
       <div className="absolute inset-0 opacity-[0.03]" style={{
