@@ -92,11 +92,16 @@ const Navbar = () => {
               <img 
                 src="/trata.png" 
                 alt="TRATA Logo" 
-                className="h-12 w-12 object-contain rounded-lg shadow-sm group-hover:scale-105 transition-transform"
+                className="h-12 w-auto object-contain group-hover:scale-105 transition-transform"
               />
-              <span className="text-2xl font-bold tracking-tighter text-slate-900">
-                TRA<span className="text-emerald-500">TA</span>
-              </span>
+              <div className="flex flex-col">
+                <span className="text-2xl font-bold tracking-tighter text-slate-900 leading-none">
+                  TRA<span className="text-emerald-500">TA</span>
+                </span>
+                <span className="text-xs font-medium tracking-wide leading-none mt-0.5">
+                  <span className="text-emerald-500">IMOB</span><span className="text-slate-900">ILIÁRIA</span>
+                </span>
+              </div>
             </a>
             
             {/* Desktop Navigation */}
