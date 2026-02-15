@@ -94,14 +94,14 @@ const Hero = () => {
 
           {/* Divider with Seller CTA */}
           <div className="flex items-center justify-center gap-4 mb-10">
-            <span className="text-slate-400 text-sm">ou</span>
+            <span className="text-slate-500 text-base font-medium">ou</span>
             <a
               href="#contactos"
-              className="group inline-flex items-center gap-2 text-emerald-600 hover:text-emerald-700 font-semibold transition-colors"
+              className="group inline-flex items-center gap-3 bg-emerald-500 hover:bg-emerald-600 text-white font-semibold px-6 py-3 rounded-full shadow-lg hover:shadow-xl transition-all"
             >
-              <i className="fa-solid fa-calculator text-sm"></i>
+              <i className="fa-solid fa-calculator"></i>
               <span>Pedir Avaliação Gratuita</span>
-              <i className="fa-solid fa-arrow-right text-xs transition-transform group-hover:translate-x-1"></i>
+              <i className="fa-solid fa-arrow-right text-sm transition-transform group-hover:translate-x-1"></i>
             </a>
           </div>
 
