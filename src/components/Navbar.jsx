@@ -88,11 +88,11 @@ const Navbar = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16 lg:h-18 items-center">
             {/* Logo */}
-            <a href="#home" className="flex items-center gap-2.5 z-10 group">
+            <a href="#home" className="flex items-center gap-3 z-10 group">
               <img 
                 src="/trata.jpg" 
                 alt="TRATA Logo" 
-                className="h-9 w-9 object-contain rounded-lg shadow-sm group-hover:scale-105 transition-transform"
+                className="h-12 w-12 object-contain rounded-lg shadow-sm group-hover:scale-105 transition-transform"
               />
               <span className="text-2xl font-bold tracking-tighter text-slate-900">
                 TRA<span className="text-emerald-500">TA</span>
