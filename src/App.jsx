@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { AuthProvider } from './context/AuthContext';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
-import Features from './components/Features';
 import SellerValueSection from './components/SellerValueSection';
 import PropertyListings from './components/PropertyListings';
 import CallToAction from './components/CallToAction';
@@ -92,7 +91,6 @@ function App() {
         return (
           <>
             <Hero />
-            <Features />
             <SellerValueSection />
             <PropertyListings />
             <CallToAction />
