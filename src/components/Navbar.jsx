@@ -90,7 +90,7 @@ const Navbar = () => {
             {/* Logo */}
             <a href="#home" className="flex items-center gap-3 z-10 group">
               <img 
-                src="/trata.jpg" 
+                src="/trata.png" 
                 alt="TRATA Logo" 
                 className="h-12 w-12 object-contain rounded-lg shadow-sm group-hover:scale-105 transition-transform"
               />
