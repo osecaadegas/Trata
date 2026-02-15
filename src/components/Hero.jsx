@@ -144,7 +144,7 @@ const Hero = () => {
           </div>
 
           {/* Right floating card */}
-          <div className="absolute right-8 top-1/3 bg-white rounded-2xl shadow-lg p-5 border border-gray-100 max-w-[200px]">
+          <div className="absolute right-8 top-1/2 -translate-y-1/2 bg-white rounded-2xl shadow-lg p-5 border border-gray-100 max-w-[200px]">
             <div className="flex items-center gap-3 mb-3">
               <div className="w-10 h-10 bg-slate-900 rounded-xl flex items-center justify-center">
                 <i className="fa-solid fa-euro-sign text-white"></i>
