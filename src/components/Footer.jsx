@@ -7,13 +7,18 @@ const Footer = () => {
         <div className="col-span-1 md:col-span-1">
           <a href="#home" className="flex items-center gap-2 mb-6">
             <img 
-              src="/trata.jpg" 
+              src="/trata.png" 
               alt="TRATA Logo" 
-              className="h-9 w-9 object-contain rounded-lg"
+              className="h-12 w-auto object-contain"
             />
-            <span className="text-2xl font-bold tracking-tighter text-slate-900">
-              TRA<span className="text-green-accent">TA</span>
-            </span>
+            <div className="flex flex-col -space-y-1">
+              <span className="text-2xl font-bold tracking-tighter text-slate-900">
+                TRA<span className="text-emerald-400">TA</span>
+              </span>
+              <span className="text-[10px] font-semibold tracking-[0.15em]">
+                <span className="text-emerald-400">IMOB</span><span className="text-slate-900">ILIÁRIA</span>
+              </span>
+            </div>
           </a>
           <p className="text-slate-500 leading-relaxed mb-6">
             A TRATA é a sua parceira de confiança no mercado imobiliário, focada na eficácia e modernidade.
