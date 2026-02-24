@@ -103,6 +103,14 @@ const Hero = () => {
               <span>Pedir Avaliação Gratuita</span>
               <i className="fa-solid fa-arrow-right text-sm transition-transform group-hover:translate-x-1"></i>
             </a>
+            <a
+              href="#servicos"
+              className="group inline-flex items-center gap-3 bg-white hover:bg-slate-50 text-slate-700 font-semibold px-6 py-3 rounded-full shadow-lg hover:shadow-xl transition-all border border-slate-200"
+            >
+              <i className="fa-solid fa-star"></i>
+              <span>Conhecer Serviço Especial</span>
+              <i className="fa-solid fa-arrow-right text-sm transition-transform group-hover:translate-x-1"></i>
+            </a>
           </div>
 
           {/* Trust Signals / Micro-benefits */}
