@@ -117,7 +117,7 @@ const PropertyDetailPage = ({ propertyId }) => {
           if (prop.seller_id) {
             try {
               const sellerRes = await fetch(
-                `${supabaseUrl}/rest/v1/users?id=eq.${prop.seller_id}&select=id,name,email,phone`,
+                `${supabaseUrl}/rest/v1/users?id=eq.${prop.seller_id}&select=id,name,email,phone,avatar_url`,
                 { headers: getSupabaseHeaders() }
               );
               if (sellerRes.ok) {
@@ -641,9 +641,17 @@ const PropertyDetailPage = ({ propertyId }) => {
                 {seller && (
                   <div className="mb-4 p-3 bg-gray-50 rounded-xl">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center flex-shrink-0">
-                        <i className="fa-solid fa-user-tie text-emerald-600"></i>
-                      </div>
+                      {seller.avatar_url ? (
+                        <img
+                          src={seller.avatar_url}
+                          alt={seller.name || 'Vendedor'}
+                          className="w-10 h-10 rounded-full object-cover flex-shrink-0"
+                        />
+                      ) : (
+                        <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center flex-shrink-0">
+                          <i className="fa-solid fa-user-tie text-emerald-600"></i>
+                        </div>
+                      )}
                       <div>
                         <p className="font-semibold text-slate-900 text-sm">{seller.name || 'Vendedor'}</p>
                         <p className="text-xs text-slate-500">Vendedor responsável</p>

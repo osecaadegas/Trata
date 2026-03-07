@@ -95,7 +95,7 @@ const PropertyCreationModal = ({ isOpen, onClose, editingProperty, onSuccess }) 
         const accessToken = session?.access_token || supabaseKey;
 
         const response = await fetch(
-          `${supabaseUrl}/rest/v1/users?role=in.("vendedor","seller")&select=id,name,email,phone`,
+          `${supabaseUrl}/rest/v1/users?role=in.("vendedor","seller")&select=id,name,email,phone,avatar_url`,
           {
             headers: {
               'apikey': supabaseKey,
@@ -975,9 +975,17 @@ const PropertyCreationModal = ({ isOpen, onClose, editingProperty, onSuccess }) 
                       Vendedor selecionado
                     </p>
                     <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-full bg-emerald-200 flex items-center justify-center">
-                        <i className="fa-solid fa-user text-emerald-600 text-lg"></i>
-                      </div>
+                      {selected.avatar_url ? (
+                        <img
+                          src={selected.avatar_url}
+                          alt={selected.name || 'Vendedor'}
+                          className="w-12 h-12 rounded-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-12 h-12 rounded-full bg-emerald-200 flex items-center justify-center">
+                          <i className="fa-solid fa-user text-emerald-600 text-lg"></i>
+                        </div>
+                      )}
                       <div>
                         <p className="font-semibold text-slate-900">{selected.name || 'Sem nome'}</p>
                         <p className="text-sm text-slate-600">{selected.email}</p>
