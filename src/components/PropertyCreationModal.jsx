@@ -73,11 +73,50 @@ const PropertyCreationModal = ({ isOpen, onClose, editingProperty, onSuccess }) 
     video_url: '',
     year_built: '',
     energy_rating: '',
+    seller_id: '',
   });
 
   const [imageFiles, setImageFiles] = useState([]);
   const [existingImages, setExistingImages] = useState([]);
   const [imageOrder, setImageOrder] = useState([]);
+  const [sellers, setSellers] = useState([]);
+  const [loadingSellers, setLoadingSellers] = useState(false);
+
+  // Fetch sellers (vendedores) for assignment dropdown
+  useEffect(() => {
+    const fetchSellers = async () => {
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+      if (!supabaseUrl || supabaseUrl.includes('your-project')) return;
+
+      setLoadingSellers(true);
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        const accessToken = session?.access_token || supabaseKey;
+
+        const response = await fetch(
+          `${supabaseUrl}/rest/v1/users?role=in.("vendedor","seller")&select=id,name,email,phone`,
+          {
+            headers: {
+              'apikey': supabaseKey,
+              'Authorization': `Bearer ${accessToken}`,
+              'Content-Type': 'application/json'
+            }
+          }
+        );
+        if (response.ok) {
+          const data = await response.json();
+          setSellers(data || []);
+        }
+      } catch (err) {
+        console.error('Error fetching sellers:', err);
+      } finally {
+        setLoadingSellers(false);
+      }
+    };
+
+    if (isOpen) fetchSellers();
+  }, [isOpen]);
 
   // Initialize form when editing
   useEffect(() => {
@@ -100,6 +139,7 @@ const PropertyCreationModal = ({ isOpen, onClose, editingProperty, onSuccess }) 
         video_url: editingProperty.video_url || '',
         year_built: editingProperty.year_built?.toString() || '',
         energy_rating: editingProperty.energy_rating || '',
+        seller_id: editingProperty.seller_id || '',
       });
       setExistingImages(editingProperty.images || []);
       setImageOrder(editingProperty.images || []);
@@ -137,6 +177,7 @@ const PropertyCreationModal = ({ isOpen, onClose, editingProperty, onSuccess }) 
       video_url: '',
       year_built: '',
       energy_rating: '',
+      seller_id: '',
     });
     setImageFiles([]);
     setExistingImages([]);
@@ -147,7 +188,8 @@ const PropertyCreationModal = ({ isOpen, onClose, editingProperty, onSuccess }) 
     { id: 1, name: 'Informações', icon: 'fa-info-circle', description: 'Dados básicos' },
     { id: 2, name: 'Detalhes', icon: 'fa-list-check', description: 'Características' },
     { id: 3, name: 'Imagens', icon: 'fa-images', description: 'Galeria de fotos' },
-    { id: 4, name: 'Publicar', icon: 'fa-rocket', description: 'Revisão final' },
+    { id: 4, name: 'Vendedor', icon: 'fa-user-tie', description: 'Vendedor responsável' },
+    { id: 5, name: 'Publicar', icon: 'fa-rocket', description: 'Revisão final' },
   ];
 
   const validateStep = (step) => {
@@ -171,7 +213,7 @@ const PropertyCreationModal = ({ isOpen, onClose, editingProperty, onSuccess }) 
 
   const handleNext = () => {
     if (validateStep(currentStep)) {
-      setCurrentStep(prev => Math.min(prev + 1, 4));
+      setCurrentStep(prev => Math.min(prev + 1, 5));
     }
   };
 
@@ -285,6 +327,7 @@ const PropertyCreationModal = ({ isOpen, onClose, editingProperty, onSuccess }) 
         virtual_tour_url: formData.virtual_tour_url || null,
         video_url: formData.video_url || null,
         energy_rating: formData.energy_rating || null,
+        seller_id: formData.seller_id || null,
         images: imageUrls,
         created_by: user.id,
         status: asDraft ? 'pending' : formData.status,
@@ -867,8 +910,93 @@ const PropertyCreationModal = ({ isOpen, onClose, editingProperty, onSuccess }) 
             </div>
           )}
 
-          {/* Step 4: Review & Publish */}
+          {/* Step 4: Seller Assignment */}
           {currentStep === 4 && (
+            <div className="space-y-6 animate-fade-in">
+              <div className="text-center mb-6">
+                <div className="w-16 h-16 rounded-2xl mx-auto mb-4 flex items-center justify-center bg-emerald-100">
+                  <i className="fa-solid fa-user-tie text-3xl text-emerald-500"></i>
+                </div>
+                <h3 className="text-lg font-bold text-slate-900">Vendedor Responsável</h3>
+                <p className="text-sm text-slate-500 mt-1">
+                  Selecione o vendedor responsável por este imóvel. As informações de contacto deste vendedor serão apresentadas na página do imóvel.
+                </p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-2">
+                  <i className="fa-solid fa-user-tie text-emerald-500 mr-2"></i>
+                  Vendedor <span className="text-red-500">*</span>
+                </label>
+                {loadingSellers ? (
+                  <div className="flex items-center gap-2 text-slate-500 py-3">
+                    <i className="fa-solid fa-spinner fa-spin"></i>
+                    A carregar vendedores...
+                  </div>
+                ) : sellers.length === 0 ? (
+                  <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl">
+                    <p className="text-amber-700 text-sm flex items-center gap-2">
+                      <i className="fa-solid fa-triangle-exclamation"></i>
+                      Nenhum vendedor encontrado. Adicione utilizadores com o papel "vendedor" no sistema.
+                    </p>
+                  </div>
+                ) : (
+                  <select
+                    value={formData.seller_id}
+                    onChange={(e) => setFormData({ ...formData, seller_id: e.target.value })}
+                    className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 hover:border-gray-300 transition-all appearance-none bg-white ${
+                      errors.seller_id ? 'border-red-300 bg-red-50' : 'border-gray-200'
+                    }`}
+                  >
+                    <option value="">Selecionar vendedor...</option>
+                    {sellers.map((seller) => (
+                      <option key={seller.id} value={seller.id}>
+                        {seller.name || seller.email}{seller.phone ? ` - ${seller.phone}` : ''}
+                      </option>
+                    ))}
+                  </select>
+                )}
+                {errors.seller_id && (
+                  <p className="text-red-500 text-sm mt-1 flex items-center gap-1">
+                    <i className="fa-solid fa-circle-exclamation"></i>
+                    {errors.seller_id}
+                  </p>
+                )}
+              </div>
+
+              {/* Selected Seller Preview */}
+              {formData.seller_id && (() => {
+                const selected = sellers.find(s => s.id === formData.seller_id);
+                if (!selected) return null;
+                return (
+                  <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4">
+                    <p className="text-sm font-semibold text-emerald-800 mb-2">
+                      <i className="fa-solid fa-check-circle mr-1"></i>
+                      Vendedor selecionado
+                    </p>
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 rounded-full bg-emerald-200 flex items-center justify-center">
+                        <i className="fa-solid fa-user text-emerald-600 text-lg"></i>
+                      </div>
+                      <div>
+                        <p className="font-semibold text-slate-900">{selected.name || 'Sem nome'}</p>
+                        <p className="text-sm text-slate-600">{selected.email}</p>
+                        {selected.phone && (
+                          <p className="text-sm text-slate-600">
+                            <i className="fa-solid fa-phone text-xs mr-1"></i>
+                            {selected.phone}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })()}
+            </div>
+          )}
+
+          {/* Step 5: Review & Publish */}
+          {currentStep === 5 && (
             <div className="space-y-6 animate-fade-in">
               {/* Preview Card */}
               <div className="border border-gray-200 rounded-2xl overflow-hidden">
@@ -956,6 +1084,15 @@ const PropertyCreationModal = ({ isOpen, onClose, editingProperty, onSuccess }) 
                     <span className="text-slate-500">Características:</span>
                     <span className="font-medium text-slate-700">{formData.features.length}</span>
                   </div>
+                  <div className="flex justify-between md:col-span-2">
+                    <span className="text-slate-500">Vendedor:</span>
+                    <span className="font-medium text-slate-700">
+                      {(() => {
+                        const s = sellers.find(s => s.id === formData.seller_id);
+                        return s ? (s.name || s.email) : 'Não atribuído';
+                      })()}
+                    </span>
+                  </div>
                 </div>
               </div>
 
@@ -1025,7 +1162,7 @@ const PropertyCreationModal = ({ isOpen, onClose, editingProperty, onSuccess }) 
             </div>
             
             <div className="flex items-center gap-3">
-              {currentStep === 4 && (
+              {currentStep === 5 && (
                 <button
                   type="button"
                   onClick={() => handleSubmit(true)}
@@ -1037,7 +1174,7 @@ const PropertyCreationModal = ({ isOpen, onClose, editingProperty, onSuccess }) 
                 </button>
               )}
               
-              {currentStep < 4 ? (
+              {currentStep < 5 ? (
                 <button
                   type="button"
                   onClick={handleNext}

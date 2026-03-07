@@ -20,6 +20,7 @@ const PropertyDetailPage = ({ propertyId }) => {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
+  const [seller, setSeller] = useState(null);
 
   // Mapping from DB values to display values (Portuguese)
   const propertyTypeMap = {
@@ -108,8 +109,27 @@ const PropertyDetailPage = ({ propertyId }) => {
             virtualTourUrl: prop.virtual_tour_url,
             videoUrl: prop.video_url,
             yearBuilt: prop.year_built,
-            energyRating: prop.energy_rating
+            energyRating: prop.energy_rating,
+            sellerId: prop.seller_id
           });
+
+          // Fetch seller info if seller_id exists
+          if (prop.seller_id) {
+            try {
+              const sellerRes = await fetch(
+                `${supabaseUrl}/rest/v1/users?id=eq.${prop.seller_id}&select=id,name,email,phone`,
+                { headers: getSupabaseHeaders() }
+              );
+              if (sellerRes.ok) {
+                const sellerData = await sellerRes.json();
+                if (sellerData && sellerData.length > 0) {
+                  setSeller(sellerData[0]);
+                }
+              }
+            } catch (sellerErr) {
+              console.error('Error fetching seller:', sellerErr);
+            }
+          }
         }
       } catch (err) {
         console.error('Error fetching property:', err);
@@ -616,6 +636,21 @@ const PropertyDetailPage = ({ propertyId }) => {
                 <h3 className="text-lg font-bold text-slate-900 mb-4">
                   Interessado neste imóvel?
                 </h3>
+
+                {/* Seller info */}
+                {seller && (
+                  <div className="mb-4 p-3 bg-gray-50 rounded-xl">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center flex-shrink-0">
+                        <i className="fa-solid fa-user-tie text-emerald-600"></i>
+                      </div>
+                      <div>
+                        <p className="font-semibold text-slate-900 text-sm">{seller.name || 'Vendedor'}</p>
+                        <p className="text-xs text-slate-500">Vendedor responsável</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
                 
                 {!showContactForm ? (
                   <div className="space-y-3">
@@ -627,14 +662,14 @@ const PropertyDetailPage = ({ propertyId }) => {
                       Pedir mais informações
                     </button>
                     <a
-                      href="tel:+351934101523"
+                      href={`tel:${seller?.phone || '+351934101523'}`}
                       className="w-full py-3 bg-slate-100 text-slate-700 font-semibold rounded-xl hover:bg-slate-200 transition-colors flex items-center justify-center gap-2"
                     >
                       <i className="fa-solid fa-phone"></i>
-                      +351 934 101 523
+                      {seller?.phone || '+351 934 101 523'}
                     </a>
                     <a
-                      href={`https://wa.me/351934101523?text=${encodeURIComponent(`Olá! Estou interessado no imóvel: ${property.title} - ${window.location.href}`)}`}
+                      href={`https://wa.me/${(seller?.phone || '+351934101523').replace(/[^\d+]/g, '').replace('+', '')}?text=${encodeURIComponent(`Olá! Estou interessado no imóvel: ${property.title} - ${window.location.href}`)}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="w-full py-3 bg-green-500 text-white font-semibold rounded-xl hover:bg-green-600 transition-colors flex items-center justify-center gap-2"
