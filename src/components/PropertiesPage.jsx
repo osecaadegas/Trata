@@ -309,7 +309,7 @@ const PropertiesPage = () => {
 
   // Property Card Component
   const PropertyCard = ({ property }) => (
-    <div className="group bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 hover:shadow-xl hover:border-emerald-100 transition-all duration-300 hover:-translate-y-1">
+    <a href={`#imovel/${property.id}`} className="block group bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 hover:shadow-xl hover:border-emerald-100 transition-all duration-300 hover:-translate-y-1 cursor-pointer">
       {/* Image Container */}
       <div className="relative h-56 overflow-hidden">
         <img 
@@ -389,16 +389,8 @@ const PropertiesPage = () => {
             </span>
           )}
         </div>
-        {/* Button */}
-        <a 
-          href={`#imovel/${property.id}`}
-          className="w-full py-3 bg-gray-100 text-slate-700 font-medium rounded-xl hover:bg-emerald-500 hover:text-white transition-all duration-300 flex items-center justify-center gap-2 group/btn"
-        >
-          Ver Detalhes
-          <i className="fa-solid fa-arrow-right text-xs group-hover/btn:translate-x-1 transition-transform"></i>
-        </a>
       </div>
-    </div>
+    </a>
   );
 
   // Error State

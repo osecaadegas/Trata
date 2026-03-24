@@ -447,15 +447,14 @@ const PropertyCreationModal = ({ isOpen, onClose, editingProperty, onSuccess }) 
             {steps.map((step, idx) => (
               <React.Fragment key={step.id}>
                 <button
-                  onClick={() => currentStep > step.id && setCurrentStep(step.id)}
-                  className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all ${
+                  onClick={() => step.id !== currentStep && setCurrentStep(step.id)}
+                  className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all cursor-pointer ${
                     currentStep === step.id
                       ? 'bg-emerald-500 text-white'
                       : currentStep > step.id
-                      ? 'bg-emerald-100 text-emerald-700 cursor-pointer hover:bg-emerald-200'
-                      : 'bg-gray-100 text-slate-400'
+                      ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200'
+                      : 'bg-gray-100 text-slate-500 hover:bg-gray-200'
                   }`}
-                  disabled={currentStep < step.id}
                 >
                   <i className={`fa-solid ${step.icon} text-sm`}></i>
                   <span className="text-sm font-medium hidden sm:inline">{step.name}</span>

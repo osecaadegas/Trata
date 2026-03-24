@@ -118,7 +118,7 @@ const PropertyCard = ({ property }) => {
           {property.tag}
         </div>
         <button 
-          onClick={toggleFavorite}
+          onClick={(e) => { e.preventDefault(); toggleFavorite(); }}
           disabled={loading}
           className={`absolute top-4 right-4 w-10 h-10 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center transition-colors ${
             isFavorite ? 'text-red-500' : 'text-slate-600 hover:text-red-500'
