@@ -435,7 +435,7 @@ const PropertiesPage = () => {
       </section>
 
       {/* Filters Section */}
-      <section className="sticky top-20 z-30 bg-white/95 backdrop-blur-md border-b border-gray-100 shadow-sm">
+      <section className="sticky top-16 z-30 bg-white/95 backdrop-blur-md border-b border-gray-100 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           {/* Mobile Filter Toggle */}
           <div className="lg:hidden flex items-center justify-between mb-4">
