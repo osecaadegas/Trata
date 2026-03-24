@@ -110,7 +110,8 @@ const PropertyDetailPage = ({ propertyId }) => {
             videoUrl: prop.video_url,
             yearBuilt: prop.year_built,
             energyRating: prop.energy_rating,
-            sellerId: prop.seller_id
+            sellerId: prop.seller_id,
+            lotArea: prop.lot_area_sqm
           });
 
           // Fetch seller info if seller_id exists
@@ -516,6 +517,13 @@ const PropertyDetailPage = ({ propertyId }) => {
                   <p className="text-2xl font-bold text-slate-900">{formatArea(property.area)}</p>
                   <p className="text-sm text-slate-500">Área</p>
                 </div>
+                {property.lotArea > 0 && (
+                  <div className="text-center p-4 bg-emerald-50 rounded-xl">
+                    <i className="fa-solid fa-vector-square text-2xl text-emerald-500 mb-2"></i>
+                    <p className="text-2xl font-bold text-slate-900">{formatArea(property.lotArea)}</p>
+                    <p className="text-sm text-slate-500">Lote</p>
+                  </div>
+                )}
                 {property.yearBuilt && (
                   <div className="text-center p-4 bg-emerald-50 rounded-xl">
                     <i className="fa-solid fa-calendar text-2xl text-emerald-500 mb-2"></i>
@@ -574,6 +582,12 @@ const PropertyDetailPage = ({ propertyId }) => {
                   <span className="text-slate-500">Área</span>
                   <span className="font-medium text-slate-900">{formatArea(property.area)}</span>
                 </div>
+                {property.lotArea > 0 && (
+                  <div className="flex justify-between py-3 border-b border-gray-100">
+                    <span className="text-slate-500">Área do Lote</span>
+                    <span className="font-medium text-slate-900">{formatArea(property.lotArea)}</span>
+                  </div>
+                )}
                 {property.bedrooms > 0 && (
                   <div className="flex justify-between py-3 border-b border-gray-100">
                     <span className="text-slate-500">Quartos</span>

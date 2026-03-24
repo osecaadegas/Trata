@@ -74,11 +74,15 @@ const PropertyCreationModal = ({ isOpen, onClose, editingProperty, onSuccess }) 
     year_built: '',
     energy_rating: '',
     seller_id: '',
+    lot_area_sqm: '',
   });
 
   const [imageFiles, setImageFiles] = useState([]);
   const [existingImages, setExistingImages] = useState([]);
   const [imageOrder, setImageOrder] = useState([]);
+  const [thumbnailIndex, setThumbnailIndex] = useState(0);
+  const [draggedImageIndex, setDraggedImageIndex] = useState(null);
+  const [draggedImageType, setDraggedImageType] = useState(null);
   const [sellers, setSellers] = useState([]);
   const [loadingSellers, setLoadingSellers] = useState(false);
 
@@ -140,9 +144,11 @@ const PropertyCreationModal = ({ isOpen, onClose, editingProperty, onSuccess }) 
         year_built: editingProperty.year_built?.toString() || '',
         energy_rating: editingProperty.energy_rating || '',
         seller_id: editingProperty.seller_id || '',
+        lot_area_sqm: editingProperty.lot_area_sqm?.toString() || '',
       });
       setExistingImages(editingProperty.images || []);
       setImageOrder(editingProperty.images || []);
+      setThumbnailIndex(0);
     }
   }, [editingProperty]);
 
@@ -178,10 +184,14 @@ const PropertyCreationModal = ({ isOpen, onClose, editingProperty, onSuccess }) 
       year_built: '',
       energy_rating: '',
       seller_id: '',
+      lot_area_sqm: '',
     });
     setImageFiles([]);
     setExistingImages([]);
     setImageOrder([]);
+    setThumbnailIndex(0);
+    setDraggedImageIndex(null);
+    setDraggedImageType(null);
   };
 
   const steps = [
@@ -317,12 +327,19 @@ const PropertyCreationModal = ({ isOpen, onClose, editingProperty, onSuccess }) 
         imageUrls = [...imageUrls, ...newUrls];
       }
 
+      // Reorder so thumbnail is first
+      if (thumbnailIndex > 0 && thumbnailIndex < imageUrls.length) {
+        const thumb = imageUrls.splice(thumbnailIndex, 1)[0];
+        imageUrls.unshift(thumb);
+      }
+
       const propertyData = {
         ...formData,
         price: parseFloat(formData.price),
         bedrooms: formData.bedrooms ? parseInt(formData.bedrooms) : null,
         bathrooms: formData.bathrooms ? parseInt(formData.bathrooms) : null,
         area_sqm: formData.area_sqm ? parseInt(formData.area_sqm) : null,
+        lot_area_sqm: formData.lot_area_sqm ? parseInt(formData.lot_area_sqm) : null,
         year_built: formData.year_built ? parseInt(formData.year_built) : null,
         virtual_tour_url: formData.virtual_tour_url || null,
         video_url: formData.video_url || null,
@@ -619,7 +636,7 @@ const PropertyCreationModal = ({ isOpen, onClose, editingProperty, onSuccess }) 
           {currentStep === 2 && (
             <div className="space-y-6 animate-fade-in">
               {/* Quick Stats */}
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div>
                   <label className="block text-sm font-semibold text-slate-700 mb-2">
                     <i className="fa-solid fa-bed text-emerald-500 mr-2"></i>
@@ -661,6 +678,21 @@ const PropertyCreationModal = ({ isOpen, onClose, editingProperty, onSuccess }) 
                     className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 text-center text-lg font-semibold"
                     placeholder="0"
                   />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-slate-700 mb-2">
+                    <i className="fa-solid fa-vector-square text-emerald-500 mr-2"></i>
+                    Lote (m²)
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    value={formData.lot_area_sqm}
+                    onChange={(e) => setFormData({ ...formData, lot_area_sqm: e.target.value })}
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 text-center text-lg font-semibold"
+                    placeholder="0"
+                  />
+                  <p className="text-xs text-slate-400 mt-1 text-center">Opcional</p>
                 </div>
               </div>
 
@@ -807,25 +839,75 @@ const PropertyCreationModal = ({ isOpen, onClose, editingProperty, onSuccess }) 
                   </p>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                     {existingImages.map((url, index) => (
-                      <div key={`existing-${index}`} className="relative group aspect-[4/3] rounded-xl overflow-hidden bg-gray-100">
+                      <div
+                        key={`existing-${index}`}
+                        draggable
+                        onDragStart={() => { setDraggedImageIndex(index); setDraggedImageType('existing'); }}
+                        onDragOver={(e) => { e.preventDefault(); }}
+                        onDrop={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          if (draggedImageType === 'existing' && draggedImageIndex !== index) {
+                            setExistingImages(prev => {
+                              const updated = [...prev];
+                              const [moved] = updated.splice(draggedImageIndex, 1);
+                              updated.splice(index, 0, moved);
+                              return updated;
+                            });
+                            if (thumbnailIndex === draggedImageIndex) setThumbnailIndex(index);
+                            else if (thumbnailIndex === index) setThumbnailIndex(draggedImageIndex);
+                          }
+                          setDraggedImageIndex(null);
+                          setDraggedImageType(null);
+                        }}
+                        onDragEnd={() => { setDraggedImageIndex(null); setDraggedImageType(null); }}
+                        className={`relative group aspect-[4/3] rounded-xl overflow-hidden bg-gray-100 cursor-grab active:cursor-grabbing ${
+                          draggedImageType === 'existing' && draggedImageIndex === index ? 'opacity-50 ring-2 ring-emerald-500' : ''
+                        }`}
+                      >
                         <img
                           src={url}
                           alt={`Imagem ${index + 1}`}
-                          className="w-full h-full object-cover"
+                          className="w-full h-full object-cover pointer-events-none"
                         />
                         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors" />
-                        <button
-                          type="button"
-                          onClick={() => removeExistingImage(index)}
-                          className="absolute top-2 right-2 w-8 h-8 bg-red-500 text-white rounded-lg opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center hover:bg-red-600"
-                        >
-                          <i className="fa-solid fa-trash text-sm"></i>
-                        </button>
-                        {index === 0 && (
-                          <span className="absolute bottom-2 left-2 px-2 py-1 bg-emerald-500 text-white text-xs font-medium rounded-lg">
-                            Principal
+                        {/* Order number badge */}
+                        <span className="absolute top-2 left-2 w-7 h-7 bg-black/60 text-white text-xs font-bold rounded-full flex items-center justify-center">
+                          {index + 1}
+                        </span>
+                        <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <button
+                            type="button"
+                            onClick={(e) => { e.stopPropagation(); setThumbnailIndex(index); }}
+                            className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${
+                              thumbnailIndex === index ? 'bg-emerald-500 text-white' : 'bg-white/90 text-slate-600 hover:bg-emerald-500 hover:text-white'
+                            }`}
+                            title="Definir como thumbnail"
+                          >
+                            <i className="fa-solid fa-image text-sm"></i>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              removeExistingImage(index);
+                              if (thumbnailIndex >= existingImages.length - 1) setThumbnailIndex(Math.max(0, existingImages.length - 2));
+                              else if (index < thumbnailIndex) setThumbnailIndex(prev => prev - 1);
+                            }}
+                            className="w-8 h-8 bg-red-500 text-white rounded-lg flex items-center justify-center hover:bg-red-600"
+                          >
+                            <i className="fa-solid fa-trash text-sm"></i>
+                          </button>
+                        </div>
+                        {thumbnailIndex === index && (
+                          <span className="absolute bottom-2 left-2 px-2 py-1 bg-emerald-500 text-white text-xs font-semibold rounded-lg flex items-center gap-1">
+                            <i className="fa-solid fa-image text-[10px]"></i>
+                            Thumbnail
                           </span>
                         )}
+                        <div className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-70 transition-opacity">
+                          <i className="fa-solid fa-grip-vertical text-white text-sm"></i>
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -839,27 +921,99 @@ const PropertyCreationModal = ({ isOpen, onClose, editingProperty, onSuccess }) 
                     Novas Imagens ({imageFiles.length})
                   </p>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                    {imageFiles.map((file, index) => (
-                      <div key={`new-${index}`} className="relative group aspect-[4/3] rounded-xl overflow-hidden bg-gray-100">
-                        <img
-                          src={URL.createObjectURL(file)}
-                          alt={`Nova imagem ${index + 1}`}
-                          className="w-full h-full object-cover"
-                        />
-                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors" />
-                        <button
-                          type="button"
-                          onClick={() => removeNewImage(index)}
-                          className="absolute top-2 right-2 w-8 h-8 bg-red-500 text-white rounded-lg opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center hover:bg-red-600"
+                    {imageFiles.map((file, index) => {
+                      const globalIndex = existingImages.length + index;
+                      return (
+                        <div
+                          key={`new-${index}`}
+                          draggable
+                          onDragStart={() => { setDraggedImageIndex(index); setDraggedImageType('new'); }}
+                          onDragOver={(e) => { e.preventDefault(); }}
+                          onDrop={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            if (draggedImageType === 'new' && draggedImageIndex !== index) {
+                              setImageFiles(prev => {
+                                const updated = [...prev];
+                                const [moved] = updated.splice(draggedImageIndex, 1);
+                                updated.splice(index, 0, moved);
+                                return updated;
+                              });
+                              const dragGlobal = existingImages.length + draggedImageIndex;
+                              if (thumbnailIndex === dragGlobal) setThumbnailIndex(globalIndex);
+                              else if (thumbnailIndex === globalIndex) setThumbnailIndex(dragGlobal);
+                            }
+                            setDraggedImageIndex(null);
+                            setDraggedImageType(null);
+                          }}
+                          onDragEnd={() => { setDraggedImageIndex(null); setDraggedImageType(null); }}
+                          className={`relative group aspect-[4/3] rounded-xl overflow-hidden bg-gray-100 cursor-grab active:cursor-grabbing ${
+                            draggedImageType === 'new' && draggedImageIndex === index ? 'opacity-50 ring-2 ring-emerald-500' : ''
+                          }`}
                         >
-                          <i className="fa-solid fa-trash text-sm"></i>
-                        </button>
-                        <span className="absolute bottom-2 left-2 px-2 py-1 bg-blue-500 text-white text-xs font-medium rounded-lg">
-                          Novo
-                        </span>
-                      </div>
-                    ))}
+                          <img
+                            src={URL.createObjectURL(file)}
+                            alt={`Nova imagem ${index + 1}`}
+                            className="w-full h-full object-cover pointer-events-none"
+                          />
+                          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors" />
+                          {/* Order number badge */}
+                          <span className="absolute top-2 left-2 w-7 h-7 bg-blue-500/80 text-white text-xs font-bold rounded-full flex items-center justify-center">
+                            {globalIndex + 1}
+                          </span>
+                          <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button
+                              type="button"
+                              onClick={(e) => { e.stopPropagation(); setThumbnailIndex(globalIndex); }}
+                              className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${
+                                thumbnailIndex === globalIndex ? 'bg-emerald-500 text-white' : 'bg-white/90 text-slate-600 hover:bg-emerald-500 hover:text-white'
+                              }`}
+                              title="Definir como thumbnail"
+                            >
+                              <i className="fa-solid fa-image text-sm"></i>
+                            </button>
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                removeNewImage(index);
+                                const totalImages = existingImages.length + imageFiles.length - 1;
+                                if (thumbnailIndex >= totalImages) setThumbnailIndex(Math.max(0, totalImages - 1));
+                                else if (globalIndex < thumbnailIndex) setThumbnailIndex(prev => prev - 1);
+                                else if (globalIndex === thumbnailIndex) setThumbnailIndex(0);
+                              }}
+                              className="w-8 h-8 bg-red-500 text-white rounded-lg flex items-center justify-center hover:bg-red-600"
+                            >
+                              <i className="fa-solid fa-trash text-sm"></i>
+                            </button>
+                          </div>
+                          {thumbnailIndex === globalIndex ? (
+                            <span className="absolute bottom-2 left-2 px-2 py-1 bg-emerald-500 text-white text-xs font-semibold rounded-lg flex items-center gap-1">
+                              <i className="fa-solid fa-image text-[10px]"></i>
+                              Thumbnail
+                            </span>
+                          ) : (
+                            <span className="absolute bottom-2 left-2 px-2 py-1 bg-blue-500 text-white text-xs font-medium rounded-lg">
+                              Novo
+                            </span>
+                          )}
+                          <div className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-70 transition-opacity">
+                            <i className="fa-solid fa-grip-vertical text-white text-sm"></i>
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
+                </div>
+              )}
+
+              {/* Tip */}
+              {(existingImages.length + imageFiles.length) > 1 && (
+                <div className="flex items-start gap-3 p-3 bg-blue-50 border border-blue-100 rounded-xl">
+                  <i className="fa-solid fa-circle-info text-blue-500 mt-0.5"></i>
+                  <p className="text-sm text-blue-700">
+                    <strong>Dica:</strong> Arraste as imagens para reordenar. Clique no ícone <i className="fa-solid fa-image"></i> para definir a imagem de capa (thumbnail).
+                  </p>
                 </div>
               )}
 
@@ -1010,17 +1164,21 @@ const PropertyCreationModal = ({ isOpen, onClose, editingProperty, onSuccess }) 
               <div className="border border-gray-200 rounded-2xl overflow-hidden">
                 {/* Preview Image */}
                 <div className="relative h-48 bg-gray-100">
-                  {(existingImages[0] || (imageFiles[0] && URL.createObjectURL(imageFiles[0]))) ? (
-                    <img
-                      src={existingImages[0] || URL.createObjectURL(imageFiles[0])}
-                      alt="Preview"
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-slate-400">
-                      <i className="fa-solid fa-image text-4xl"></i>
-                    </div>
-                  )}
+                  {(() => {
+                    const allImages = [...existingImages, ...imageFiles.map(f => URL.createObjectURL(f))];
+                    const thumbSrc = allImages[thumbnailIndex] || allImages[0];
+                    return thumbSrc ? (
+                      <img
+                        src={thumbSrc}
+                        alt="Preview"
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-slate-400">
+                        <i className="fa-solid fa-image text-4xl"></i>
+                      </div>
+                    );
+                  })()}
                   <div className="absolute top-3 left-3 flex gap-2">
                     <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
                       formData.condition === 'new' ? 'bg-emerald-500 text-white' :
@@ -1058,6 +1216,9 @@ const PropertyCreationModal = ({ isOpen, onClose, editingProperty, onSuccess }) 
                     )}
                     {formData.area_sqm && (
                       <span><i className="fa-solid fa-ruler-combined mr-1 text-emerald-500"></i>{formData.area_sqm}m²</span>
+                    )}
+                    {formData.lot_area_sqm && (
+                      <span><i className="fa-solid fa-vector-square mr-1 text-emerald-500"></i>{formData.lot_area_sqm}m² lote</span>
                     )}
                   </div>
                 </div>
