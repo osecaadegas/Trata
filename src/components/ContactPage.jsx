@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 const ContactPage = () => {
   const [formData, setFormData] = useState({
@@ -18,9 +18,22 @@ const ContactPage = () => {
     extras: []
   });
   const [sellers, setSellers] = useState([]);
+  const [sellerDropdownOpen, setSellerDropdownOpen] = useState(false);
+  const sellerDropdownRef = useRef(null);
   const [focusedField, setFocusedField] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
+
+  // Close seller dropdown on outside click
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (sellerDropdownRef.current && !sellerDropdownRef.current.contains(e.target)) {
+        setSellerDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   useEffect(() => {
     const hash = window.location.hash;
@@ -43,7 +56,7 @@ const ContactPage = () => {
       if (!supabaseUrl || supabaseUrl.includes('your-project')) return;
       try {
         const response = await fetch(
-          `${supabaseUrl}/rest/v1/users?role=in.("vendedor","seller")&select=id,name,email`,
+          `${supabaseUrl}/rest/v1/users?role=in.("vendedor","seller")&select=id,name,email,avatar_url&order=name.asc`,
           {
             headers: {
               'apikey': supabaseKey,
@@ -628,32 +641,68 @@ const ContactPage = () => {
                             <i className="fa-solid fa-chevron-down text-slate-400 text-sm"></i>
                           </div>
                         </div>
-                        <div className="relative">
+                        <div className="relative" ref={sellerDropdownRef}>
                           <label
-                            htmlFor="sellerId"
                             className="absolute left-4 -top-2.5 text-xs bg-white px-2 font-medium text-slate-500 pointer-events-none z-10"
                           >
-                            Vendedor Responsável
+                            Vendedor Respons&#225;vel
                           </label>
-                          <select
-                            id="sellerId"
-                            name="sellerId"
-                            value={avaliacaoData.sellerId}
-                            onChange={handleAvaliacaoChange}
-                            className={`w-full px-4 py-3.5 bg-white border-2 border-gray-100 rounded-xl focus:outline-none focus:border-emerald-500 transition-all duration-200 appearance-none cursor-pointer ${
+                          <button
+                            type="button"
+                            onClick={() => setSellerDropdownOpen(!sellerDropdownOpen)}
+                            className={`w-full px-4 py-3.5 bg-white border-2 border-gray-100 rounded-xl focus:outline-none focus:border-emerald-500 transition-all duration-200 cursor-pointer text-left flex items-center gap-3 ${
                               avaliacaoData.sellerId ? 'text-slate-900' : 'text-slate-400'
                             }`}
                           >
-                            <option value="">Selecione...</option>
-                            {sellers.map((seller) => (
-                              <option key={seller.id} value={seller.id}>
-                                {seller.name || seller.email}
-                              </option>
-                            ))}
-                          </select>
+                            {avaliacaoData.sellerId ? (
+                              <>
+                                {(() => {
+                                  const selected = sellers.find(s => s.id === avaliacaoData.sellerId);
+                                  return selected ? (
+                                    <>
+                                      {selected.avatar_url ? (
+                                        <img src={selected.avatar_url} alt="" className="w-7 h-7 rounded-full object-cover flex-shrink-0" />
+                                      ) : (
+                                        <div className="w-7 h-7 rounded-full bg-emerald-100 flex items-center justify-center flex-shrink-0">
+                                          <span className="text-emerald-700 text-xs font-bold">{(selected.name || '?')[0].toUpperCase()}</span>
+                                        </div>
+                                      )}
+                                      <span className="truncate">{selected.name || selected.email}</span>
+                                    </>
+                                  ) : 'Selecione...';
+                                })()}
+                              </>
+                            ) : 'Selecione...'}
+                          </button>
                           <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
-                            <i className="fa-solid fa-chevron-down text-slate-400 text-sm"></i>
+                            <i className={`fa-solid fa-chevron-down text-slate-400 text-sm transition-transform ${sellerDropdownOpen ? 'rotate-180' : ''}`}></i>
                           </div>
+                          {sellerDropdownOpen && (
+                            <div className="absolute z-20 top-full left-0 right-0 mt-1 bg-white border-2 border-gray-100 rounded-xl shadow-lg max-h-48 overflow-y-auto">
+                              <div
+                                className="px-4 py-3 text-slate-400 hover:bg-gray-50 cursor-pointer"
+                                onClick={() => { handleAvaliacaoChange({ target: { name: 'sellerId', value: '' } }); setSellerDropdownOpen(false); }}
+                              >
+                                Selecione...
+                              </div>
+                              {sellers.map((seller) => (
+                                <div
+                                  key={seller.id}
+                                  className="px-4 py-3 hover:bg-emerald-50 cursor-pointer flex items-center gap-3 transition-colors"
+                                  onClick={() => { handleAvaliacaoChange({ target: { name: 'sellerId', value: seller.id } }); setSellerDropdownOpen(false); }}
+                                >
+                                  {seller.avatar_url ? (
+                                    <img src={seller.avatar_url} alt="" className="w-7 h-7 rounded-full object-cover flex-shrink-0" />
+                                  ) : (
+                                    <div className="w-7 h-7 rounded-full bg-emerald-100 flex items-center justify-center flex-shrink-0">
+                                      <span className="text-emerald-700 text-xs font-bold">{(seller.name || '?')[0].toUpperCase()}</span>
+                                    </div>
+                                  )}
+                                  <span className="text-slate-900">{seller.name || seller.email}</span>
+                                </div>
+                              ))}
+                            </div>
+                          )}
                         </div>
                       </div>
                     </div>
