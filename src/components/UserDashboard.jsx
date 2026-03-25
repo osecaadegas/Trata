@@ -1,7 +1,8 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabase';
 import UserMessaging from './UserMessaging';
+import Cropper from 'react-easy-crop';
 
 const UserDashboard = () => {
   const { user, userRole, logout } = useAuth();
@@ -20,6 +21,11 @@ const UserDashboard = () => {
   const [deletingAccount, setDeletingAccount] = useState(false);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState(user?.picture || '');
+  const [cropModalOpen, setCropModalOpen] = useState(false);
+  const [cropImage, setCropImage] = useState(null);
+  const [crop, setCrop] = useState({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
   const messagesEndRef = useRef(null);
   const avatarInputRef = useRef(null);
   const itemsPerPage = 12;
@@ -77,7 +83,7 @@ const UserDashboard = () => {
     }
   };
 
-  const handleAvatarUpload = async (e) => {
+  const handleAvatarSelect = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -93,15 +99,53 @@ const UserDashboard = () => {
       return;
     }
 
+    const reader = new FileReader();
+    reader.onload = () => {
+      setCropImage(reader.result);
+      setCrop({ x: 0, y: 0 });
+      setZoom(1);
+      setCropModalOpen(true);
+    };
+    reader.readAsDataURL(file);
+    if (avatarInputRef.current) avatarInputRef.current.value = '';
+  };
+
+  const onCropComplete = useCallback((_, croppedPixels) => {
+    setCroppedAreaPixels(croppedPixels);
+  }, []);
+
+  const getCroppedBlob = (imageSrc, pixelCrop) => {
+    return new Promise((resolve) => {
+      const image = new Image();
+      image.onload = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = pixelCrop.width;
+        canvas.height = pixelCrop.height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(
+          image,
+          pixelCrop.x, pixelCrop.y, pixelCrop.width, pixelCrop.height,
+          0, 0, pixelCrop.width, pixelCrop.height
+        );
+        canvas.toBlob((blob) => resolve(blob), 'image/jpeg', 0.92);
+      };
+      image.src = imageSrc;
+    });
+  };
+
+  const handleCropSave = async () => {
+    if (!cropImage || !croppedAreaPixels) return;
     setUploadingAvatar(true);
+    setCropModalOpen(false);
+
     try {
-      const fileExt = file.name.split('.').pop();
-      const fileName = `avatar-${Date.now()}.${fileExt}`;
+      const blob = await getCroppedBlob(cropImage, croppedAreaPixels);
+      const fileName = `avatar-${Date.now()}.jpg`;
       const filePath = `${user.id}/avatars/${fileName}`;
 
       const { error: uploadError } = await supabase.storage
         .from('property-images')
-        .upload(filePath, file, { upsert: true });
+        .upload(filePath, blob, { upsert: true, contentType: 'image/jpeg' });
 
       if (uploadError) throw uploadError;
 
@@ -109,7 +153,6 @@ const UserDashboard = () => {
         .from('property-images')
         .getPublicUrl(filePath);
 
-      // Update avatar_url in users table
       const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
       await fetch(
         `${supabaseUrl}/rest/v1/users?id=eq.${user.id}`,
@@ -127,9 +170,8 @@ const UserDashboard = () => {
       setProfileMessage({ type: 'error', text: 'Erro ao atualizar foto.' });
     } finally {
       setUploadingAvatar(false);
+      setCropImage(null);
       setTimeout(() => setProfileMessage(null), 4000);
-      // Reset input so the same file can be selected again
-      if (avatarInputRef.current) avatarInputRef.current.value = '';
     }
   };
 
@@ -675,7 +717,7 @@ const UserDashboard = () => {
                     ref={avatarInputRef}
                     type="file"
                     accept="image/jpeg,image/png,image/webp"
-                    onChange={handleAvatarUpload}
+                    onChange={handleAvatarSelect}
                     className="hidden"
                   />
                 </div>
@@ -800,6 +842,56 @@ const UserDashboard = () => {
           </div>
         )}
       </div>
+
+      {/* Avatar Crop Modal */}
+      {cropModalOpen && cropImage && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
+            <div className="p-4 border-b border-gray-100">
+              <h3 className="text-lg font-bold text-slate-900 text-center">Ajustar Foto de Perfil</h3>
+            </div>
+            <div className="relative w-full" style={{ height: '350px' }}>
+              <Cropper
+                image={cropImage}
+                crop={crop}
+                zoom={zoom}
+                aspect={1}
+                cropShape="round"
+                showGrid={false}
+                onCropChange={setCrop}
+                onZoomChange={setZoom}
+                onCropComplete={onCropComplete}
+              />
+            </div>
+            <div className="px-6 py-3">
+              <label className="text-xs font-medium text-slate-500 mb-1 block">Zoom</label>
+              <input
+                type="range"
+                min={1}
+                max={3}
+                step={0.05}
+                value={zoom}
+                onChange={(e) => setZoom(Number(e.target.value))}
+                className="w-full accent-emerald-500"
+              />
+            </div>
+            <div className="flex gap-3 p-4 border-t border-gray-100">
+              <button
+                onClick={() => { setCropModalOpen(false); setCropImage(null); }}
+                className="flex-1 py-2.5 px-4 border-2 border-gray-200 text-slate-600 font-medium rounded-xl hover:bg-gray-50 transition-colors"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleCropSave}
+                className="flex-1 py-2.5 px-4 bg-emerald-500 text-white font-medium rounded-xl hover:bg-emerald-600 transition-colors"
+              >
+                Guardar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
