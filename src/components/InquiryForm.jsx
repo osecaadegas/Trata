@@ -35,8 +35,8 @@ export default function InquiryForm({ property, isOpen, onClose }) {
       // Get UTM params from URL
       const urlParams = new URLSearchParams(window.location.search);
       
-      // Submit via API endpoint (uses service role, bypasses RLS)
-      const response = await fetch('/api/inquiry', {
+      // Submit via server-side API (bypasses RLS using service role key)
+      const response = await fetch('/api/submit-inquiry', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -50,7 +50,6 @@ export default function InquiryForm({ property, isOpen, onClose }) {
           preferredContact: formData.preferredContact,
           preferredTime: formData.preferredTime || null,
           marketingConsent: formData.marketingConsent,
-          source: 'website',
           utmSource: urlParams.get('utm_source'),
           utmMedium: urlParams.get('utm_medium'),
           utmCampaign: urlParams.get('utm_campaign')
