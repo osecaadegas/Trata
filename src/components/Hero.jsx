@@ -96,7 +96,7 @@ const Hero = () => {
           <div className="flex items-center justify-center gap-4 mb-10">
             <span className="text-slate-500 text-base font-medium"></span>
             <a
-              href="#contactos"
+              href="#contactos?assunto=avaliacao"
               className="group inline-flex items-center gap-3 bg-emerald-500 hover:bg-emerald-600 text-white font-semibold px-6 py-3 rounded-full shadow-lg hover:shadow-xl transition-all"
             >
               <i className="fa-solid fa-calculator"></i>
