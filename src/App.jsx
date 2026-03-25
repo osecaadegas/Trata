@@ -23,7 +23,8 @@ function App() {
   useEffect(() => {
     // Simple hash-based routing
     const handleHashChange = () => {
-      const hash = window.location.hash.slice(1);
+      const fullHash = window.location.hash.slice(1);
+      const hash = fullHash.split('?')[0];
       if (hash) {
         // Check if it's a property detail page (e.g., #imovel/123)
         if (hash.startsWith('imovel/')) {

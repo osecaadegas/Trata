@@ -186,7 +186,7 @@ const ServicesPage = () => {
           {/* CTA */}
           <div className="mt-12 text-center">
             <a 
-              href="#contactos"
+              href="#contactos?assunto=avaliacao"
               className="inline-flex items-center justify-center gap-3 px-10 py-5 bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-semibold rounded-2xl shadow-lg shadow-emerald-500/30 hover:shadow-xl hover:shadow-emerald-500/40 transition-all duration-300 text-lg group"
             >
               <i className="fa-solid fa-calculator"></i>
@@ -379,7 +379,7 @@ const ServicesPage = () => {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <a 
-              href="#contactos"
+              href="#contactos?assunto=avaliacao"
               className="inline-flex items-center justify-center gap-3 px-10 py-5 bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-semibold rounded-2xl shadow-lg shadow-emerald-500/30 hover:shadow-xl hover:shadow-emerald-500/40 transition-all duration-300 text-lg group"
             >
               <i className="fa-solid fa-calculator"></i>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 const ContactPage = () => {
   const [formData, setFormData] = useState({
@@ -11,6 +11,18 @@ const ContactPage = () => {
   const [focusedField, setFocusedField] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
+
+  useEffect(() => {
+    const hash = window.location.hash;
+    const queryIndex = hash.indexOf('?');
+    if (queryIndex !== -1) {
+      const params = new URLSearchParams(hash.substring(queryIndex));
+      const assunto = params.get('assunto');
+      if (assunto) {
+        setFormData(prev => ({ ...prev, subject: assunto }));
+      }
+    }
+  }, []);
 
   const handleChange = (e) => {
     setFormData({
