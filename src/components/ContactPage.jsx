@@ -8,6 +8,16 @@ const ContactPage = () => {
     subject: '',
     message: ''
   });
+  const [avaliacaoData, setAvaliacaoData] = useState({
+    rua: '',
+    localidade: '',
+    area: '',
+    propertyType: '',
+    energyClass: '',
+    sellerId: '',
+    extras: []
+  });
+  const [sellers, setSellers] = useState([]);
   const [focusedField, setFocusedField] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
@@ -24,11 +34,56 @@ const ContactPage = () => {
     }
   }, []);
 
+  // Fetch sellers when avaliação is selected
+  useEffect(() => {
+    if (formData.subject !== 'avaliacao') return;
+    const fetchSellers = async () => {
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+      if (!supabaseUrl || supabaseUrl.includes('your-project')) return;
+      try {
+        const response = await fetch(
+          `${supabaseUrl}/rest/v1/users?role=in.("vendedor","seller")&select=id,name,email`,
+          {
+            headers: {
+              'apikey': supabaseKey,
+              'Authorization': `Bearer ${supabaseKey}`,
+              'Content-Type': 'application/json'
+            }
+          }
+        );
+        if (response.ok) {
+          const data = await response.json();
+          setSellers(data || []);
+        }
+      } catch (err) {
+        console.error('Error fetching sellers:', err);
+      }
+    };
+    fetchSellers();
+  }, [formData.subject]);
+
   const handleChange = (e) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
     });
+  };
+
+  const handleAvaliacaoChange = (e) => {
+    setAvaliacaoData({
+      ...avaliacaoData,
+      [e.target.name]: e.target.value
+    });
+  };
+
+  const handleExtrasToggle = (extra) => {
+    setAvaliacaoData(prev => ({
+      ...prev,
+      extras: prev.extras.includes(extra)
+        ? prev.extras.filter(e => e !== extra)
+        : [...prev.extras, extra]
+    }));
   };
 
   const handleSubmit = async (e) => {
@@ -56,7 +111,9 @@ const ContactPage = () => {
               email: formData.email,
               phone: formData.phone || null,
               subject: formData.subject || 'outro',
-              message: formData.message,
+              message: formData.subject === 'avaliacao'
+                ? `${formData.message}\n\n--- Dados de Avaliação ---\nRua: ${avaliacaoData.rua}\nLocalidade: ${avaliacaoData.localidade}\nÁrea: ${avaliacaoData.area} m²\nTipo: ${avaliacaoData.propertyType}\nClassificação Energética: ${avaliacaoData.energyClass}\nExtras: ${avaliacaoData.extras.join(', ') || 'Nenhum'}\nVendedor: ${sellers.find(s => s.id === avaliacaoData.sellerId)?.name || 'Não selecionado'}`
+                : formData.message,
               status: 'unread'
             })
           }
@@ -73,6 +130,7 @@ const ContactPage = () => {
       setIsSubmitting(false);
       setSubmitSuccess(true);
       setFormData({ name: '', email: '', phone: '', subject: '', message: '' });
+      setAvaliacaoData({ rua: '', localidade: '', area: '', propertyType: '', energyClass: '', sellerId: '', extras: [] });
       
       setTimeout(() => setSubmitSuccess(false), 5000);
     } catch (error) {
@@ -80,6 +138,7 @@ const ContactPage = () => {
       setIsSubmitting(false);
       setSubmitSuccess(true); // Still show success to user
       setFormData({ name: '', email: '', phone: '', subject: '', message: '' });
+      setAvaliacaoData({ rua: '', localidade: '', area: '', propertyType: '', energyClass: '', sellerId: '', extras: [] });
     }
   };
 
@@ -387,7 +446,220 @@ const ContactPage = () => {
                     </div>
                   </div>
 
-                  {/* Message Textarea */}
+                  {/* Avaliação Extra Fields */}
+                  {formData.subject === 'avaliacao' && (
+                    <div className="space-y-5 p-5 bg-emerald-50/50 border-2 border-emerald-100 rounded-2xl">
+                      <p className="text-sm font-semibold text-emerald-700 flex items-center gap-2">
+                        <i className="fa-solid fa-clipboard-list"></i>
+                        Dados do Imóvel para Avaliação
+                      </p>
+
+                      {/* Rua & Localidade */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="relative">
+                          <label
+                            htmlFor="rua"
+                            className={`absolute left-4 transition-all duration-200 pointer-events-none ${
+                              focusedField === 'rua' || avaliacaoData.rua
+                                ? '-top-2.5 text-xs bg-white px-2 text-emerald-600 font-medium'
+                                : 'top-3.5 text-slate-400'
+                            }`}
+                          >
+                            Rua
+                          </label>
+                          <input
+                            type="text"
+                            id="rua"
+                            name="rua"
+                            value={avaliacaoData.rua}
+                            onChange={handleAvaliacaoChange}
+                            onFocus={() => setFocusedField('rua')}
+                            onBlur={() => setFocusedField(null)}
+                            className="w-full px-4 py-3.5 bg-white border-2 border-gray-100 rounded-xl text-slate-900 placeholder-transparent focus:outline-none focus:border-emerald-500 transition-all duration-200"
+                          />
+                        </div>
+                        <div className="relative">
+                          <label
+                            htmlFor="localidade"
+                            className={`absolute left-4 transition-all duration-200 pointer-events-none ${
+                              focusedField === 'localidade' || avaliacaoData.localidade
+                                ? '-top-2.5 text-xs bg-white px-2 text-emerald-600 font-medium'
+                                : 'top-3.5 text-slate-400'
+                            }`}
+                          >
+                            Localidade
+                          </label>
+                          <input
+                            type="text"
+                            id="localidade"
+                            name="localidade"
+                            value={avaliacaoData.localidade}
+                            onChange={handleAvaliacaoChange}
+                            onFocus={() => setFocusedField('localidade')}
+                            onBlur={() => setFocusedField(null)}
+                            className="w-full px-4 py-3.5 bg-white border-2 border-gray-100 rounded-xl text-slate-900 placeholder-transparent focus:outline-none focus:border-emerald-500 transition-all duration-200"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Área & Tipo */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="relative">
+                          <label
+                            htmlFor="area"
+                            className={`absolute left-4 transition-all duration-200 pointer-events-none ${
+                              focusedField === 'area' || avaliacaoData.area
+                                ? '-top-2.5 text-xs bg-white px-2 text-emerald-600 font-medium'
+                                : 'top-3.5 text-slate-400'
+                            }`}
+                          >
+                            Área (m²)
+                          </label>
+                          <input
+                            type="number"
+                            id="area"
+                            name="area"
+                            value={avaliacaoData.area}
+                            onChange={handleAvaliacaoChange}
+                            onFocus={() => setFocusedField('area')}
+                            onBlur={() => setFocusedField(null)}
+                            className="w-full px-4 py-3.5 bg-white border-2 border-gray-100 rounded-xl text-slate-900 placeholder-transparent focus:outline-none focus:border-emerald-500 transition-all duration-200"
+                          />
+                        </div>
+                        <div className="relative">
+                          <label
+                            htmlFor="propertyType"
+                            className="absolute left-4 -top-2.5 text-xs bg-white px-2 font-medium text-slate-500 pointer-events-none z-10"
+                          >
+                            Tipo de Imóvel
+                          </label>
+                          <select
+                            id="propertyType"
+                            name="propertyType"
+                            value={avaliacaoData.propertyType}
+                            onChange={handleAvaliacaoChange}
+                            className={`w-full px-4 py-3.5 bg-white border-2 border-gray-100 rounded-xl focus:outline-none focus:border-emerald-500 transition-all duration-200 appearance-none cursor-pointer ${
+                              avaliacaoData.propertyType ? 'text-slate-900' : 'text-slate-400'
+                            }`}
+                          >
+                            <option value="">Selecione...</option>
+                            <option value="Apartamento">Apartamento</option>
+                            <option value="Moradia">Moradia</option>
+                            <option value="Terreno">Terreno</option>
+                            <option value="Comercial">Comercial</option>
+                            <option value="Quinta">Quinta</option>
+                          </select>
+                          <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
+                            <i className="fa-solid fa-chevron-down text-slate-400 text-sm"></i>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Extras Checkboxes */}
+                      <div>
+                        <p className="text-sm font-medium text-slate-600 mb-3">Características</p>
+                        <div className="grid grid-cols-2 gap-3">
+                          {[
+                            { value: 'Garagem', icon: 'fa-warehouse' },
+                            { value: 'Elevador', icon: 'fa-elevator' },
+                            { value: 'Piscina', icon: 'fa-water-ladder' },
+                            { value: 'Terreno', icon: 'fa-tree' }
+                          ].map((extra) => (
+                            <label
+                              key={extra.value}
+                              className={`flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition-all duration-200 ${
+                                avaliacaoData.extras.includes(extra.value)
+                                  ? 'border-emerald-500 bg-emerald-50 text-emerald-700'
+                                  : 'border-gray-100 bg-white text-slate-600 hover:border-gray-200'
+                              }`}
+                            >
+                              <input
+                                type="checkbox"
+                                checked={avaliacaoData.extras.includes(extra.value)}
+                                onChange={() => handleExtrasToggle(extra.value)}
+                                className="sr-only"
+                              />
+                              <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all ${
+                                avaliacaoData.extras.includes(extra.value)
+                                  ? 'border-emerald-500 bg-emerald-500'
+                                  : 'border-gray-300'
+                              }`}>
+                                {avaliacaoData.extras.includes(extra.value) && (
+                                  <i className="fa-solid fa-check text-white text-xs"></i>
+                                )}
+                              </div>
+                              <i className={`fa-solid ${extra.icon} text-sm`}></i>
+                              <span className="text-sm font-medium">{extra.value}</span>
+                            </label>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Energy Classification & Seller */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="relative">
+                          <label
+                            htmlFor="energyClass"
+                            className="absolute left-4 -top-2.5 text-xs bg-white px-2 font-medium text-slate-500 pointer-events-none z-10"
+                          >
+                            Classificação Energética
+                          </label>
+                          <select
+                            id="energyClass"
+                            name="energyClass"
+                            value={avaliacaoData.energyClass}
+                            onChange={handleAvaliacaoChange}
+                            className={`w-full px-4 py-3.5 bg-white border-2 border-gray-100 rounded-xl focus:outline-none focus:border-emerald-500 transition-all duration-200 appearance-none cursor-pointer ${
+                              avaliacaoData.energyClass ? 'text-slate-900' : 'text-slate-400'
+                            }`}
+                          >
+                            <option value="">Selecione...</option>
+                            <option value="A+">A+</option>
+                            <option value="A">A</option>
+                            <option value="B">B</option>
+                            <option value="B-">B-</option>
+                            <option value="C">C</option>
+                            <option value="D">D</option>
+                            <option value="E">E</option>
+                            <option value="F">F</option>
+                            <option value="G">G</option>
+                          </select>
+                          <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
+                            <i className="fa-solid fa-chevron-down text-slate-400 text-sm"></i>
+                          </div>
+                        </div>
+                        <div className="relative">
+                          <label
+                            htmlFor="sellerId"
+                            className="absolute left-4 -top-2.5 text-xs bg-white px-2 font-medium text-slate-500 pointer-events-none z-10"
+                          >
+                            Vendedor Responsável
+                          </label>
+                          <select
+                            id="sellerId"
+                            name="sellerId"
+                            value={avaliacaoData.sellerId}
+                            onChange={handleAvaliacaoChange}
+                            className={`w-full px-4 py-3.5 bg-white border-2 border-gray-100 rounded-xl focus:outline-none focus:border-emerald-500 transition-all duration-200 appearance-none cursor-pointer ${
+                              avaliacaoData.sellerId ? 'text-slate-900' : 'text-slate-400'
+                            }`}
+                          >
+                            <option value="">Selecione...</option>
+                            {sellers.map((seller) => (
+                              <option key={seller.id} value={seller.id}>
+                                {seller.name || seller.email}
+                              </option>
+                            ))}
+                          </select>
+                          <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
+                            <i className="fa-solid fa-chevron-down text-slate-400 text-sm"></i>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Message Textarea */
                   <div className="relative">
                     <label 
                       htmlFor="message" 
