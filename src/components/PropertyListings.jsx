@@ -24,9 +24,9 @@ const PropertyListings = () => {
 
       const offset = (currentPage - 1) * PROPERTIES_PER_PAGE;
 
-      // Fetch total count
+      // Fetch total count of featured properties
       const countResponse = await fetch(
-        `${supabaseUrl}/rest/v1/properties?status=eq.available&select=count`,
+        `${supabaseUrl}/rest/v1/properties?status=eq.available&featured=eq.true&select=count`,
         {
           headers: {
             'apikey': supabaseKey,
@@ -37,9 +37,9 @@ const PropertyListings = () => {
         }
       );
 
-      // Fetch paginated data
+      // Fetch paginated data — only featured properties, ordered by position
       const response = await fetch(
-        `${supabaseUrl}/rest/v1/properties?status=eq.available&order=created_at.desc&limit=${PROPERTIES_PER_PAGE}&offset=${offset}`,
+        `${supabaseUrl}/rest/v1/properties?status=eq.available&featured=eq.true&order=featured_position.asc.nullslast,created_at.desc&limit=${PROPERTIES_PER_PAGE}&offset=${offset}`,
         {
           headers: {
             'apikey': supabaseKey,
