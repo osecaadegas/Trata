@@ -197,7 +197,7 @@ const ContactPage = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
       {/* Hero Section */}
-      <section className="relative bg-slate-900 py-20 lg:py-28 overflow-hidden">
+      <section className="relative bg-slate-900 py-12 lg:py-16 overflow-hidden">
         <div className="absolute inset-0 opacity-20">
           <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/30 to-teal-500/30"></div>
           <div className="absolute top-0 left-0 w-96 h-96 bg-emerald-500 rounded-full filter blur-3xl opacity-20 -translate-x-1/2 -translate-y-1/2"></div>
