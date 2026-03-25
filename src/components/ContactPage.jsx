@@ -659,7 +659,7 @@ const ContactPage = () => {
                     </div>
                   )}
 
-                  {/* Message Textarea */
+                  {/* Message Textarea */}
                   <div className="relative">
                     <label 
                       htmlFor="message" 
