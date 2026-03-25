@@ -59,11 +59,9 @@ export default function InquiryForm({ property, isOpen, onClose }) {
       };
 
       // Save directly to Supabase inquiries table
-      const { data: inquiry, error: supabaseError } = await supabase
+      const { error: supabaseError } = await supabase
         .from('inquiries')
-        .insert(inquiryData)
-        .select()
-        .single();
+        .insert(inquiryData);
 
       if (supabaseError) {
         console.error('Supabase error:', supabaseError);
@@ -79,7 +77,6 @@ export default function InquiryForm({ property, isOpen, onClose }) {
             ...formData,
             propertyId: property?.id,
             propertyTitle: property?.title,
-            inquiryId: inquiry?.id, // Pass the ID so API knows it's already saved
             utmSource: urlParams.get('utm_source'),
             utmMedium: urlParams.get('utm_medium'),
             utmCampaign: urlParams.get('utm_campaign')

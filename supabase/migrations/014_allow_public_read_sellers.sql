@@ -1,11 +1,25 @@
--- Fix 1: "permission denied for table users" on inquiry form
--- The "Admins can manage inquiries" FOR ALL policy causes the error because
--- it references public.users but the anon role can't read that table.
--- Split it into separate policies that don't apply to INSERT.
+-- Fix: "permission denied for table users" on inquiry form
+-- Root cause: .select() after .insert() triggers SELECT policy evaluation,
+-- and multiple SELECT/ALL policies reference public.users table.
+-- Fix: Drop ALL problematic policies and recreate clean ones.
 
+-- Drop ALL known inquiry policies (various naming from migrations 008, 010, 014)
 DROP POLICY IF EXISTS "Admins can manage inquiries" ON public.inquiries;
+DROP POLICY IF EXISTS "Admins can manage all inquiries" ON public.inquiries;
+DROP POLICY IF EXISTS "Admins can view all inquiries" ON public.inquiries;
+DROP POLICY IF EXISTS "Admins can update inquiries" ON public.inquiries;
+DROP POLICY IF EXISTS "Admins can delete inquiries" ON public.inquiries;
+DROP POLICY IF EXISTS "Users can view own inquiries" ON public.inquiries;
+DROP POLICY IF EXISTS "Users can view own inquiries by email" ON public.inquiries;
+DROP POLICY IF EXISTS "Anyone can create inquiries" ON public.inquiries;
+DROP POLICY IF EXISTS "Allow anonymous inquiry submissions" ON public.inquiries;
+DROP POLICY IF EXISTS "Anyone can read basic seller info" ON public.users;
 
--- Admin SELECT on inquiries (already covered by "Users can view own inquiries by email" but this ensures full access)
+-- 1. Anyone can INSERT inquiries (no users table reference)
+CREATE POLICY "Anyone can create inquiries" ON public.inquiries
+    FOR INSERT WITH CHECK (true);
+
+-- 2. Admin SELECT on inquiries
 CREATE POLICY "Admins can view all inquiries" ON public.inquiries
     FOR SELECT
     USING (
@@ -13,7 +27,7 @@ CREATE POLICY "Admins can view all inquiries" ON public.inquiries
         EXISTS (SELECT 1 FROM public.users WHERE id = auth.uid() AND role IN ('admin', 'configurador', 'vendedor'))
     );
 
--- Admin UPDATE on inquiries
+-- 3. Admin UPDATE on inquiries
 CREATE POLICY "Admins can update inquiries" ON public.inquiries
     FOR UPDATE
     USING (
@@ -21,7 +35,7 @@ CREATE POLICY "Admins can update inquiries" ON public.inquiries
         EXISTS (SELECT 1 FROM public.users WHERE id = auth.uid() AND role IN ('admin', 'configurador', 'vendedor'))
     );
 
--- Admin DELETE on inquiries
+-- 4. Admin DELETE on inquiries
 CREATE POLICY "Admins can delete inquiries" ON public.inquiries
     FOR DELETE
     USING (
@@ -29,8 +43,12 @@ CREATE POLICY "Admins can delete inquiries" ON public.inquiries
         EXISTS (SELECT 1 FROM public.users WHERE id = auth.uid() AND role IN ('admin', 'configurador', 'vendedor'))
     );
 
--- Fix 2: Allow public read of seller info from users table
--- Needed for PropertyDetailPage seller display and ContactPage seller dropdown
+-- Grants
+GRANT INSERT ON public.inquiries TO anon;
+GRANT INSERT ON public.inquiries TO authenticated;
+GRANT SELECT, UPDATE, DELETE ON public.inquiries TO authenticated;
+
+-- Allow public read of seller info from users table
 GRANT SELECT ON public.users TO anon;
 
 CREATE POLICY "Anyone can read basic seller info"
