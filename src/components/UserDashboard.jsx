@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { supabase } from '../lib/supabase';
 import UserMessaging from './UserMessaging';
 
 const UserDashboard = () => {
-  const { user, userRole } = useAuth();
+  const { user, userRole, logout } = useAuth();
   const [activeTab, setActiveTab] = useState('favorites');
   const [favorites, setFavorites] = useState([]);
   const [conversations, setConversations] = useState([]);
@@ -13,7 +14,14 @@ const UserDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [sendingMessage, setSendingMessage] = useState(false);
+  const [savingProfile, setSavingProfile] = useState(false);
+  const [profileMessage, setProfileMessage] = useState(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deletingAccount, setDeletingAccount] = useState(false);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [avatarUrl, setAvatarUrl] = useState(user?.picture || '');
   const messagesEndRef = useRef(null);
+  const avatarInputRef = useRef(null);
   const itemsPerPage = 12;
 
   // Profile form state
@@ -30,6 +38,8 @@ const UserDashboard = () => {
         fetchFavorites();
       } else if (activeTab === 'messages') {
         fetchConversations();
+      } else if (activeTab === 'settings') {
+        fetchProfile();
       }
     }
   }, [user, activeTab]);
@@ -40,6 +50,138 @@ const UserDashboard = () => {
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  const fetchProfile = async () => {
+    try {
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      const response = await fetch(
+        `${supabaseUrl}/rest/v1/users?id=eq.${user.id}&select=name,phone,avatar_url`,
+        { headers: getSupabaseHeaders() }
+      );
+      if (response.ok) {
+        const data = await response.json();
+        if (data.length > 0) {
+          setProfileData(prev => ({
+            ...prev,
+            name: data[0].name || user.name || '',
+            phone: data[0].phone || ''
+          }));
+          if (data[0].avatar_url) {
+            setAvatarUrl(data[0].avatar_url);
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Failed to fetch profile:', error);
+    }
+  };
+
+  const handleAvatarUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+    if (!allowedTypes.includes(file.type)) {
+      setProfileMessage({ type: 'error', text: 'Formato inv\u00e1lido. Use JPG, PNG ou WebP.' });
+      setTimeout(() => setProfileMessage(null), 4000);
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      setProfileMessage({ type: 'error', text: 'A imagem deve ter no m\u00e1ximo 5MB.' });
+      setTimeout(() => setProfileMessage(null), 4000);
+      return;
+    }
+
+    setUploadingAvatar(true);
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `avatar-${Date.now()}.${fileExt}`;
+      const filePath = `${user.id}/avatars/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('property-images')
+        .upload(filePath, file, { upsert: true });
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('property-images')
+        .getPublicUrl(filePath);
+
+      // Update avatar_url in users table
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      await fetch(
+        `${supabaseUrl}/rest/v1/users?id=eq.${user.id}`,
+        {
+          method: 'PATCH',
+          headers: { ...getSupabaseHeaders(), 'Prefer': 'return=minimal' },
+          body: JSON.stringify({ avatar_url: publicUrl, updated_at: new Date().toISOString() })
+        }
+      );
+
+      setAvatarUrl(publicUrl);
+      setProfileMessage({ type: 'success', text: 'Foto atualizada com sucesso!' });
+    } catch (error) {
+      console.error('Avatar upload error:', error);
+      setProfileMessage({ type: 'error', text: 'Erro ao atualizar foto.' });
+    } finally {
+      setUploadingAvatar(false);
+      setTimeout(() => setProfileMessage(null), 4000);
+      // Reset input so the same file can be selected again
+      if (avatarInputRef.current) avatarInputRef.current.value = '';
+    }
+  };
+
+  const handleSaveProfile = async () => {
+    setSavingProfile(true);
+    setProfileMessage(null);
+    try {
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      const response = await fetch(
+        `${supabaseUrl}/rest/v1/users?id=eq.${user.id}`,
+        {
+          method: 'PATCH',
+          headers: { ...getSupabaseHeaders(), 'Prefer': 'return=minimal' },
+          body: JSON.stringify({
+            name: profileData.name,
+            phone: profileData.phone,
+            updated_at: new Date().toISOString()
+          })
+        }
+      );
+      if (response.ok) {
+        setProfileMessage({ type: 'success', text: 'Perfil atualizado com sucesso!' });
+      } else {
+        setProfileMessage({ type: 'error', text: 'Erro ao guardar alterações.' });
+      }
+    } catch (error) {
+      setProfileMessage({ type: 'error', text: 'Erro ao guardar alterações.' });
+    } finally {
+      setSavingProfile(false);
+      setTimeout(() => setProfileMessage(null), 4000);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    setDeletingAccount(true);
+    try {
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      // Delete user row from public.users (cascades via FK)
+      await fetch(
+        `${supabaseUrl}/rest/v1/users?id=eq.${user.id}`,
+        {
+          method: 'DELETE',
+          headers: getSupabaseHeaders()
+        }
+      );
+      // Sign out and redirect
+      logout();
+    } catch (error) {
+      setProfileMessage({ type: 'error', text: 'Erro ao eliminar conta. Tente novamente.' });
+      setDeletingAccount(false);
+      setShowDeleteConfirm(false);
+    }
   };
 
   const getSupabaseHeaders = () => {
@@ -512,12 +654,32 @@ const UserDashboard = () => {
             <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
               {/* Profile Header */}
               <div className="p-6 bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-center">
-                <img 
-                  src={user.picture} 
-                  alt={user.name}
-                  className="w-24 h-24 rounded-full border-4 border-white mx-auto mb-4"
-                />
-                <h3 className="text-xl font-bold">{user.name}</h3>
+                <div className="relative inline-block">
+                  <img 
+                    src={avatarUrl || user.picture} 
+                    alt={user.name}
+                    className="w-24 h-24 rounded-full border-4 border-white mx-auto mb-1 object-cover"
+                  />
+                  <button
+                    onClick={() => avatarInputRef.current?.click()}
+                    disabled={uploadingAvatar}
+                    className="absolute bottom-1 right-0 w-8 h-8 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-gray-100 transition-colors disabled:opacity-50"
+                  >
+                    {uploadingAvatar ? (
+                      <i className="fa-solid fa-spinner fa-spin text-emerald-600 text-sm"></i>
+                    ) : (
+                      <i className="fa-solid fa-camera text-emerald-600 text-sm"></i>
+                    )}
+                  </button>
+                  <input
+                    ref={avatarInputRef}
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    onChange={handleAvatarUpload}
+                    className="hidden"
+                  />
+                </div>
+                <h3 className="text-xl font-bold">{profileData.name || user.name}</h3>
                 <p className="text-emerald-100">{user.email}</p>
               </div>
 
@@ -580,21 +742,58 @@ const UserDashboard = () => {
                   </button>
                 </div>
 
-                <button className="w-full py-3 bg-emerald-500 text-white font-semibold rounded-xl hover:bg-emerald-600 transition-colors">
-                  Guardar Alterações
+                {profileMessage && (
+                  <div className={`p-3 rounded-xl text-sm font-medium text-center ${
+                    profileMessage.type === 'success' 
+                      ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' 
+                      : 'bg-red-50 text-red-700 border border-red-200'
+                  }`}>
+                    {profileMessage.text}
+                  </div>
+                )}
+
+                <button 
+                  onClick={handleSaveProfile}
+                  disabled={savingProfile}
+                  className="w-full py-3 bg-emerald-500 text-white font-semibold rounded-xl hover:bg-emerald-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {savingProfile ? 'A guardar...' : 'Guardar Alterações'}
                 </button>
 
                 <hr className="border-gray-200" />
 
                 <div className="space-y-3">
-                  <button className="w-full py-3 text-slate-600 hover:text-slate-900 hover:bg-gray-50 rounded-xl transition-colors flex items-center justify-center gap-2">
-                    <i className="fa-solid fa-key"></i>
-                    Alterar Palavra-passe
-                  </button>
-                  <button className="w-full py-3 text-red-500 hover:text-red-600 hover:bg-red-50 rounded-xl transition-colors flex items-center justify-center gap-2">
-                    <i className="fa-solid fa-trash"></i>
-                    Eliminar Conta
-                  </button>
+                  {!showDeleteConfirm ? (
+                    <button 
+                      onClick={() => setShowDeleteConfirm(true)}
+                      className="w-full py-3 text-red-500 hover:text-red-600 hover:bg-red-50 rounded-xl transition-colors flex items-center justify-center gap-2"
+                    >
+                      <i className="fa-solid fa-trash"></i>
+                      Eliminar Conta
+                    </button>
+                  ) : (
+                    <div className="p-4 bg-red-50 border border-red-200 rounded-xl space-y-3">
+                      <p className="text-sm text-red-700 text-center font-medium">
+                        Tem a certeza? Esta ação é irreversível e todos os seus dados serão eliminados.
+                      </p>
+                      <div className="flex gap-3">
+                        <button
+                          onClick={() => setShowDeleteConfirm(false)}
+                          disabled={deletingAccount}
+                          className="flex-1 py-2 bg-gray-200 text-slate-700 font-medium rounded-lg hover:bg-gray-300 transition-colors"
+                        >
+                          Cancelar
+                        </button>
+                        <button
+                          onClick={handleDeleteAccount}
+                          disabled={deletingAccount}
+                          className="flex-1 py-2 bg-red-500 text-white font-medium rounded-lg hover:bg-red-600 transition-colors disabled:opacity-50"
+                        >
+                          {deletingAccount ? 'A eliminar...' : 'Sim, eliminar'}
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
