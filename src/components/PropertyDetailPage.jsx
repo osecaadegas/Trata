@@ -776,7 +776,8 @@ const PropertyDetailPage = ({ propertyId }) => {
                 <div className="flex gap-3">
                   <button
                     onClick={() => {
-                      navigator.clipboard.writeText(window.location.href);
+                      const shareUrl = `${window.location.origin}/imovel/${property.id}`;
+                      navigator.clipboard.writeText(shareUrl);
                       alert('Link copiado!');
                     }}
                     className="flex-1 py-2 bg-gray-100 text-slate-600 rounded-lg hover:bg-gray-200 transition-colors flex items-center justify-center gap-2 text-sm"
@@ -785,7 +786,7 @@ const PropertyDetailPage = ({ propertyId }) => {
                     Copiar link
                   </button>
                   <a
-                    href={`https://wa.me/?text=${encodeURIComponent(`Veja este imóvel: ${property.title} - ${window.location.href}`)}`}
+                    href={`https://wa.me/?text=${encodeURIComponent(`Veja este imóvel: ${property.title} - ${window.location.origin}/imovel/${property.id}`)}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="w-12 h-10 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors flex items-center justify-center"
@@ -793,7 +794,7 @@ const PropertyDetailPage = ({ propertyId }) => {
                     <i className="fa-brands fa-whatsapp"></i>
                   </a>
                   <a
-                    href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`}
+                    href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(`${window.location.origin}/imovel/${property.id}`)}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="w-12 h-10 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center"
