@@ -47,6 +47,11 @@ function App() {
     return () => window.removeEventListener('hashchange', handleHashChange);
   }, []);
 
+  // Scroll to top on page change
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [currentPage, propertyId]);
+
   const renderPage = () => {
     switch (currentPage) {
       case 'user-management':
