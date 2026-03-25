@@ -136,35 +136,7 @@ const Hero = () => {
           </div>
         </div>
 
-        {/* Floating Stats - Desktop Only */}
-        <div className="hidden xl:block">
-          {/* Left floating card */}
-          <div className="absolute left-8 top-1/2 -translate-y-1/2 bg-white rounded-2xl shadow-lg p-5 border border-gray-100 max-w-[200px]">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 bg-emerald-500 rounded-xl flex items-center justify-center">
-                <i className="fa-solid fa-handshake text-white"></i>
-              </div>
-              <div>
-                <p className="text-2xl font-bold text-slate-900">90%</p>
-              </div>
-            </div>
-            <p className="text-xs text-slate-500">Dos proprietários venderam acima do valor de mercado</p>
-          </div>
 
-          {/* Right floating card */}
-          <div className="absolute right-8 top-1/2 -translate-y-1/2 bg-white rounded-2xl shadow-lg p-5 border border-gray-100 max-w-[200px]">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 bg-slate-900 rounded-xl flex items-center justify-center">
-                <i className="fa-solid fa-euro-sign text-white"></i>
-              </div>
-              <div>
-                <p className="text-2xl font-bold text-slate-900">0€</p>
-                <p className="text-xs text-slate-500">investimento inicial</p>
-              </div>
-            </div>
-            <p className="text-xs text-slate-500">Nós investimos na valorização do seu imóvel</p>
-          </div>
-        </div>
       </div>
 
       {/* Bottom gradient fade */}
