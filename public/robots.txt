@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://trata.pt/sitemap.xml
