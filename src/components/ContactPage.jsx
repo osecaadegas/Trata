@@ -645,7 +645,7 @@ const ContactPage = () => {
                           <label
                             className="absolute left-4 -top-2.5 text-xs bg-white px-2 font-medium text-slate-500 pointer-events-none z-10"
                           >
-                            Vendedor Respons&#225;vel
+                            Consultor Respons&#225;vel
                           </label>
                           <button
                             type="button"
