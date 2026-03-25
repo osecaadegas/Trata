@@ -88,7 +88,7 @@ const PropertiesPage = () => {
       try {
         // Use direct fetch like PropertyListings does
         const response = await fetch(
-          `${supabaseUrl}/rest/v1/properties?status=eq.available&order=featured.desc,created_at.desc`,
+          `${supabaseUrl}/rest/v1/properties?status=eq.available&order=featured.desc,featured_position.asc.nullslast,created_at.desc`,
           {
             headers: {
               'apikey': supabaseKey,

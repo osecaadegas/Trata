@@ -155,6 +155,60 @@ const PropertyManagement = () => {
     setShowAddModal(true);
   };
 
+  const handleFeaturedPosition = async (propertyId, position) => {
+    try {
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+      
+      let accessToken = supabaseKey;
+      const projectId = supabaseUrl.split('//')[1].split('.')[0];
+      const stored = localStorage.getItem(`sb-${projectId}-auth-token`);
+      if (stored) {
+        try { accessToken = JSON.parse(stored)?.access_token || supabaseKey; } catch (e) {}
+      }
+
+      const newPosition = position === '' ? null : parseInt(position);
+
+      // If assigning a position, clear it from any other property first
+      if (newPosition !== null) {
+        await fetch(
+          `${supabaseUrl}/rest/v1/properties?featured_position=eq.${newPosition}`,
+          {
+            method: 'PATCH',
+            headers: {
+              'apikey': supabaseKey,
+              'Authorization': `Bearer ${accessToken}`,
+              'Content-Type': 'application/json',
+              'Prefer': 'return=minimal'
+            },
+            body: JSON.stringify({ featured_position: null })
+          }
+        );
+      }
+
+      // Set the position on this property
+      const response = await fetch(
+        `${supabaseUrl}/rest/v1/properties?id=eq.${propertyId}`,
+        {
+          method: 'PATCH',
+          headers: {
+            'apikey': supabaseKey,
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json',
+            'Prefer': 'return=minimal'
+          },
+          body: JSON.stringify({ featured_position: newPosition })
+        }
+      );
+
+      if (!response.ok) throw new Error('Erro ao atualizar posição');
+      fetchProperties();
+    } catch (error) {
+      console.error('Error updating featured position:', error);
+      alert('Erro ao atualizar posição de destaque.');
+    }
+  };
+
   const handleDelete = async (propertyId) => {
     console.log('=== DELETE OPERATION START ===');
     console.log('Property ID:', propertyId);
@@ -650,6 +704,19 @@ const PropertyManagement = () => {
                               <i className="fa-solid fa-star"></i>
                             </span>
                           )}
+                          {property.featured && (
+                            <select
+                              value={property.featured_position || ''}
+                              onChange={(e) => handleFeaturedPosition(property.id, e.target.value)}
+                              onClick={(e) => e.stopPropagation()}
+                              className="bg-white/90 backdrop-blur-sm px-2 py-1 rounded-lg text-xs font-semibold text-slate-700 border-0 cursor-pointer appearance-auto"
+                            >
+                              <option value="">Pos.</option>
+                              {[1,2,3,4,5,6].map(n => (
+                                <option key={n} value={n}>{n}º</option>
+                              ))}
+                            </select>
+                          )}
                           <span className="bg-white/90 backdrop-blur-sm px-2 py-1 rounded-lg text-xs">
                             {typeInfo.icon}
                           </span>
@@ -779,6 +846,18 @@ const PropertyManagement = () => {
                                 <p className="font-semibold text-slate-900 line-clamp-1">{property.title}</p>
                                 {property.featured && (
                                   <i className="fa-solid fa-star text-amber-500 text-xs"></i>
+                                )}
+                                {property.featured && (
+                                  <select
+                                    value={property.featured_position || ''}
+                                    onChange={(e) => handleFeaturedPosition(property.id, e.target.value)}
+                                    className="bg-gray-100 px-1.5 py-0.5 rounded text-xs font-semibold text-slate-700 border-0 cursor-pointer"
+                                  >
+                                    <option value="">Pos.</option>
+                                    {[1,2,3,4,5,6].map(n => (
+                                      <option key={n} value={n}>{n}º</option>
+                                    ))}
+                                  </select>
                                 )}
                               </div>
                               <p className="text-xs text-slate-500">{typeInfo.icon} {typeInfo.label}</p>

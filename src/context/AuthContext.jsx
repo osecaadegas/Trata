@@ -100,7 +100,7 @@ export const AuthProvider = ({ children }) => {
       const timeoutId = setTimeout(() => controller.abort(), 3000);
       
       const response = await fetch(
-        `${supabaseUrl}/rest/v1/users?id=eq.${authUser.id}&select=role`,
+        `${supabaseUrl}/rest/v1/users?id=eq.${authUser.id}&select=role,avatar_url,name`,
         {
           headers: {
             'apikey': supabaseKey,
@@ -118,6 +118,17 @@ export const AuthProvider = ({ children }) => {
           console.log('User role:', role);
           setUserRole(role);
           localStorage.setItem('trata-user-role', role);
+          
+          // Update user with DB avatar and name if available
+          const dbAvatar = data[0].avatar_url;
+          const dbName = data[0].name;
+          if (dbAvatar || dbName) {
+            setUser(prev => ({
+              ...prev,
+              ...(dbAvatar && { picture: dbAvatar }),
+              ...(dbName && { name: dbName })
+            }));
+          }
         } else {
           // Create user if doesn't exist
           fetch(`${supabaseUrl}/rest/v1/users`, {
