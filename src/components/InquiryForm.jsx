@@ -1,8 +1,5 @@
 import { useState } from 'react';
 import { X, Send, Phone, Mail, Clock, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
-import { supabase } from '../lib/supabase';
-
-const API_URL = import.meta.env.VITE_API_URL || '';
 
 export default function InquiryForm({ property, isOpen, onClose }) {
   const [formData, setFormData] = useState({
@@ -38,50 +35,32 @@ export default function InquiryForm({ property, isOpen, onClose }) {
       // Get UTM params from URL
       const urlParams = new URLSearchParams(window.location.search);
       
-      // Try to save directly to Supabase first (works without email API)
-      const inquiryData = {
-        name: formData.name.trim(),
-        email: formData.email.toLowerCase().trim(),
-        phone: formData.phone?.trim() || null,
-        message: formData.message.trim(),
-        property_id: property?.id || null,
-        property_title: property?.title || null,
-        inquiry_type: formData.inquiryType,
-        preferred_contact: formData.preferredContact,
-        preferred_time: formData.preferredTime || null,
-        marketing_consent: formData.marketingConsent,
-        consent_timestamp: formData.marketingConsent ? new Date().toISOString() : null,
-        source: 'website',
-        utm_source: urlParams.get('utm_source'),
-        utm_medium: urlParams.get('utm_medium'),
-        utm_campaign: urlParams.get('utm_campaign'),
-        status: 'new'
-      };
+      // Submit via API endpoint (uses service role, bypasses RLS)
+      const response = await fetch('/api/inquiry', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: formData.name.trim(),
+          email: formData.email.toLowerCase().trim(),
+          phone: formData.phone?.trim() || null,
+          message: formData.message.trim(),
+          propertyId: property?.id || null,
+          propertyTitle: property?.title || null,
+          inquiryType: formData.inquiryType,
+          preferredContact: formData.preferredContact,
+          preferredTime: formData.preferredTime || null,
+          marketingConsent: formData.marketingConsent,
+          source: 'website',
+          utmSource: urlParams.get('utm_source'),
+          utmMedium: urlParams.get('utm_medium'),
+          utmCampaign: urlParams.get('utm_campaign')
+        })
+      });
 
-      // Save directly to Supabase inquiries table
-      const { error: supabaseError } = await supabase
-        .from('inquiries')
-        .insert(inquiryData);
+      const result = await response.json();
 
-      if (supabaseError) {
-        console.error('Supabase error:', supabaseError);
-        throw new Error(supabaseError.message || 'Erro ao enviar pedido');
-      }
-
-      // Optionally try to send email via API (non-blocking)
-      if (API_URL) {
-        fetch(`${API_URL}/api/inquiry`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            ...formData,
-            propertyId: property?.id,
-            propertyTitle: property?.title,
-            utmSource: urlParams.get('utm_source'),
-            utmMedium: urlParams.get('utm_medium'),
-            utmCampaign: urlParams.get('utm_campaign')
-          })
-        }).catch(err => console.log('Email API not configured:', err));
+      if (!response.ok) {
+        throw new Error(result.error || 'Erro ao enviar pedido');
       }
 
       setStatus('success');
