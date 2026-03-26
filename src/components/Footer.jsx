@@ -38,19 +38,19 @@ const Footer = () => {
         <div>
           <h4 className="font-bold mb-6">Links Rápidos</h4>
           <ul className="space-y-4 text-slate-500">
-            <li><a href="#" className="hover:text-emerald-500 transition-colors">Comprar</a></li>
-            <li><a href="#" className="hover:text-emerald-500 transition-colors">Arrendar</a></li>
-            <li><a href="#" className="hover:text-emerald-500 transition-colors">Vender</a></li>
-            <li><a href="#" className="hover:text-emerald-500 transition-colors">Sobre Nós</a></li>
+            <li><a href="/imoveis" className="hover:text-emerald-500 transition-colors">Imóveis</a></li>
+            <li><a href="/servicos" className="hover:text-emerald-500 transition-colors">Serviços</a></li>
+            <li><a href="/contactos" className="hover:text-emerald-500 transition-colors">Contactos</a></li>
+            <li><a href="/sobre" className="hover:text-emerald-500 transition-colors">Sobre Nós</a></li>
           </ul>
         </div>
         <div>
-          <h4 className="font-bold mb-6">Serviços</h4>
+          <h4 className="font-bold mb-6">Legal</h4>
           <ul className="space-y-4 text-slate-500">
-            <li><a href="#" className="hover:text-emerald-500 transition-colors">Avaliação de Imóveis</a></li>
-            <li><a href="#" className="hover:text-emerald-500 transition-colors">Gestão de Arrendamento</a></li>
-            <li><a href="#" className="hover:text-emerald-500 transition-colors">Apoio Jurídico</a></li>
-            <li><a href="#" className="hover:text-emerald-500 transition-colors">Crédito Habitação</a></li>
+            <li><a href="/privacidade" className="hover:text-emerald-500 transition-colors">Política de Privacidade</a></li>
+            <li><a href="/termos" className="hover:text-emerald-500 transition-colors">Termos e Condições</a></li>
+            <li><a href="/cookies" className="hover:text-emerald-500 transition-colors">Política de Cookies</a></li>
+            <li><a href="/seguranca" className="hover:text-emerald-500 transition-colors">Segurança</a></li>
           </ul>
         </div>
         <div>

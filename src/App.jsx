@@ -15,6 +15,12 @@ import PropertyDetailPage from './components/PropertyDetailPage';
 import MessagesInbox from './components/MessagesInbox';
 import UserDashboard from './components/UserDashboard';
 import UnsubscribePage from './components/UnsubscribePage';
+import CookieBanner from './components/CookieBanner';
+import PrivacyPolicyPage from './components/PrivacyPolicyPage';
+import TermsPage from './components/TermsPage';
+import AboutPage from './components/AboutPage';
+import CookiesPage from './components/CookiesPage';
+import SecurityPage from './components/SecurityPage';
 
 function App() {
   const [currentPage, setCurrentPage] = useState('home');
@@ -121,6 +127,41 @@ function App() {
         );
       case 'unsubscribe':
         return <UnsubscribePage />;
+      case 'privacidade':
+        return (
+          <>
+            <PrivacyPolicyPage />
+            <Footer />
+          </>
+        );
+      case 'termos':
+        return (
+          <>
+            <TermsPage />
+            <Footer />
+          </>
+        );
+      case 'sobre':
+        return (
+          <>
+            <AboutPage />
+            <Footer />
+          </>
+        );
+      case 'cookies':
+        return (
+          <>
+            <CookiesPage />
+            <Footer />
+          </>
+        );
+      case 'seguranca':
+        return (
+          <>
+            <SecurityPage />
+            <Footer />
+          </>
+        );
       default:
         return (
           <>
@@ -139,6 +180,7 @@ function App() {
       <div className="text-slate-800">
         <Navbar />
         {renderPage()}
+        <CookieBanner />
       </div>
     </AuthProvider>
   );
