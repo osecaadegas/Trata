@@ -309,7 +309,7 @@ const PropertiesPage = () => {
 
   // Property Card Component
   const PropertyCard = ({ property }) => (
-    <a href={`#imovel/${property.id}`} className="block group bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 hover:shadow-xl hover:border-emerald-100 transition-all duration-300 hover:-translate-y-1 cursor-pointer">
+    <a href={`/imovel/${property.id}`} className="block group bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 hover:shadow-xl hover:border-emerald-100 transition-all duration-300 hover:-translate-y-1 cursor-pointer">
       {/* Image Container */}
       <div className="relative h-56 overflow-hidden">
         <img 
@@ -697,7 +697,7 @@ const PropertiesPage = () => {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <a 
-              href="#contactos"
+              href="/contactos"
               className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-emerald-500 text-white font-semibold rounded-xl hover:bg-emerald-600 transition-all shadow-lg shadow-emerald-500/30"
             >
               <i className="fa-solid fa-envelope"></i>

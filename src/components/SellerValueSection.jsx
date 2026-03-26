@@ -182,7 +182,7 @@ const SellerValueSection = () => {
         {/* CTAs */}
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
           <a
-            href="#contacto"
+            href="/contactos"
             className="group inline-flex items-center gap-3 px-8 py-4 bg-emerald-500 text-white font-semibold rounded-xl hover:bg-emerald-600 transition-all shadow-lg shadow-emerald-500/25 hover:shadow-xl hover:shadow-emerald-500/30"
           >
             <i className="fa-solid fa-calculator"></i>

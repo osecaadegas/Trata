@@ -594,7 +594,7 @@ const MessagesInbox = () => {
             Não tem permissões para aceder a esta área.
           </p>
           <a 
-            href="#home"
+            href="/"
             className="inline-flex items-center gap-2 px-6 py-3 bg-emerald-500 text-white rounded-xl hover:bg-emerald-600 transition-colors font-medium"
           >
             <i className="fa-solid fa-home"></i>
@@ -626,7 +626,7 @@ const MessagesInbox = () => {
               </p>
             </div>
             <a
-              href="#property-management"
+              href="/property-management"
               className="inline-flex items-center gap-2 px-4 py-2 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition-colors"
             >
               <i className="fa-solid fa-arrow-left"></i>
@@ -1196,7 +1196,7 @@ const MessagesInbox = () => {
                   {/* Property Link */}
                   {selectedMessage.property_title && (
                     <a 
-                      href={`#imovel/${selectedMessage.property_id}`}
+                      href={`/imovel/${selectedMessage.property_id}`}
                       className="inline-flex items-center gap-2 mt-4 px-4 py-2 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition-colors"
                     >
                       <i className="fa-solid fa-building"></i>
@@ -1528,7 +1528,7 @@ const MessagesInbox = () => {
                             <p className="text-sm font-medium text-slate-900 truncate">{selectedConversation.property_title}</p>
                           </div>
                           <a
-                            href={`#imovel/${selectedConversation.property_id}`}
+                            href={`/imovel/${selectedConversation.property_id}`}
                             className="text-blue-600 hover:text-blue-800 text-sm"
                           >
                             Ver →

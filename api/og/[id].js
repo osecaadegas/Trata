@@ -48,14 +48,14 @@ export default async function handler(request) {
     );
 
     if (!res.ok) {
-      return Response.redirect(`${SITE_URL}/#imovel/${encodeURIComponent(id)}`, 302);
+      return Response.redirect(`${SITE_URL}/`, 302);
     }
 
     const data = await res.json();
     const property = data?.[0];
 
     if (!property) {
-      return Response.redirect(`${SITE_URL}/#imovel/${encodeURIComponent(id)}`, 302);
+      return Response.redirect(`${SITE_URL}/`, 302);
     }
 
     // Build OG meta values
@@ -88,7 +88,7 @@ export default async function handler(request) {
     }
 
     const canonicalUrl = `${SITE_URL}/imovel/${encodeURIComponent(id)}`;
-    const spaUrl = `${SITE_URL}/#imovel/${encodeURIComponent(id)}`;
+    const spaUrl = `${SITE_URL}/imovel/${encodeURIComponent(id)}`;
 
     const html = `<!DOCTYPE html>
 <html lang="pt-pt">
@@ -129,6 +129,6 @@ export default async function handler(request) {
       }
     });
   } catch (e) {
-    return Response.redirect(`${SITE_URL}/#imovel/${encodeURIComponent(id)}`, 302);
+    return Response.redirect(`${SITE_URL}/`, 302);
   }
 }

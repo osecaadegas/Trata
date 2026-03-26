@@ -409,7 +409,7 @@ const PropertyManagement = () => {
             
             <div className="flex flex-wrap items-center gap-3">
               <a
-                href="#messages"
+                href="/messages"
                 className="inline-flex items-center gap-2 px-4 py-2.5 bg-white border border-gray-200 text-slate-700 rounded-xl font-medium hover:bg-gray-50 hover:border-gray-300 transition-all text-sm"
               >
                 <i className="fa-solid fa-headset text-emerald-500"></i>

@@ -105,7 +105,7 @@ const PropertyCard = ({ property }) => {
 
   return (
     <a 
-      href={`#imovel/${property.id}`}
+      href={`/imovel/${property.id}`}
       className="block bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 group"
     >
       <div className="relative h-64 overflow-hidden">

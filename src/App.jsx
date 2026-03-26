@@ -21,30 +21,58 @@ function App() {
   const [propertyId, setPropertyId] = useState(null);
 
   useEffect(() => {
-    // Simple hash-based routing
-    const handleHashChange = () => {
-      const fullHash = window.location.hash.slice(1);
-      const hash = fullHash.split('?')[0];
-      if (hash) {
-        // Check if it's a property detail page (e.g., #imovel/123)
-        if (hash.startsWith('imovel/')) {
-          const id = hash.split('/')[1];
-          setPropertyId(id);
-          setCurrentPage('imovel-detail');
-        } else {
-          setPropertyId(null);
-          setCurrentPage(hash);
-        }
+    // Backwards compatibility: redirect old hash URLs to path URLs
+    if (window.location.hash && window.location.hash !== '#') {
+      const hashPath = window.location.hash.slice(1).split('?')[0];
+      const hashParams = window.location.hash.includes('?') ? '?' + window.location.hash.split('?')[1] : '';
+      const newPath = (hashPath === 'home' ? '/' : `/${hashPath}`) + hashParams;
+      history.replaceState(null, '', newPath);
+    }
+
+    // Path-based routing
+    const handleNavigation = () => {
+      const pathname = window.location.pathname;
+      const path = pathname === '/' ? '' : pathname.replace(/^\//, '');
+
+      if (path.startsWith('imovel/')) {
+        const id = path.split('/')[1];
+        setPropertyId(id);
+        setCurrentPage('imovel-detail');
+      } else if (path) {
+        setPropertyId(null);
+        setCurrentPage(path);
       } else {
         setPropertyId(null);
         setCurrentPage('home');
       }
     };
 
-    window.addEventListener('hashchange', handleHashChange);
-    handleHashChange(); // Check initial hash
+    // Intercept internal link clicks for SPA navigation
+    const handleClick = (e) => {
+      if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      const link = e.target.closest('a');
+      if (!link) return;
+      const href = link.getAttribute('href');
+      if (!href) return;
+      if (href.startsWith('http') || href.startsWith('mailto:') || href.startsWith('tel:') || href === '#' || href.startsWith('/api/')) return;
+      if (link.target === '_blank' || link.hasAttribute('download')) return;
+      if (href.startsWith('/')) {
+        e.preventDefault();
+        if (href !== window.location.pathname + window.location.search) {
+          history.pushState(null, '', href);
+        }
+        handleNavigation();
+      }
+    };
 
-    return () => window.removeEventListener('hashchange', handleHashChange);
+    window.addEventListener('popstate', handleNavigation);
+    document.addEventListener('click', handleClick);
+    handleNavigation();
+
+    return () => {
+      window.removeEventListener('popstate', handleNavigation);
+      document.removeEventListener('click', handleClick);
+    };
   }, []);
 
   // Scroll to top on page change

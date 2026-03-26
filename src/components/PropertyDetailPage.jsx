@@ -300,7 +300,7 @@ const PropertyDetailPage = ({ propertyId }) => {
           <h2 className="text-2xl font-bold text-slate-900 mb-2">Imóvel não encontrado</h2>
           <p className="text-slate-600 mb-6">O imóvel que procura não existe ou foi removido.</p>
           <a
-            href="#imoveis"
+            href="/imoveis"
             className="inline-flex items-center gap-2 px-6 py-3 bg-emerald-500 text-white font-semibold rounded-xl hover:bg-emerald-600 transition-colors"
           >
             <i className="fa-solid fa-arrow-left"></i>
@@ -319,7 +319,7 @@ const PropertyDetailPage = ({ propertyId }) => {
           <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
             <div>
               <a
-                href="#imoveis"
+                href="/imoveis"
                 className="inline-flex items-center gap-2 text-slate-500 hover:text-emerald-600 transition-colors text-sm mb-3"
               >
                 <i className="fa-solid fa-arrow-left"></i>

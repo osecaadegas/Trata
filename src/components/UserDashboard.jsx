@@ -497,7 +497,7 @@ const UserDashboard = () => {
             Faça login para aceder aos seus favoritos, mensagens e definições de conta.
           </p>
           <a 
-            href="#home"
+            href="/"
             className="inline-flex items-center gap-2 px-6 py-3 bg-emerald-500 text-white rounded-xl hover:bg-emerald-600 transition-colors font-medium"
           >
             <i className="fa-solid fa-right-to-bracket"></i>
@@ -586,7 +586,7 @@ const UserDashboard = () => {
                   Ainda não adicionou nenhum imóvel aos favoritos.
                 </p>
                 <a 
-                  href="#imoveis"
+                  href="/imoveis"
                   className="inline-flex items-center gap-2 px-6 py-3 bg-emerald-500 text-white rounded-xl hover:bg-emerald-600 transition-colors font-medium"
                 >
                   <i className="fa-solid fa-search"></i>
@@ -599,7 +599,7 @@ const UserDashboard = () => {
                   {paginatedFavorites.map(fav => (
                     <div key={fav.id} className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-all group">
                       <div className="relative">
-                        <a href={`#imovel/${fav.property?.id || fav.id}`}>
+                        <a href={`/imovel/${fav.property?.id || fav.id}`}>
                           <img 
                             src={fav.property?.image || fav.property?.images?.[0] || 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&h=600&fit=crop'}
                             alt={fav.property?.title}
@@ -637,7 +637,7 @@ const UserDashboard = () => {
                             {formatPrice(fav.property?.price)}
                           </p>
                           <a 
-                            href={`#imovel/${fav.property?.id || fav.id}`}
+                            href={`/imovel/${fav.property?.id || fav.id}`}
                             className="text-sm text-emerald-600 hover:text-emerald-700 font-medium"
                           >
                             Ver <i className="fa-solid fa-arrow-right ml-1"></i>

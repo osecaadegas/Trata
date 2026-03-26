@@ -2,14 +2,13 @@ import { useState, useEffect } from 'react';
 import { CheckCircle, AlertCircle, Loader2, Home } from 'lucide-react';
 
 export default function UnsubscribePage() {
-  // Get token from URL hash (e.g., #unsubscribe?token=xxx)
-  const getTokenFromHash = () => {
-    const hash = window.location.hash;
-    const match = hash.match(/[?&]token=([^&]*)/);
-    return match ? match[1] : null;
+  // Get token from URL (e.g., /unsubscribe?token=xxx)
+  const getTokenFromUrl = () => {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('token');
   };
   
-  const [token] = useState(getTokenFromHash);
+  const [token] = useState(getTokenFromUrl);
   const [status, setStatus] = useState('loading'); // loading, success, error
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -86,7 +85,7 @@ export default function UnsubscribePage() {
               </p>
             </div>
             <a
-              href="#"
+              href="/"
               className="inline-flex items-center gap-2 px-6 py-3 bg-indigo-600 text-white font-semibold rounded-xl hover:bg-indigo-700 transition-colors"
             >
               <Home className="w-5 h-5" />
@@ -112,7 +111,7 @@ export default function UnsubscribePage() {
               Se pretende cancelar a sua subscrição, entre em contacto connosco.
             </p>
             <a
-              href="#"
+              href="/"
               className="inline-flex items-center gap-2 px-6 py-3 bg-indigo-600 text-white font-semibold rounded-xl hover:bg-indigo-700 transition-colors"
             >
               <Home className="w-5 h-5" />

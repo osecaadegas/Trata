@@ -20,12 +20,12 @@ const Navbar = () => {
 
   // Close menus on route change
   useEffect(() => {
-    const handleHashChange = () => {
+    const handleRouteChange = () => {
       setIsMobileMenuOpen(false);
       setIsAdminMenuOpen(false);
     };
-    window.addEventListener('hashchange', handleHashChange);
-    return () => window.removeEventListener('hashchange', handleHashChange);
+    window.addEventListener('popstate', handleRouteChange);
+    return () => window.removeEventListener('popstate', handleRouteChange);
   }, []);
 
   // Prevent body scroll when mobile menu is open
@@ -57,10 +57,10 @@ const Navbar = () => {
   const closeMobileMenu = () => setIsMobileMenuOpen(false);
 
   const navLinks = [
-    { href: '#home', label: 'Início', icon: 'fa-home' },
-    { href: '#imoveis', label: 'Imóveis', icon: 'fa-building' },
-    { href: '#servicos', label: 'Serviços', icon: 'fa-concierge-bell' },
-    { href: '#contactos', label: 'Contactos', icon: 'fa-envelope' },
+    { href: '/', label: 'Início', icon: 'fa-home' },
+    { href: '/imoveis', label: 'Imóveis', icon: 'fa-building' },
+    { href: '/servicos', label: 'Serviços', icon: 'fa-concierge-bell' },
+    { href: '/contactos', label: 'Contactos', icon: 'fa-envelope' },
   ];
 
   const getRoleBadge = () => {
@@ -72,9 +72,9 @@ const Navbar = () => {
   };
 
   const adminMenuItems = [
-    ...(isConfigurator ? [{ href: '#user-management', label: 'Gerir Utilizadores', icon: 'fa-users-gear', color: 'text-purple-500', bgColor: 'bg-purple-50', description: 'Funções e permissões' }] : []),
-    ...((isAdmin || isConfigurator || isSeller) ? [{ href: '#property-management', label: 'Gerir Imóveis', icon: 'fa-building', color: 'text-emerald-500', bgColor: 'bg-emerald-50', description: 'Propriedades e listagens' }] : []),
-    ...((isAdmin || isConfigurator || isSeller) ? [{ href: '#messages', label: 'Mensagens', icon: 'fa-inbox', color: 'text-blue-500', bgColor: 'bg-blue-50', description: 'Caixa de entrada' }] : []),
+    ...(isConfigurator ? [{ href: '/user-management', label: 'Gerir Utilizadores', icon: 'fa-users-gear', color: 'text-purple-500', bgColor: 'bg-purple-50', description: 'Funções e permissões' }] : []),
+    ...((isAdmin || isConfigurator || isSeller) ? [{ href: '/property-management', label: 'Gerir Imóveis', icon: 'fa-building', color: 'text-emerald-500', bgColor: 'bg-emerald-50', description: 'Propriedades e listagens' }] : []),
+    ...((isAdmin || isConfigurator || isSeller) ? [{ href: '/messages', label: 'Mensagens', icon: 'fa-inbox', color: 'text-blue-500', bgColor: 'bg-blue-50', description: 'Caixa de entrada' }] : []),
   ];
 
   return (
@@ -86,7 +86,7 @@ const Navbar = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16 lg:h-18 items-center">
             {/* Logo */}
-            <a href="#home" className="flex items-center gap-3 z-10 group">
+            <a href="/" className="flex items-center gap-3 z-10 group">
               <img 
                 src="/trata.png" 
                 alt="TRATA Logo" 
@@ -171,7 +171,7 @@ const Navbar = () => {
                       {/* Quick Stats Footer */}
                       <div className="px-4 py-3 bg-gray-50 border-t border-gray-100">
                         <a 
-                          href="#property-management"
+                          href="/property-management"
                           onClick={() => setIsAdminMenuOpen(false)}
                           className="flex items-center justify-center gap-2 w-full py-2.5 bg-emerald-500 text-white text-sm font-semibold rounded-xl hover:bg-emerald-600 transition-colors"
                         >
@@ -188,13 +188,13 @@ const Navbar = () => {
               {user ? (
                 <div className="flex items-center gap-2">
                   <a 
-                    href="#dashboard" 
+                    href="/dashboard" 
                     className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition-colors text-sm font-semibold"
                   >
                     <i className="fa-solid fa-th-large"></i>
                     <span className="hidden xl:inline">Minha Área</span>
                   </a>
-                  <a href="#dashboard" className="group relative">
+                  <a href="/dashboard" className="group relative">
                     <img 
                       src={user.picture} 
                       alt={user.name}
@@ -337,7 +337,7 @@ const Navbar = () => {
             {user && (
               <div className="px-4 py-4 border-t border-gray-100">
                 <a 
-                  href="#dashboard"
+                  href="/dashboard"
                   onClick={closeMobileMenu}
                   className="flex items-center justify-center gap-2 w-full py-3 bg-emerald-500 text-white rounded-xl font-semibold hover:bg-emerald-600 transition-colors"
                 >

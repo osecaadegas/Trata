@@ -346,7 +346,7 @@ const AdminConversations = () => {
               <p className="text-slate-600 mt-1">Gerir conversas com clientes</p>
             </div>
             <a
-              href="#property-management"
+              href="/property-management"
               className="inline-flex items-center gap-2 px-4 py-2 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition-colors"
             >
               <i className="fa-solid fa-arrow-left"></i>
@@ -600,7 +600,7 @@ const AdminConversations = () => {
                           <p className="text-sm font-medium text-slate-900 truncate">{selectedConversation.property_title}</p>
                         </div>
                         <a
-                          href={`#imovel/${selectedConversation.property_id}`}
+                          href={`/imovel/${selectedConversation.property_id}`}
                           className="text-blue-600 hover:text-blue-800 text-sm"
                         >
                           Ver →

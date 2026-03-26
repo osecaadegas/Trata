@@ -36,14 +36,10 @@ const ContactPage = () => {
   }, []);
 
   useEffect(() => {
-    const hash = window.location.hash;
-    const queryIndex = hash.indexOf('?');
-    if (queryIndex !== -1) {
-      const params = new URLSearchParams(hash.substring(queryIndex));
-      const assunto = params.get('assunto');
-      if (assunto) {
-        setFormData(prev => ({ ...prev, subject: assunto }));
-      }
+    const params = new URLSearchParams(window.location.search);
+    const assunto = params.get('assunto');
+    if (assunto) {
+      setFormData(prev => ({ ...prev, subject: assunto }));
     }
   }, []);
 

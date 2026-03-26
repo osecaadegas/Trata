@@ -509,7 +509,7 @@ const UserMessaging = ({ embedded = false }) => {
                 
                 {selectedConversation.property_id && (
                   <a
-                    href={`#imovel/${selectedConversation.property_id}`}
+                    href={`/imovel/${selectedConversation.property_id}`}
                     className="hidden sm:flex items-center gap-2 px-3 py-2 bg-gray-100 text-slate-600 rounded-lg hover:bg-gray-200 transition-colors text-sm font-medium"
                   >
                     <i className="fa-solid fa-building"></i>
@@ -525,7 +525,7 @@ const UserMessaging = ({ embedded = false }) => {
               {/* Property Card (if property linked) */}
               {selectedConversation.property_id && (
                 <a 
-                  href={`#imovel/${selectedConversation.property_id}`}
+                  href={`/imovel/${selectedConversation.property_id}`}
                   className="mx-4 mt-3 p-3 bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200 rounded-xl flex items-center gap-3 hover:border-emerald-300 transition-colors"
                 >
                   <img 

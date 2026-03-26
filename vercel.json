@@ -1,5 +1,19 @@
 {
   "rewrites": [
-    { "source": "/imovel/:id", "destination": "/api/og/:id" }
+    {
+      "source": "/imovel/:id",
+      "destination": "/api/og/:id",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": "(?i).*(bot|crawl|spider|facebookexternalhit|Twitterbot|LinkedInBot|WhatsApp|TelegramBot|Slackbot|Discordbot|Pinterest|preview).*"
+        }
+      ]
+    },
+    {
+      "source": "/((?!api/).*)",
+      "destination": "/index.html"
+    }
   ]
 }

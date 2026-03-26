@@ -5,7 +5,7 @@ const Footer = () => {
     <footer id="contatos" className="bg-white pt-20 pb-10 border-t border-gray-100">
       <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
         <div className="col-span-1 md:col-span-1">
-          <a href="#home" className="flex items-center gap-2 mb-6">
+          <a href="/" className="flex items-center gap-2 mb-6">
             <img 
               src="/trata.png" 
               alt="TRATA Logo" 

@@ -8,7 +8,9 @@ const Hero = () => {
     const params = new URLSearchParams();
     if (location) params.set('location', location);
     if (propertyType) params.set('type', propertyType);
-    window.location.hash = params.toString() ? `imoveis?${params.toString()}` : 'imoveis';
+    const path = params.toString() ? `/imoveis?${params.toString()}` : '/imoveis';
+    history.pushState(null, '', path);
+    window.dispatchEvent(new PopStateEvent('popstate'));
     setTimeout(() => {
       document.getElementById('imoveis')?.scrollIntoView({ behavior: 'smooth' });
     }, 100);
@@ -96,7 +98,7 @@ const Hero = () => {
           <div className="flex items-center justify-center gap-4 mb-10">
             <span className="text-slate-500 text-base font-medium"></span>
             <a
-              href="#contactos?assunto=avaliacao"
+              href="/contactos?assunto=avaliacao"
               className="group inline-flex items-center gap-3 bg-emerald-500 hover:bg-emerald-600 text-white font-semibold px-6 py-3 rounded-full shadow-lg hover:shadow-xl transition-all"
             >
               <i className="fa-solid fa-calculator"></i>
@@ -104,7 +106,7 @@ const Hero = () => {
               <i className="fa-solid fa-arrow-right text-sm transition-transform group-hover:translate-x-1"></i>
             </a>
             <a
-              href="#servicos"
+              href="/servicos"
               className="group inline-flex items-center gap-3 bg-white hover:bg-slate-50 text-slate-700 font-semibold px-6 py-3 rounded-full shadow-lg hover:shadow-xl transition-all border border-slate-200"
             >
               <i className="fa-solid fa-star"></i>
