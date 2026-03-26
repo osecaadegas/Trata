@@ -11,6 +11,8 @@ const PropertyDetailPage = ({ propertyId }) => {
   const [isFavorite, setIsFavorite] = useState(false);
   const [favoriteLoading, setFavoriteLoading] = useState(false);
   const [show3DTour, setShow3DTour] = useState(false);
+  const [showVideo, setShowVideo] = useState(false);
+  const [mediaTab, setMediaTab] = useState('tour');
   const [showContactForm, setShowContactForm] = useState(false);
   const [contactFormData, setContactFormData] = useState({
     name: '',
@@ -113,6 +115,11 @@ const PropertyDetailPage = ({ propertyId }) => {
             sellerId: prop.seller_id,
             lotArea: prop.lot_area_sqm
           });
+
+          // Default media tab to video if no tour URL
+          if (!prop.virtual_tour_url && prop.video_url) {
+            setMediaTab('video');
+          }
 
           // Fetch seller info if seller_id exists
           if (prop.seller_id) {
@@ -422,31 +429,109 @@ const PropertyDetailPage = ({ propertyId }) => {
               </div>
             </div>
 
-            {/* Virtual Tour Section */}
+            {/* Tour Virtual & Video Section */}
             <div className="bg-white rounded-xl p-4 shadow-sm">
-              <h3 className="font-semibold text-slate-700 mb-3 flex items-center gap-2">
-                <i className="fa-solid fa-cube text-emerald-500"></i>
-                Tour Virtual
-              </h3>
-              <button
-                onClick={() => setShow3DTour(true)}
-                className="w-full h-28 rounded-lg overflow-hidden relative group"
-              >
-                <img 
-                  src={property.images[0]} 
-                  alt="Tour Virtual" 
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                />
-                <div className="absolute inset-0 bg-black/40 flex items-center justify-center group-hover:bg-black/50 transition-colors">
-                  <div className="w-12 h-12 bg-white/90 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <i className="fa-solid fa-play text-emerald-600 text-lg ml-1"></i>
+              {/* Tabs - only show if both exist or always show available ones */}
+              {(property.virtualTourUrl || property.videoUrl) ? (
+                <>
+                  <div className="flex gap-1 mb-3 bg-gray-100 rounded-lg p-1">
+                    {(property.virtualTourUrl || !property.videoUrl) && (
+                      <button
+                        onClick={() => setMediaTab('tour')}
+                        className={`flex-1 text-xs font-semibold py-2 rounded-md flex items-center justify-center gap-1.5 transition-all ${
+                          mediaTab === 'tour' ? 'bg-white text-emerald-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'
+                        }`}
+                      >
+                        <i className="fa-solid fa-cube"></i>
+                        Tour Virtual
+                      </button>
+                    )}
+                    {property.videoUrl && (
+                      <button
+                        onClick={() => setMediaTab('video')}
+                        className={`flex-1 text-xs font-semibold py-2 rounded-md flex items-center justify-center gap-1.5 transition-all ${
+                          mediaTab === 'video' ? 'bg-white text-emerald-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'
+                        }`}
+                      >
+                        <i className="fa-solid fa-video"></i>
+                        Vídeo
+                      </button>
+                    )}
                   </div>
-                </div>
-                <span className="absolute bottom-2 left-2 text-white text-xs bg-black/50 px-2 py-1 rounded">
-                  <i className="fa-solid fa-vr-cardboard mr-1"></i>
-                  Tour 360°
-                </span>
-              </button>
+
+                  {/* Tour Virtual Content */}
+                  {mediaTab === 'tour' && (
+                    <button
+                      onClick={() => setShow3DTour(true)}
+                      className="w-full h-28 rounded-lg overflow-hidden relative group"
+                    >
+                      <img 
+                        src={property.images[0]} 
+                        alt="Tour Virtual" 
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                      <div className="absolute inset-0 bg-black/40 flex items-center justify-center group-hover:bg-black/50 transition-colors">
+                        <div className="w-12 h-12 bg-white/90 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
+                          <i className="fa-solid fa-play text-emerald-600 text-lg ml-1"></i>
+                        </div>
+                      </div>
+                      <span className="absolute bottom-2 left-2 text-white text-xs bg-black/50 px-2 py-1 rounded">
+                        <i className="fa-solid fa-vr-cardboard mr-1"></i>
+                        Tour 360°
+                      </span>
+                    </button>
+                  )}
+
+                  {/* Video Content */}
+                  {mediaTab === 'video' && property.videoUrl && (
+                    <button
+                      onClick={() => setShowVideo(true)}
+                      className="w-full h-28 rounded-lg overflow-hidden relative group"
+                    >
+                      <img 
+                        src={property.images[0]} 
+                        alt="Vídeo" 
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                      <div className="absolute inset-0 bg-black/40 flex items-center justify-center group-hover:bg-black/50 transition-colors">
+                        <div className="w-12 h-12 bg-white/90 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
+                          <i className="fa-solid fa-play text-emerald-600 text-lg ml-1"></i>
+                        </div>
+                      </div>
+                      <span className="absolute bottom-2 left-2 text-white text-xs bg-black/50 px-2 py-1 rounded">
+                        <i className="fa-solid fa-video mr-1"></i>
+                        Vídeo
+                      </span>
+                    </button>
+                  )}
+                </>
+              ) : (
+                <>
+                  <h3 className="font-semibold text-slate-700 mb-3 flex items-center gap-2">
+                    <i className="fa-solid fa-cube text-emerald-500"></i>
+                    Tour Virtual
+                  </h3>
+                  <button
+                    onClick={() => setShow3DTour(true)}
+                    className="w-full h-28 rounded-lg overflow-hidden relative group"
+                  >
+                    <img 
+                      src={property.images[0]} 
+                      alt="Tour Virtual" 
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                    <div className="absolute inset-0 bg-black/40 flex items-center justify-center group-hover:bg-black/50 transition-colors">
+                      <div className="w-12 h-12 bg-white/90 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <i className="fa-solid fa-play text-emerald-600 text-lg ml-1"></i>
+                      </div>
+                    </div>
+                    <span className="absolute bottom-2 left-2 text-white text-xs bg-black/50 px-2 py-1 rounded">
+                      <i className="fa-solid fa-vr-cardboard mr-1"></i>
+                      Tour 360°
+                    </span>
+                  </button>
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -485,6 +570,45 @@ const PropertyDetailPage = ({ propertyId }) => {
                     <p className="text-sm text-gray-400">Contacte-nos para agendar uma visita presencial</p>
                   </div>
                 )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Video Modal */}
+        {showVideo && property.videoUrl && (
+          <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
+            <div className="bg-white rounded-2xl w-full max-w-5xl overflow-hidden">
+              <div className="flex items-center justify-between p-4 border-b">
+                <h3 className="font-bold text-lg flex items-center gap-2">
+                  <i className="fa-solid fa-video text-emerald-500"></i>
+                  Vídeo - {property.title}
+                </h3>
+                <button
+                  onClick={() => setShowVideo(false)}
+                  className="w-10 h-10 rounded-full hover:bg-gray-100 flex items-center justify-center transition-colors"
+                >
+                  <i className="fa-solid fa-times text-xl"></i>
+                </button>
+              </div>
+              <div className="aspect-video bg-gray-900">
+                <iframe
+                  src={(() => {
+                    const url = property.videoUrl;
+                    // YouTube
+                    const ytMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]+)/);
+                    if (ytMatch) return `https://www.youtube.com/embed/${ytMatch[1]}`;
+                    // Vimeo
+                    const vimeoMatch = url.match(/vimeo\.com\/(\d+)/);
+                    if (vimeoMatch) return `https://player.vimeo.com/video/${vimeoMatch[1]}`;
+                    return url;
+                  })()}
+                  width="100%"
+                  height="100%"
+                  allowFullScreen
+                  allow="autoplay; encrypted-media"
+                  className="w-full h-full"
+                ></iframe>
               </div>
             </div>
           </div>
