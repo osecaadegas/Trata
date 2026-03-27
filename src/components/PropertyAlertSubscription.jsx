@@ -445,22 +445,22 @@ export function PropertyAlertBanner({ className = '' }) {
   
   return (
     <>
-      <div className={`bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl p-6 md:p-8 text-white ${className}`}>
+      <div className={`bg-white/10 backdrop-blur-sm rounded-2xl p-6 md:p-8 text-white border border-white/10 ${className}`}>
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div className="flex items-start gap-4">
-            <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center flex-shrink-0">
-              <Bell className="w-6 h-6" />
+            <div className="w-12 h-12 bg-emerald-500/20 rounded-xl flex items-center justify-center flex-shrink-0">
+              <Bell className="w-6 h-6 text-emerald-400" />
             </div>
             <div>
               <h3 className="text-xl font-bold">Não perca nenhum imóvel</h3>
-              <p className="text-white/80 mt-1">
+              <p className="text-white/70 mt-1">
                 Receba alertas quando surgir um imóvel que corresponda às suas preferências
               </p>
             </div>
           </div>
           <button
             onClick={() => setIsOpen(true)}
-            className="px-6 py-3 bg-white text-indigo-600 font-semibold rounded-xl hover:bg-gray-100 transition-colors flex items-center justify-center gap-2 whitespace-nowrap"
+            className="px-6 py-3 bg-emerald-500 text-white font-semibold rounded-xl hover:bg-emerald-600 transition-colors flex items-center justify-center gap-2 whitespace-nowrap shadow-lg shadow-emerald-500/30"
           >
             <Bell className="w-5 h-5" />
             Ativar Alertas

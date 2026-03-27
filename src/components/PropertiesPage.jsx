@@ -686,16 +686,16 @@ const PropertiesPage = () => {
         </div>
       </section>
 
-      {/* CTA Section */}
+      {/* CTA + Alerts Section */}
       <section className="py-16 bg-gradient-to-r from-slate-900 to-slate-800">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-2xl md:text-3xl font-bold text-white mb-4">
             Não encontrou o que procurava?
           </h2>
           <p className="text-gray-300 mb-8">
-            Contacte-nos e ajudamo-lo a encontrar o imóvel perfeito para si.
+            Contacte-nos ou ative alertas para ser notificado quando surgir o imóvel ideal.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
             <a 
               href="/contactos"
               className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-emerald-500 text-white font-semibold rounded-xl hover:bg-emerald-600 transition-all shadow-lg shadow-emerald-500/30"
@@ -711,13 +711,9 @@ const PropertiesPage = () => {
               +351 934 101 523
             </a>
           </div>
-        </div>
-      </section>
-
-      {/* Property Alerts Banner */}
-      <section className="py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-4xl mx-auto">
-          <PropertyAlertBanner />
+          <div className="border-t border-white/10 pt-8">
+            <PropertyAlertBanner />
+          </div>
         </div>
       </section>
     </div>
