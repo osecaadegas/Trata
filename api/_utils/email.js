@@ -11,6 +11,10 @@ export const FROM_NAME = process.env.FROM_NAME || 'Trata Imobiliária';
 
 // Supabase client for server-side operations
 export async function supabaseAdmin() {
+  if (!SUPABASE_URL || !SUPABASE_SERVICE_KEY) {
+    console.error('Missing env vars - SUPABASE_URL:', !!SUPABASE_URL, 'SERVICE_KEY:', !!SUPABASE_SERVICE_KEY);
+    throw new Error('Database not configured. Check SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY env vars.');
+  }
   const { createClient } = await import('@supabase/supabase-js');
   return createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY, {
     auth: {
