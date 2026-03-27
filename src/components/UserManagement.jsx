@@ -11,9 +11,11 @@ const UserManagement = ({ onClose }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [roleFilter, setRoleFilter] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);
   const [totalUsers, setTotalUsers] = useState(0);
   const [updatingUserId, setUpdatingUserId] = useState(null);
+  const [selectedUser, setSelectedUser] = useState(null);
 
   useEffect(() => {
     if (isConfigurator || isAdmin) {
@@ -22,19 +24,25 @@ const UserManagement = ({ onClose }) => {
   }, [currentPage]);
 
   useEffect(() => {
-    // Filter users based on search term
-    if (searchTerm.trim() === '') {
-      setFilteredUsers(users);
-      setTotalUsers(users.length);
-    } else {
-      const filtered = users.filter(user => 
-        user.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.email?.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-      setFilteredUsers(filtered);
-      setTotalUsers(filtered.length);
+    // Filter users based on search term and role
+    let filtered = users;
+    
+    if (roleFilter !== 'all') {
+      filtered = filtered.filter(user => user.role === roleFilter);
     }
-  }, [searchTerm, users]);
+    
+    if (searchTerm.trim() !== '') {
+      filtered = filtered.filter(user => 
+        user.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        user.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        user.phone?.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+    
+    setFilteredUsers(filtered);
+    setTotalUsers(filtered.length);
+    setCurrentPage(1);
+  }, [searchTerm, roleFilter, users]);
 
   const fetchUsers = async () => {
     try {
@@ -249,17 +257,30 @@ const UserManagement = ({ onClose }) => {
           </div>
         </div>
 
-        {/* Search Bar */}
+        {/* Search Bar & Filters */}
         <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 mb-6">
-          <div className="relative">
-            <i className="fa-solid fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-            <input
-              type="text"
-              placeholder="Procurar por nome ou email..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-            />
+          <div className="flex flex-col sm:flex-row gap-4">
+            <div className="relative flex-1">
+              <i className="fa-solid fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+              <input
+                type="text"
+                placeholder="Procurar por nome, email ou telefone..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+              />
+            </div>
+            <select
+              value={roleFilter}
+              onChange={(e) => setRoleFilter(e.target.value)}
+              className="px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-sm text-slate-700 bg-white min-w-[180px]"
+            >
+              <option value="all">Todas as funções</option>
+              <option value="configurator">Configurador</option>
+              <option value="admin">Administrador</option>
+              <option value="seller">Vendedor</option>
+              <option value="user">Utilizador</option>
+            </select>
           </div>
         </div>
 
@@ -319,7 +340,7 @@ const UserManagement = ({ onClose }) => {
                   </thead>
                   <tbody className="divide-y divide-gray-200">
                     {currentUsers.map((user) => (
-                      <tr key={user.id} className="hover:bg-gray-50 transition-colors">
+                      <tr key={user.id} onClick={() => setSelectedUser(user)} className="hover:bg-gray-50 transition-colors cursor-pointer">
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center">
                             <img
@@ -349,7 +370,7 @@ const UserManagement = ({ onClose }) => {
                             {new Date(user.created_at).toLocaleDateString('pt-PT')}
                           </div>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
+                        <td className="px-6 py-4 whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
                           {updatingUserId === user.id ? (
                             <i className="fa-solid fa-spinner fa-spin text-emerald-500"></i>
                           ) : (
@@ -426,6 +447,121 @@ const UserManagement = ({ onClose }) => {
             </>
           )}
         </div>
+
+        {/* User Detail Modal */}
+        {selectedUser && (
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setSelectedUser(null)}>
+            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden" onClick={(e) => e.stopPropagation()}>
+              {/* Modal Header */}
+              <div className="bg-gradient-to-r from-emerald-500 to-emerald-600 px-6 py-8 text-white relative">
+                <button
+                  onClick={() => setSelectedUser(null)}
+                  className="absolute top-4 right-4 text-white/80 hover:text-white transition-colors"
+                >
+                  <i className="fa-solid fa-xmark text-xl"></i>
+                </button>
+                <div className="flex items-center gap-4">
+                  <img
+                    src={selectedUser.avatar_url}
+                    alt={selectedUser.name}
+                    className="w-20 h-20 rounded-full border-4 border-white/30 shadow-lg"
+                  />
+                  <div>
+                    <h2 className="text-xl font-bold">{selectedUser.name || 'Sem nome'}</h2>
+                    <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold mt-2 bg-white/20 text-white`}>
+                      <i className={`fa-solid ${getRoleIcon(selectedUser.role)}`}></i>
+                      {selectedUser.role === 'configurator' && 'Configurador'}
+                      {selectedUser.role === 'admin' && 'Administrador'}
+                      {selectedUser.role === 'seller' && 'Vendedor'}
+                      {selectedUser.role === 'user' && 'Utilizador'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Modal Body */}
+              <div className="px-6 py-6 space-y-4">
+                <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+                  <div className="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center">
+                    <i className="fa-solid fa-envelope text-emerald-600"></i>
+                  </div>
+                  <div>
+                    <p className="text-xs text-slate-500">Email</p>
+                    <p className="text-sm font-medium text-slate-800">{selectedUser.email}</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+                  <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <i className="fa-solid fa-phone text-blue-600"></i>
+                  </div>
+                  <div>
+                    <p className="text-xs text-slate-500">Telefone</p>
+                    <p className="text-sm font-medium text-slate-800">{selectedUser.phone || 'Não disponível'}</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+                  <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                    <i className="fa-solid fa-calendar text-purple-600"></i>
+                  </div>
+                  <div>
+                    <p className="text-xs text-slate-500">Data de Registo</p>
+                    <p className="text-sm font-medium text-slate-800">
+                      {new Date(selectedUser.created_at).toLocaleDateString('pt-PT', { day: '2-digit', month: 'long', year: 'numeric' })}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+                  <div className="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center">
+                    <i className="fa-solid fa-clock text-amber-600"></i>
+                  </div>
+                  <div>
+                    <p className="text-xs text-slate-500">Última Atualização</p>
+                    <p className="text-sm font-medium text-slate-800">
+                      {selectedUser.updated_at
+                        ? new Date(selectedUser.updated_at).toLocaleDateString('pt-PT', { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+                        : 'Não disponível'}
+                    </p>
+                  </div>
+                </div>
+
+                {selectedUser.marketing_consent !== undefined && (
+                  <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+                    <div className="w-10 h-10 bg-teal-100 rounded-lg flex items-center justify-center">
+                      <i className={`fa-solid ${selectedUser.marketing_consent ? 'fa-check-circle text-teal-600' : 'fa-times-circle text-red-400'}`}></i>
+                    </div>
+                    <div>
+                      <p className="text-xs text-slate-500">Consentimento Marketing</p>
+                      <p className="text-sm font-medium text-slate-800">{selectedUser.marketing_consent ? 'Sim' : 'Não'}</p>
+                    </div>
+                  </div>
+                )}
+
+                <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+                  <div className="w-10 h-10 bg-slate-100 rounded-lg flex items-center justify-center">
+                    <i className="fa-solid fa-fingerprint text-slate-500"></i>
+                  </div>
+                  <div>
+                    <p className="text-xs text-slate-500">ID</p>
+                    <p className="text-xs font-mono text-slate-500 break-all">{selectedUser.id}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Modal Footer */}
+              <div className="px-6 py-4 border-t border-gray-100 flex justify-end">
+                <button
+                  onClick={() => setSelectedUser(null)}
+                  className="px-5 py-2.5 bg-gray-100 text-slate-700 rounded-xl hover:bg-gray-200 transition-colors text-sm font-medium"
+                >
+                  Fechar
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
