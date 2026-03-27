@@ -21,6 +21,8 @@ import TermsPage from './components/TermsPage';
 import AboutPage from './components/AboutPage';
 import CookiesPage from './components/CookiesPage';
 import SecurityPage from './components/SecurityPage';
+import CareersPage from './components/CareersPage';
+import JobManagement from './components/JobManagement';
 
 function App() {
   const [currentPage, setCurrentPage] = useState('home');
@@ -162,6 +164,15 @@ function App() {
             <Footer />
           </>
         );
+      case 'carreiras':
+        return (
+          <>
+            <CareersPage />
+            <Footer />
+          </>
+        );
+      case 'job-management':
+        return <JobManagement />;
       default:
         return (
           <>

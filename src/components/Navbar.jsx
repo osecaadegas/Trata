@@ -75,6 +75,7 @@ const Navbar = () => {
     ...(isConfigurator ? [{ href: '/user-management', label: 'Gerir Utilizadores', icon: 'fa-users-gear', color: 'text-purple-500', bgColor: 'bg-purple-50', description: 'Funções e permissões' }] : []),
     ...((isAdmin || isConfigurator || isSeller) ? [{ href: '/property-management', label: 'Gerir Imóveis', icon: 'fa-building', color: 'text-emerald-500', bgColor: 'bg-emerald-50', description: 'Propriedades e listagens' }] : []),
     ...((isAdmin || isConfigurator || isSeller) ? [{ href: '/messages', label: 'Mensagens', icon: 'fa-inbox', color: 'text-blue-500', bgColor: 'bg-blue-50', description: 'Caixa de entrada' }] : []),
+    ...((isAdmin || isConfigurator) ? [{ href: '/job-management', label: 'Carreiras', icon: 'fa-briefcase', color: 'text-amber-500', bgColor: 'bg-amber-50', description: 'Vagas e candidaturas' }] : []),
   ];
 
   return (
