@@ -71,32 +71,31 @@ const CareersPage = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
       {/* Hero */}
-      <section className="relative py-20 lg:py-28 bg-gradient-to-br from-emerald-600 via-emerald-700 to-emerald-800 overflow-hidden">
+      <section className="relative pt-6 pb-12 lg:pt-8 lg:pb-14 bg-gradient-to-br from-emerald-600 via-emerald-700 to-emerald-800 overflow-hidden">
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-10 left-10 w-72 h-72 bg-white rounded-full filter blur-[100px]"></div>
           <div className="absolute bottom-10 right-10 w-96 h-96 bg-emerald-300 rounded-full filter blur-[120px]"></div>
         </div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
-          <span className="inline-flex items-center gap-2 px-4 py-2 bg-white/15 backdrop-blur-sm text-white text-sm font-medium rounded-full mb-6">
+          <span className="inline-flex items-center gap-2 px-4 py-2 bg-white/15 backdrop-blur-sm text-white text-sm font-medium rounded-full mb-4">
             <i className="fa-solid fa-briefcase"></i>
             Oportunidades
           </span>
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
-            Junte-se à Nossa<br />
-            <span className="text-emerald-200">Equipa</span>
+          <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4 leading-tight">
+            Junte-se à Nossa <span className="text-emerald-200">Equipa</span>
           </h1>
-          <p className="text-emerald-100 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed">
+          <p className="text-emerald-100 text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
             Procuramos pessoas talentosas e motivadas para crescer connosco 
             no mercado imobiliário. Descubra as nossas vagas disponíveis.
           </p>
-          <div className="flex justify-center gap-8 mt-10">
+          <div className="flex justify-center gap-8 mt-6">
             <div className="text-center">
-              <div className="text-3xl font-bold text-white">{jobs.length}</div>
+              <div className="text-2xl font-bold text-white">{jobs.length}</div>
               <div className="text-emerald-200 text-sm mt-1">Vagas Abertas</div>
             </div>
             <div className="w-px bg-white/20"></div>
             <div className="text-center">
-              <div className="text-3xl font-bold text-white">Braga</div>
+              <div className="text-2xl font-bold text-white">Braga</div>
               <div className="text-emerald-200 text-sm mt-1">Localização</div>
             </div>
           </div>
