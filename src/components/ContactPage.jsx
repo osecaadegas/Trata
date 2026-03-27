@@ -242,7 +242,7 @@ const ContactPage = () => {
               <div className="space-y-6">
                 {/* Morada + Google Maps Card */}
                 <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden hover:shadow-lg hover:border-emerald-100 transition-all duration-300">
-                  <div className="aspect-[16/9] w-full">
+                  <div className="aspect-[2/1] w-full">
                     <iframe
                       src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2984.6847982849847!2d-8.4276!3d41.5503!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNDHCsDMzJzAxLjEiTiA4wrAyNSczOS40Ilc!5e0!3m2!1spt-PT!2spt!4v1609459200000!5m2!1spt-PT!2spt"
                       width="100%"
