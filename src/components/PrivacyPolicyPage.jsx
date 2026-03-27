@@ -24,7 +24,7 @@ const PrivacyPolicyPage = () => {
               1. Responsável pelo Tratamento
             </h2>
             <p className="text-slate-600 leading-relaxed">
-              A TRATA Imobiliária, com sede no Centro Comercial Galecia R7C, Loja 45, 4700-026 Braga, 
+              A TRATA Imobiliária (AMI 20736), com sede no Centro Comercial Galecia R7C, Loja 45, Maximinos, 4700-026 Braga, 
               é a entidade responsável pelo tratamento dos dados pessoais recolhidos através deste website. 
               Para qualquer questão relacionada com a proteção de dados, pode contactar-nos pelo email 
               <a href="mailto:geral@trata.pt" className="text-emerald-600 hover:underline"> geral@trata.pt</a> ou 

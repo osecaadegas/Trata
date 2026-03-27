@@ -24,7 +24,7 @@ const Footer = () => {
             A TRATA é a sua parceira de confiança no mercado imobiliário, focada na eficácia e modernidade.
           </p>
           <div className="flex space-x-4">
-            <a href="#" className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-slate-600 hover:bg-emerald-500 hover:text-white transition-all">
+            <a href="https://www.facebook.com/p/Trata-Imobili%C3%A1ria-61555254285406/" target="_blank" rel="noopener noreferrer" aria-label="Facebook" className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-slate-600 hover:bg-emerald-500 hover:text-white transition-all">
               <i className="fa-brands fa-facebook-f"></i>
             </a>
             <a href="#" className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-slate-600 hover:bg-emerald-500 hover:text-white transition-all">
@@ -67,7 +67,7 @@ const Footer = () => {
             <li className="flex items-start">
               <i className="fa-solid fa-location-dot mr-3 text-emerald-500 mt-1"></i>
               <a href="https://maps.google.com/?q=GHV9+R3+Braga" target="_blank" rel="noopener noreferrer" className="hover:text-emerald-500 transition-colors">
-                Centro Comercial Galecia R7C,<br />Loja 45, 4700-026 Braga
+                Centro Comercial Galecia R7C,<br />Loja 45, Maximinos, 4700-026 Braga
               </a>
             </li>
             <li className="flex items-start">
@@ -77,7 +77,8 @@ const Footer = () => {
           </ul>
         </div>
       </div>
-      <div className="max-w-7xl mx-auto px-4 pt-8 border-t border-gray-100 text-center text-slate-400 text-sm">
+      <div className="max-w-7xl mx-auto px-4 pt-8 border-t border-gray-100 text-center text-slate-400 text-sm space-y-1">
+        <p>AMI 20736</p>
         <p>&copy; 2026 TRATA Imobiliária. Todos os direitos reservados.</p>
       </div>
     </footer>

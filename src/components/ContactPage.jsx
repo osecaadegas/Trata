@@ -155,7 +155,7 @@ const ContactPage = () => {
     {
       icon: 'fa-location-dot',
       title: 'Morada',
-      content: 'Centro Comercial Galecia R7C, Rua Comendador Santos da Cunha Nº 589 Loja 45, 4700-026 Braga',
+      content: 'Centro Comercial Galecia R7C, Rua Comendador Santos da Cunha Nº 589 Loja 45, Maximinos, 4700-026 Braga',
       link: 'https://maps.google.com/?q=GHV9+R3+Braga',
       linkText: 'Ver no Google Maps'
     },
@@ -177,6 +177,11 @@ const ContactPage = () => {
       title: 'Horário de Funcionamento',
       content: 'Segunda a Sexta',
       schedule: ['08:00 - 12:00', '13:00 - 18:00']
+    },
+    {
+      icon: 'fa-id-card',
+      title: 'Licença AMI',
+      content: '20736'
     }
   ];
 
@@ -300,7 +305,7 @@ const ContactPage = () => {
                 <h3 className="font-semibold text-white mb-4">Siga-nos nas redes sociais</h3>
                 <div className="flex gap-3">
                   {[
-                    { icon: 'fa-facebook-f', href: '#', label: 'Facebook' },
+                    { icon: 'fa-facebook-f', href: 'https://www.facebook.com/p/Trata-Imobili%C3%A1ria-61555254285406/', label: 'Facebook' },
                     { icon: 'fa-instagram', href: '#', label: 'Instagram' },
                     { icon: 'fa-linkedin-in', href: '#', label: 'LinkedIn' },
                     { icon: 'fa-whatsapp', href: 'https://wa.me/351934101523', label: 'WhatsApp' }
@@ -804,7 +809,8 @@ const ContactPage = () => {
                     <p className="text-sm text-slate-500 leading-relaxed mb-3">
                       Centro Comercial Galecia R7C<br />
                       Rua Comendador Santos da Cunha Nº 589<br />
-                      Loja 45, 4700-026 Braga
+                      Loja 45, Maximinos, 4700-026 Braga<br />
+                      AMI 20736
                     </p>
                     <a
                       href="https://maps.google.com/?q=GHV9+R3+Braga"

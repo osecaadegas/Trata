@@ -124,7 +124,7 @@ const AboutPage = () => {
                 </div>
                 <div>
                   <p className="font-semibold text-slate-900">Morada</p>
-                  <p className="text-slate-600">Centro Comercial Galecia R7C, Loja 45, 4700-026 Braga</p>
+                  <p className="text-slate-600">Centro Comercial Galecia R7C, Loja 45, Maximinos, 4700-026 Braga</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">

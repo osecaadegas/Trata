@@ -37,7 +37,7 @@ const TermsPage = () => {
               2. Identificação da Entidade
             </h2>
             <p className="text-slate-600 leading-relaxed">
-              A TRATA Imobiliária tem sede no Centro Comercial Galecia R7C, Loja 45, 4700-026 Braga, Portugal. 
+              A TRATA Imobiliária (AMI 20736) tem sede no Centro Comercial Galecia R7C, Loja 45, Maximinos, 4700-026 Braga, Portugal. 
               Contactos: email <a href="mailto:geral@trata.pt" className="text-emerald-600 hover:underline">geral@trata.pt</a>, 
               telefone <a href="tel:+351934101523" className="text-emerald-600 hover:underline">+351 934 101 523</a>.
             </p>
