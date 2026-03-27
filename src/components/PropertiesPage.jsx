@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { PropertyAlertBanner } from './PropertyAlertSubscription';
+import PropertyAlertSubscription from './PropertyAlertSubscription';
+import { Bell } from 'lucide-react';
 
 const PropertiesPage = () => {
   const { user } = useAuth();
@@ -687,37 +688,53 @@ const PropertiesPage = () => {
       </section>
 
       {/* CTA + Alerts Section */}
-      <section className="py-16 bg-gradient-to-r from-slate-900 to-slate-800">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-2xl md:text-3xl font-bold text-white mb-4">
-            Não encontrou o que procurava?
-          </h2>
-          <p className="text-gray-300 mb-8">
-            Contacte-nos ou ative alertas para ser notificado quando surgir o imóvel ideal.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
-            <a 
-              href="/contactos"
-              className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-emerald-500 text-white font-semibold rounded-xl hover:bg-emerald-600 transition-all shadow-lg shadow-emerald-500/30"
-            >
-              <i className="fa-solid fa-envelope"></i>
-              Contactar
-            </a>
-            <a 
-              href="tel:+351934101523"
-              className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white/10 text-white font-semibold rounded-xl border border-white/20 hover:bg-white/20 transition-all"
-            >
-              <i className="fa-solid fa-phone"></i>
-              +351 934 101 523
-            </a>
-          </div>
-          <div className="border-t border-white/10 pt-8">
-            <PropertyAlertBanner />
-          </div>
-        </div>
-      </section>
+      <CTASection />
     </div>
   );
 };
+
+function CTASection() {
+  const [alertsOpen, setAlertsOpen] = useState(false);
+
+  return (
+    <section className="py-14 bg-gradient-to-r from-slate-900 to-slate-800">
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <h2 className="text-2xl md:text-3xl font-bold text-white mb-3">
+          Não encontrou o que procurava?
+        </h2>
+        <p className="text-gray-300 mb-2">
+          Não perca nenhum imóvel — ative os seus alertas e fique em cima do acontecimento.
+        </p>
+        <p className="text-gray-400 text-sm mb-8">
+          Ou contacte-nos diretamente e ajudamos a encontrar o imóvel perfeito.
+        </p>
+        <div className="flex flex-col sm:flex-row gap-3 justify-center">
+          <button
+            onClick={() => setAlertsOpen(true)}
+            className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-emerald-500 text-white font-semibold rounded-xl hover:bg-emerald-600 transition-all shadow-lg shadow-emerald-500/30"
+          >
+            <Bell className="w-5 h-5" />
+            Ativar Alertas
+          </button>
+          <a 
+            href="/contactos"
+            className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white/10 text-white font-semibold rounded-xl border border-white/20 hover:bg-white/20 transition-all"
+          >
+            <i className="fa-solid fa-envelope"></i>
+            Contactar
+          </a>
+          <a 
+            href="tel:+351934101523"
+            className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white/10 text-white font-semibold rounded-xl border border-white/20 hover:bg-white/20 transition-all"
+          >
+            <i className="fa-solid fa-phone"></i>
+            +351 934 101 523
+          </a>
+        </div>
+      </div>
+      <PropertyAlertSubscription isOpen={alertsOpen} onClose={() => setAlertsOpen(false)} />
+    </section>
+  );
+}
 
 export default PropertiesPage;
