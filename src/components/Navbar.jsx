@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import LoginModal from './LoginModal';
 import { useAuth } from '../context/AuthContext';
+import { supabase } from '../lib/supabase';
 
 const Navbar = () => {
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isAdminMenuOpen, setIsAdminMenuOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
   const { user, userRole, logout, isAdmin, isConfigurator, isSeller } = useAuth();
 
   // Handle scroll effect
@@ -48,6 +50,27 @@ const Navbar = () => {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [isAdminMenuOpen]);
+
+  // Fetch unread messages count
+  useEffect(() => {
+    if (!user || (!isAdmin && !isConfigurator && !isSeller)) return;
+
+    const fetchUnread = async () => {
+      try {
+        const { count, error } = await supabase
+          .from('messages')
+          .select('*', { count: 'exact', head: true })
+          .eq('status', 'unread');
+        if (!error && count !== null) setUnreadCount(count);
+      } catch (e) {
+        // silent
+      }
+    };
+
+    fetchUnread();
+    const interval = setInterval(fetchUnread, 30000);
+    return () => clearInterval(interval);
+  }, [user, isAdmin, isConfigurator, isSeller]);
 
   const handleLogout = async () => {
     await logout();
@@ -123,7 +146,7 @@ const Navbar = () => {
                 <div className="relative admin-menu-container">
                   <button
                     onClick={() => setIsAdminMenuOpen(!isAdminMenuOpen)}
-                    className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all ${
+                    className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all relative ${
                       isAdminMenuOpen 
                         ? 'bg-slate-900 text-white' 
                         : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
@@ -131,6 +154,12 @@ const Navbar = () => {
                   >
                     <i className="fa-solid fa-grid-2"></i>
                     <span>Painel</span>
+                    {unreadCount > 0 && (
+                      <span className="flex items-center gap-1 px-1.5 py-0.5 bg-red-500 text-white text-[10px] font-bold rounded-full leading-none min-w-[18px] justify-center">
+                        <i className="fa-solid fa-envelope text-[8px]"></i>
+                        {unreadCount > 99 ? '99+' : unreadCount}
+                      </span>
+                    )}
                     <i className={`fa-solid fa-chevron-down text-[10px] transition-transform duration-200 ${isAdminMenuOpen ? 'rotate-180' : ''}`}></i>
                   </button>
                   
@@ -310,8 +339,14 @@ const Navbar = () => {
             {/* Admin Section - Mobile */}
             {(isAdmin || isConfigurator || isSeller) && (
               <div className="px-4 py-4 border-t border-gray-100">
-                <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider px-3 mb-2">
+                <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider px-3 mb-2 flex items-center gap-2">
                   Área de Gestão
+                  {unreadCount > 0 && (
+                    <span className="flex items-center gap-1 px-1.5 py-0.5 bg-red-500 text-white text-[10px] font-bold rounded-full leading-none normal-case tracking-normal">
+                      <i className="fa-solid fa-envelope text-[8px]"></i>
+                      {unreadCount > 99 ? '99+' : unreadCount}
+                    </span>
+                  )}
                 </p>
                 <nav className="space-y-1">
                   {adminMenuItems.map((item) => (
