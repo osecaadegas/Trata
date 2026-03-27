@@ -377,13 +377,13 @@ const UserManagement = ({ onClose }) => {
                             <select
                               value={user.role}
                               onChange={(e) => updateUserRole(user.id, e.target.value)}
-                              disabled={!isConfigurator && user.role === 'configurator'}
+                              disabled={!isConfigurator && !isAdmin && user.role === 'configurator'}
                               className="text-sm border border-gray-300 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-emerald-500 disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                               <option value="user">Utilizador</option>
                               <option value="seller">Vendedor</option>
                               <option value="admin">Administrador</option>
-                              {isConfigurator && <option value="configurator">Configurador</option>}
+                              {(isConfigurator || isAdmin) && <option value="configurator">Configurador</option>}
                             </select>
                           )}
                         </td>
