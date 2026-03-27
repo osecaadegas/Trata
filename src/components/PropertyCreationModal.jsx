@@ -380,7 +380,7 @@ const PropertyCreationModal = ({ isOpen, onClose, editingProperty, onSuccess }) 
               'apikey': supabaseKey,
               'Authorization': `Bearer ${accessToken}`,
               'Content-Type': 'application/json',
-              'Prefer': 'return=minimal'
+              'Prefer': 'return=representation'
             },
             body: JSON.stringify(propertyData)
           }
@@ -389,6 +389,20 @@ const PropertyCreationModal = ({ isOpen, onClose, editingProperty, onSuccess }) 
         if (!response.ok) {
           const errorText = await response.text();
           throw new Error(errorText);
+        }
+
+        // Trigger property alerts for matching subscribers (fire and forget)
+        try {
+          const [newProperty] = await response.json();
+          if (newProperty?.id) {
+            fetch('/api/send-property-alerts', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ propertyId: newProperty.id })
+            }).catch(err => console.error('Alert trigger failed:', err));
+          }
+        } catch (alertErr) {
+          console.error('Could not trigger alerts:', alertErr);
         }
       }
 

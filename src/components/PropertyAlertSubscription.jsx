@@ -1,7 +1,6 @@
 import { useState } from 'react';
+import { supabase } from '../lib/supabase';
 import { Bell, MapPin, Home, Euro, CheckCircle, AlertCircle, Loader2, X } from 'lucide-react';
-
-const API_URL = import.meta.env.VITE_API_URL || '';
 
 // Braga locations - customize as needed
 const LOCATIONS = [
@@ -93,6 +92,12 @@ export default function PropertyAlertSubscription({ isOpen, onClose, onSuccess }
       return;
     }
 
+    if (!formData.email) {
+      setStatus('error');
+      setErrorMessage('Email é obrigatório');
+      return;
+    }
+
     setStatus('loading');
     setErrorMessage('');
 
@@ -101,28 +106,57 @@ export default function PropertyAlertSubscription({ isOpen, onClose, onSuccess }
         ? PRICE_RANGES[formData.priceRange] 
         : null;
 
-      const response = await fetch(`${API_URL}/api/subscribe-alerts`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          email: formData.email,
-          name: formData.name,
-          phone: formData.phone,
-          locations: formData.locations,
-          propertyTypes: formData.propertyTypes,
-          minPrice: selectedRange?.min,
-          maxPrice: selectedRange?.max,
-          frequency: formData.frequency,
-          marketingConsent: formData.marketingConsent
-        })
-      });
+      // Check if already subscribed
+      const { data: existing } = await supabase
+        .from('property_alert_preferences')
+        .select('id')
+        .eq('email', formData.email.toLowerCase())
+        .maybeSingle();
 
-      const data = await response.json();
+      if (existing) {
+        // Update existing subscription
+        const { error } = await supabase
+          .from('property_alert_preferences')
+          .update({
+            location: formData.locations.length > 0 ? formData.locations : null,
+            property_types: formData.propertyTypes.length > 0 ? formData.propertyTypes : null,
+            min_price: selectedRange?.min || null,
+            max_price: selectedRange?.max || null,
+            frequency: formData.frequency,
+            is_active: true,
+            marketing_consent: true,
+            consent_timestamp: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', existing.id);
 
-      if (!response.ok) {
-        throw new Error(data.error || 'Erro ao criar subscrição');
+        if (error) throw error;
+      } else {
+        // Create new subscription
+        const { error } = await supabase
+          .from('property_alert_preferences')
+          .insert({
+            email: formData.email.toLowerCase().trim(),
+            location: formData.locations.length > 0 ? formData.locations : null,
+            property_types: formData.propertyTypes.length > 0 ? formData.propertyTypes : null,
+            min_price: selectedRange?.min || null,
+            max_price: selectedRange?.max || null,
+            frequency: formData.frequency,
+            marketing_consent: true,
+            consent_timestamp: new Date().toISOString(),
+            consent_text_version: '1.0'
+          });
+
+        if (error) throw error;
+      }
+
+      // Also update user's marketing_consent if logged in
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        await supabase
+          .from('users')
+          .update({ marketing_consent: true, phone: formData.phone || undefined })
+          .eq('id', user.id);
       }
 
       setStatus('success');
