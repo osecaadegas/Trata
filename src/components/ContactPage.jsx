@@ -252,7 +252,7 @@ const ContactPage = () => {
                       loading="lazy"
                       referrerPolicy="no-referrer-when-downgrade"
                       title="Localização TRATA Imobiliária"
-                      className="grayscale hover:grayscale-0 transition-all duration-500"
+                      className=""
                     ></iframe>
                   </div>
                   <div className="p-5">
