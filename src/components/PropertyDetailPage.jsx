@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import InquiryForm from './InquiryForm';
+import { updateSeoMeta, getPropertySeo } from '../lib/seo';
 
 const PropertyDetailPage = ({ propertyId }) => {
   const { user } = useAuth();
@@ -150,6 +151,18 @@ const PropertyDetailPage = ({ propertyId }) => {
       fetchProperty();
     }
   }, [propertyId]);
+
+  // Update SEO meta when property loads
+  useEffect(() => {
+    if (!property) return;
+    const seo = getPropertySeo({
+      ...property,
+      property_type: Object.entries(propertyTypeMap).find(([k, v]) => v === property.type)?.[0] || property.type,
+      area_sqm: property.area,
+      images: property.images
+    });
+    updateSeoMeta(seo);
+  }, [property]);
 
   // Check if property is in user's favorites
   useEffect(() => {

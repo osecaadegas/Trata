@@ -689,6 +689,33 @@ const PropertiesPage = () => {
 
       {/* CTA + Alerts Section */}
       <CTASection />
+
+      {/* Location SEO Links */}
+      <section className="py-12 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4">
+          <h2 className="text-xl font-bold text-slate-900 mb-6 text-center">Explore por Zona</h2>
+          <div className="flex flex-wrap justify-center gap-3">
+            {[
+              { slug: 'braga', label: 'Braga' },
+              { slug: 'maximinos', label: 'Maximinos' },
+              { slug: 'gualtar', label: 'Gualtar' },
+              { slug: 'sao-vicente', label: 'São Vicente' },
+              { slug: 'nogueira', label: 'Nogueira' }
+            ].map(z => (
+              <a key={z.slug} href={`/imoveis/${z.slug}`} className="px-5 py-2.5 bg-white text-sm font-medium text-slate-600 rounded-full hover:bg-emerald-50 hover:text-emerald-700 transition-colors border border-gray-200 shadow-sm">
+                <i className="fa-solid fa-location-dot text-emerald-500 mr-1.5 text-xs"></i>
+                Imóveis em {z.label}
+              </a>
+            ))}
+          </div>
+          <div className="mt-6 flex flex-wrap justify-center gap-3">
+            <a href="/guias" className="px-5 py-2.5 bg-white text-sm font-medium text-slate-600 rounded-full hover:bg-emerald-50 hover:text-emerald-700 transition-colors border border-gray-200 shadow-sm">
+              <i className="fa-solid fa-book-open text-emerald-500 mr-1.5 text-xs"></i>
+              Guias Imobiliários
+            </a>
+          </div>
+        </div>
+      </section>
     </div>
   );
 };

@@ -25,6 +25,9 @@ import CareersPage from './components/CareersPage';
 import JobManagement from './components/JobManagement';
 import BlogPage from './components/BlogPage';
 import BlogArticlePage from './components/BlogArticlePage';
+import WhatsAppButton from './components/WhatsAppButton';
+import LocationPage, { LOCATION_SLUGS } from './components/LocationPage';
+import { updateSeoMeta, PAGE_SEO } from './lib/seo';
 
 function App() {
   const [currentPage, setCurrentPage] = useState('home');
@@ -52,6 +55,10 @@ function App() {
         const slug = path.replace('guias/', '');
         setPropertyId(slug);
         setCurrentPage('guias-article');
+      } else if (path.startsWith('imoveis/')) {
+        const locSlug = path.replace('imoveis/', '');
+        setPropertyId(locSlug);
+        setCurrentPage('imoveis-location');
       } else if (path) {
         setPropertyId(null);
         setCurrentPage(path);
@@ -93,6 +100,14 @@ function App() {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [currentPage, propertyId]);
+
+  // Update SEO meta tags on page change
+  useEffect(() => {
+    const seoKey = currentPage === 'guias-article' ? null : currentPage;
+    if (seoKey && PAGE_SEO[seoKey]) {
+      updateSeoMeta(PAGE_SEO[seoKey]);
+    }
+  }, [currentPage]);
 
   const renderPage = () => {
     switch (currentPage) {
@@ -191,6 +206,13 @@ function App() {
             <Footer />
           </>
         );
+      case 'imoveis-location':
+        return (
+          <>
+            <LocationPage locationSlug={propertyId} />
+            <Footer />
+          </>
+        );
       case 'job-management':
         return <JobManagement />;
       default:
@@ -211,6 +233,7 @@ function App() {
       <div className="text-slate-800">
         <Navbar />
         {renderPage()}
+        <WhatsAppButton />
         <CookieBanner />
       </div>
     </AuthProvider>

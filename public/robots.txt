@@ -1,3 +1,12 @@
 User-agent: *
 Allow: /
+Disallow: /api/
+Disallow: /dashboard
+Disallow: /user-management
+Disallow: /property-management
+Disallow: /messages
+Disallow: /conversations
+Disallow: /job-management
+Disallow: /unsubscribe
+
 Sitemap: https://www.trataimobiliaria.pt/sitemap.xml

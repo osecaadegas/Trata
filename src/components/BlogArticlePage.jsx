@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import blogArticles from './blogArticles';
+import { updateSeoMeta } from '../lib/seo';
 
 const BlogArticlePage = ({ slug }) => {
   const [article, setArticle] = useState(null);
@@ -7,6 +8,23 @@ const BlogArticlePage = ({ slug }) => {
   useEffect(() => {
     const found = blogArticles.find((a) => a.slug === slug);
     setArticle(found || null);
+    if (found) {
+      updateSeoMeta({
+        title: `${found.title} | TRATA Imobiliária`,
+        description: found.description,
+        keywords: `${found.category.toLowerCase()}, imobiliário portugal, comprar casa`,
+        jsonLd: {
+          "@context": "https://schema.org",
+          "@type": "Article",
+          "headline": found.title,
+          "description": found.description,
+          "image": found.image,
+          "datePublished": found.date,
+          "author": { "@type": "Organization", "name": "TRATA Imobiliária" },
+          "publisher": { "@type": "Organization", "name": "TRATA Imobiliária", "logo": { "@type": "ImageObject", "url": "https://www.trataimobiliaria.pt/trata.png" } }
+        }
+      });
+    }
   }, [slug]);
 
   const formatDate = (dateStr) => {

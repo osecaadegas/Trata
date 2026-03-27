@@ -1,8 +1,23 @@
 {
   "rewrites": [
     {
+      "source": "/sitemap.xml",
+      "destination": "/api/sitemap"
+    },
+    {
       "source": "/imovel/:id",
       "destination": "/api/og/:id",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": "(?i).*(bot|crawl|spider|facebookexternalhit|Twitterbot|LinkedInBot|WhatsApp|TelegramBot|Slackbot|Discordbot|Pinterest|preview).*"
+        }
+      ]
+    },
+    {
+      "source": "/:path(imoveis|imoveis/.*|servicos|contactos|sobre|carreiras|guias|guias/.*|privacidade|termos|cookies|seguranca)",
+      "destination": "/api/seo/:path",
       "has": [
         {
           "type": "header",
