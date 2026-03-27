@@ -33,6 +33,14 @@ function App() {
   const [currentPage, setCurrentPage] = useState('home');
   const [propertyId, setPropertyId] = useState(null);
 
+  // Initialize dark mode from localStorage before first paint
+  useEffect(() => {
+    const theme = localStorage.getItem('theme');
+    if (theme === 'dark' || (!theme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      document.documentElement.classList.add('dark');
+    }
+  }, []);
+
   useEffect(() => {
     // Backwards compatibility: redirect old hash URLs to path URLs
     if (window.location.hash && window.location.hash !== '#') {

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import LoginModal from './LoginModal';
+import DarkModeToggle from './DarkModeToggle';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabase';
 
@@ -142,6 +143,8 @@ const Navbar = () => {
 
             {/* Desktop Right Section */}
             <div className="hidden lg:flex items-center gap-3">
+              {/* Dark Mode Toggle */}
+              <DarkModeToggle />
               {/* Admin Panel Button - Desktop */}
               {(isAdmin || isConfigurator || isSeller) && (
                 <div className="relative admin-menu-container">
@@ -383,6 +386,12 @@ const Navbar = () => {
                 </a>
               </div>
             )}
+          </div>
+
+          {/* Dark Mode Toggle - Mobile */}
+          <div className="px-4 py-3 border-t border-gray-100 flex items-center justify-between">
+            <span className="text-sm font-medium text-slate-600">Modo Escuro</span>
+            <DarkModeToggle />
           </div>
 
           {/* Bottom Action */}
