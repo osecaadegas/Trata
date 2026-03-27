@@ -84,6 +84,7 @@ const Navbar = () => {
     { href: '/imoveis', label: 'Imóveis', icon: 'fa-building' },
     { href: '/servicos', label: 'Serviços', icon: 'fa-concierge-bell' },
     { href: '/contactos', label: 'Contactos', icon: 'fa-envelope' },
+    { href: '/guias', label: 'Guias', icon: 'fa-book-open' },
   ];
 
   const getRoleBadge = () => {

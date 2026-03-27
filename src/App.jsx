@@ -23,6 +23,8 @@ import CookiesPage from './components/CookiesPage';
 import SecurityPage from './components/SecurityPage';
 import CareersPage from './components/CareersPage';
 import JobManagement from './components/JobManagement';
+import BlogPage from './components/BlogPage';
+import BlogArticlePage from './components/BlogArticlePage';
 
 function App() {
   const [currentPage, setCurrentPage] = useState('home');
@@ -46,6 +48,10 @@ function App() {
         const id = path.split('/')[1];
         setPropertyId(id);
         setCurrentPage('imovel-detail');
+      } else if (path.startsWith('guias/')) {
+        const slug = path.replace('guias/', '');
+        setPropertyId(slug);
+        setCurrentPage('guias-article');
       } else if (path) {
         setPropertyId(null);
         setCurrentPage(path);
@@ -168,6 +174,20 @@ function App() {
         return (
           <>
             <CareersPage />
+            <Footer />
+          </>
+        );
+      case 'guias':
+        return (
+          <>
+            <BlogPage />
+            <Footer />
+          </>
+        );
+      case 'guias-article':
+        return (
+          <>
+            <BlogArticlePage slug={propertyId} />
             <Footer />
           </>
         );
