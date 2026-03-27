@@ -195,6 +195,8 @@ const ContactPage = () => {
     { value: 'outro', label: 'Outro assunto' }
   ];
 
+  const isAvaliacao = formData.subject === 'avaliacao';
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
       {/* Hero Section */}
@@ -224,10 +226,18 @@ const ContactPage = () => {
       {/* Main Content */}
       <section className="py-16 lg:py-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16">
+          <div className={`grid transition-all duration-500 ease-in-out ${
+            isAvaliacao 
+              ? 'grid-cols-1 max-w-4xl mx-auto' 
+              : 'grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16'
+          }`}>
             
             {/* Left Column - Contact Information */}
-            <div className="order-2 lg:order-1">
+            <div className={`transition-all duration-500 ease-in-out overflow-hidden ${
+              isAvaliacao 
+                ? 'max-h-0 opacity-0 lg:max-h-0 pointer-events-none mb-0' 
+                : 'max-h-[2000px] opacity-100 order-2 lg:order-1 mb-0'
+            }`}>
               <div className="mb-10">
                 <h2 className="text-2xl md:text-3xl font-bold text-slate-900 mb-4">
                   Informações de Contacto
@@ -326,14 +336,21 @@ const ContactPage = () => {
             </div>
 
             {/* Right Column - Contact Form */}
-            <div className="order-1 lg:order-2">
-              <div className="bg-white rounded-3xl shadow-xl shadow-gray-200/50 border border-gray-100 p-8 md:p-10 lg:sticky lg:top-28">
+            <div className={`transition-all duration-500 ease-in-out ${
+              isAvaliacao ? 'w-full' : 'order-1 lg:order-2'
+            }`}>
+              <div className={`bg-white rounded-3xl shadow-xl shadow-gray-200/50 border border-gray-100 p-8 md:p-10 transition-all duration-500 ${
+                isAvaliacao ? '' : 'lg:sticky lg:top-28'
+              }`}>
                 <div className="mb-8">
                   <h2 className="text-2xl md:text-3xl font-bold text-slate-900 mb-2">
-                    Envie-nos uma mensagem
+                    {isAvaliacao ? 'Pedir Avaliação Gratuita' : 'Envie-nos uma mensagem'}
                   </h2>
                   <p className="text-slate-500">
-                    Preencha o formulário e entraremos em contacto consigo em breve.
+                    {isAvaliacao 
+                      ? 'Preencha os dados do imóvel e entraremos em contacto com a sua avaliação.'
+                      : 'Preencha o formulário e entraremos em contacto consigo em breve.'
+                    }
                   </p>
                 </div>
 
@@ -350,33 +367,32 @@ const ContactPage = () => {
                 )}
 
                 <form onSubmit={handleSubmit} className="space-y-5">
-                  {/* Name Field */}
-                  <div className="relative">
-                    <label 
-                      htmlFor="name" 
-                      className={`absolute left-4 transition-all duration-200 pointer-events-none ${
-                        focusedField === 'name' || formData.name 
-                          ? '-top-2.5 text-xs bg-white px-2 text-emerald-600 font-medium' 
-                          : 'top-4 text-slate-400'
-                      }`}
-                    >
-                      Nome completo *
-                    </label>
-                    <input
-                      type="text"
-                      id="name"
-                      name="name"
-                      value={formData.name}
-                      onChange={handleChange}
-                      onFocus={() => setFocusedField('name')}
-                      onBlur={() => setFocusedField(null)}
-                      required
-                      className="w-full px-4 py-4 bg-gray-50 border-2 border-gray-100 rounded-xl text-slate-900 placeholder-transparent focus:outline-none focus:border-emerald-500 focus:bg-white transition-all duration-200"
-                    />
-                  </div>
+                  {/* Name & Contact Row - horizontal in avaliação mode */}
+                  <div className={`grid gap-5 ${isAvaliacao ? 'grid-cols-1 md:grid-cols-3' : 'grid-cols-1'}`}>
+                    <div className="relative">
+                      <label 
+                        htmlFor="name" 
+                        className={`absolute left-4 transition-all duration-200 pointer-events-none ${
+                          focusedField === 'name' || formData.name 
+                            ? '-top-2.5 text-xs bg-white px-2 text-emerald-600 font-medium' 
+                            : 'top-4 text-slate-400'
+                        }`}
+                      >
+                        Nome completo *
+                      </label>
+                      <input
+                        type="text"
+                        id="name"
+                        name="name"
+                        value={formData.name}
+                        onChange={handleChange}
+                        onFocus={() => setFocusedField('name')}
+                        onBlur={() => setFocusedField(null)}
+                        required
+                        className="w-full px-4 py-4 bg-gray-50 border-2 border-gray-100 rounded-xl text-slate-900 placeholder-transparent focus:outline-none focus:border-emerald-500 focus:bg-white transition-all duration-200"
+                      />
+                    </div>
 
-                  {/* Email & Phone Row */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                     <div className="relative">
                       <label 
                         htmlFor="email" 
@@ -425,8 +441,8 @@ const ContactPage = () => {
                     </div>
                   </div>
 
-                  {/* Subject Dropdown */}
-                  <div className="relative">
+                  {/* Subject Dropdown - hidden in avaliação mode */}
+                  <div className={`relative ${isAvaliacao ? 'hidden' : ''}`}>
                     <label 
                       htmlFor="subject" 
                       className={`absolute left-4 -top-2.5 text-xs bg-white px-2 font-medium transition-all duration-200 pointer-events-none z-10 ${
@@ -572,7 +588,7 @@ const ContactPage = () => {
                       {/* Extras Checkboxes */}
                       <div>
                         <p className="text-sm font-medium text-slate-600 mb-3">Características</p>
-                        <div className="grid grid-cols-2 gap-3">
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                           {[
                             { value: 'Garagem', icon: 'fa-warehouse' },
                             { value: 'Elevador', icon: 'fa-elevator' },
