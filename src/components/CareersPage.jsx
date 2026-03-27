@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { supabase } from '../lib/supabase';
 
 const JOB_TYPE_LABELS = {
@@ -13,6 +13,8 @@ const CareersPage = () => {
   const [loading, setLoading] = useState(true);
   const [selectedJob, setSelectedJob] = useState(null);
   const [showApplicationForm, setShowApplicationForm] = useState(false);
+  const [showSpontaneous, setShowSpontaneous] = useState(false);
+  const spontaneousRef = useRef(null);
 
   useEffect(() => {
     fetchJobs();
@@ -207,9 +209,9 @@ const CareersPage = () => {
       </section>
 
       {/* CTA */}
-      <section className="py-16 lg:py-20">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="bg-gradient-to-br from-emerald-600 to-emerald-700 rounded-3xl p-10 md:p-16 relative overflow-hidden">
+      <section className="py-16 lg:py-20" ref={spontaneousRef}>
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="bg-gradient-to-br from-emerald-600 to-emerald-700 rounded-3xl p-10 md:p-16 relative overflow-hidden text-center">
             <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2"></div>
             <h2 className="text-2xl md:text-3xl font-bold text-white mb-4 relative z-10">
               Não encontrou a vaga ideal?
@@ -217,14 +219,24 @@ const CareersPage = () => {
             <p className="text-emerald-100 mb-8 max-w-lg mx-auto relative z-10">
               Envie-nos a sua candidatura espontânea. Estamos sempre à procura de talentos excepcionais.
             </p>
-            <a
-              href="/contactos"
-              className="inline-flex items-center gap-2 px-8 py-4 bg-white text-emerald-700 font-bold rounded-xl hover:bg-emerald-50 transition-colors relative z-10"
-            >
-              <i className="fa-solid fa-paper-plane"></i>
-              Candidatura Espontânea
-            </a>
+            {!showSpontaneous && (
+              <button
+                onClick={() => {
+                  setShowSpontaneous(true);
+                  setTimeout(() => spontaneousRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+                }}
+                className="inline-flex items-center gap-2 px-8 py-4 bg-white text-emerald-700 font-bold rounded-xl hover:bg-emerald-50 transition-colors relative z-10"
+              >
+                <i className="fa-solid fa-paper-plane"></i>
+                Candidatura Espontânea
+              </button>
+            )}
           </div>
+          {showSpontaneous && (
+            <div className="mt-8">
+              <SpontaneousForm onCancel={() => setShowSpontaneous(false)} />
+            </div>
+          )}
         </div>
       </section>
 
@@ -490,6 +502,225 @@ const ApplicationForm = ({ jobId, jobTitle, onCancel }) => {
 
       <div>
         <label className="block text-sm font-medium text-slate-700 mb-1">CV (PDF) *</label>
+        <div className={`relative border-2 border-dashed rounded-xl p-4 text-center transition-colors ${errors.cv ? 'border-red-300 bg-red-50' : cvFile ? 'border-emerald-300 bg-emerald-50' : 'border-gray-200 hover:border-emerald-300'}`}>
+          <input
+            type="file"
+            accept=".pdf,application/pdf"
+            onChange={(e) => {
+              setCvFile(e.target.files[0] || null);
+              setErrors({ ...errors, cv: undefined });
+            }}
+            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+          />
+          {cvFile ? (
+            <div className="flex items-center justify-center gap-2 text-emerald-700">
+              <i className="fa-solid fa-file-pdf text-lg"></i>
+              <span className="font-medium text-sm">{cvFile.name}</span>
+              <span className="text-xs text-emerald-500">({(cvFile.size / 1024 / 1024).toFixed(1)} MB)</span>
+            </div>
+          ) : (
+            <div className="text-slate-500">
+              <i className="fa-solid fa-cloud-arrow-up text-2xl mb-2 block text-emerald-400"></i>
+              <span className="text-sm">Clique ou arraste o ficheiro PDF (máx. 5MB)</span>
+            </div>
+          )}
+        </div>
+        {errors.cv && <p className="text-red-500 text-xs mt-1">{errors.cv}</p>}
+      </div>
+
+      {errors.submit && (
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm">
+          {errors.submit}
+        </div>
+      )}
+
+      <button
+        type="submit"
+        disabled={submitting}
+        className="w-full py-4 bg-emerald-600 text-white font-bold rounded-xl hover:bg-emerald-700 disabled:opacity-60 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
+      >
+        {submitting ? (
+          <>
+            <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-white"></div>
+            A enviar...
+          </>
+        ) : (
+          <>
+            <i className="fa-solid fa-paper-plane"></i>
+            Enviar Candidatura
+          </>
+        )}
+      </button>
+    </form>
+  );
+};
+
+/* ─── Spontaneous Application Form ──────────────────────────────────── */
+const SpontaneousForm = ({ onCancel }) => {
+  const [form, setForm] = useState({ name: '', email: '', phone: '', message: '' });
+  const [cvFile, setCvFile] = useState(null);
+  const [errors, setErrors] = useState({});
+  const [submitting, setSubmitting] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [honeypot, setHoneypot] = useState('');
+
+  const validate = () => {
+    const errs = {};
+    if (!form.name.trim() || form.name.trim().length < 2) errs.name = 'Nome é obrigatório';
+    if (!form.email.trim()) errs.email = 'Email é obrigatório';
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) errs.email = 'Email inválido';
+    if (form.phone && !/^[+\d\s()-]{7,20}$/.test(form.phone)) errs.phone = 'Telefone inválido';
+    if (cvFile) {
+      if (cvFile.type !== 'application/pdf') errs.cv = 'Apenas ficheiros PDF';
+      else if (cvFile.size > 5 * 1024 * 1024) errs.cv = 'Ficheiro máximo: 5MB';
+    }
+    setErrors(errs);
+    return Object.keys(errs).length === 0;
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (honeypot) return;
+    if (!validate()) return;
+
+    setSubmitting(true);
+    try {
+      let cvUrl = null;
+
+      if (cvFile) {
+        const fileName = `spontaneous_${Date.now()}_${cvFile.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
+        const { error: uploadError } = await supabase.storage
+          .from('cv-uploads')
+          .upload(fileName, cvFile, { contentType: 'application/pdf' });
+        if (uploadError) throw uploadError;
+        cvUrl = `cv-uploads/${fileName}`;
+      }
+
+      const { error: insertError } = await supabase
+        .from('job_applications')
+        .insert({
+          job_id: null,
+          name: form.name.trim(),
+          email: form.email.trim().toLowerCase(),
+          phone: form.phone.trim() || null,
+          message: form.message.trim() || null,
+          cv_url: cvUrl
+        });
+
+      if (insertError) throw insertError;
+
+      try {
+        await fetch('/api/career-application', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: form.name.trim(),
+            email: form.email.trim(),
+            phone: form.phone.trim(),
+            jobTitle: 'Candidatura Espontânea',
+            jobId: null
+          })
+        });
+      } catch {
+        // non-critical
+      }
+
+      setSuccess(true);
+    } catch (err) {
+      console.error('Spontaneous application error:', err);
+      setErrors({ submit: 'Erro ao enviar candidatura. Tente novamente.' });
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  if (success) {
+    return (
+      <div className="bg-emerald-50 rounded-2xl p-8 text-center border border-emerald-200">
+        <div className="w-16 h-16 rounded-full bg-emerald-100 flex items-center justify-center mx-auto mb-4">
+          <i className="fa-solid fa-check text-emerald-600 text-2xl"></i>
+        </div>
+        <h3 className="text-xl font-bold text-slate-900 mb-2">Candidatura Enviada!</h3>
+        <p className="text-slate-600">
+          Obrigado pelo seu interesse. Entraremos em contacto em breve.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="bg-white rounded-2xl p-6 md:p-8 border border-gray-200 shadow-sm space-y-4">
+      <div className="flex items-center justify-between mb-2">
+        <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+          <i className="fa-solid fa-user-pen text-emerald-500"></i>
+          Candidatura Espontânea
+        </h3>
+        <button type="button" onClick={onCancel} className="text-sm text-slate-500 hover:text-slate-700 flex items-center gap-1">
+          <i className="fa-solid fa-xmark"></i>
+          Fechar
+        </button>
+      </div>
+
+      <input
+        type="text"
+        name="website"
+        value={honeypot}
+        onChange={(e) => setHoneypot(e.target.value)}
+        className="absolute -left-[9999px]"
+        tabIndex="-1"
+        autoComplete="off"
+      />
+
+      <div>
+        <label className="block text-sm font-medium text-slate-700 mb-1">Nome Completo *</label>
+        <input
+          type="text"
+          value={form.name}
+          onChange={(e) => setForm({ ...form, name: e.target.value })}
+          className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-colors ${errors.name ? 'border-red-300 bg-red-50' : 'border-gray-200'}`}
+          placeholder="O seu nome"
+        />
+        {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label className="block text-sm font-medium text-slate-700 mb-1">Email *</label>
+          <input
+            type="email"
+            value={form.email}
+            onChange={(e) => setForm({ ...form, email: e.target.value })}
+            className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-colors ${errors.email ? 'border-red-300 bg-red-50' : 'border-gray-200'}`}
+            placeholder="email@exemplo.com"
+          />
+          {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-slate-700 mb-1">Telefone</label>
+          <input
+            type="tel"
+            value={form.phone}
+            onChange={(e) => setForm({ ...form, phone: e.target.value })}
+            className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-colors ${errors.phone ? 'border-red-300 bg-red-50' : 'border-gray-200'}`}
+            placeholder="+351 912 345 678"
+          />
+          {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone}</p>}
+        </div>
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-slate-700 mb-1">Mensagem / Carta de Motivação</label>
+        <textarea
+          value={form.message}
+          onChange={(e) => setForm({ ...form, message: e.target.value })}
+          rows={4}
+          className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-colors resize-none"
+          placeholder="Fale-nos sobre si, a sua experiência e motivação..."
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-slate-700 mb-1">CV (PDF, opcional)</label>
         <div className={`relative border-2 border-dashed rounded-xl p-4 text-center transition-colors ${errors.cv ? 'border-red-300 bg-red-50' : cvFile ? 'border-emerald-300 bg-emerald-50' : 'border-gray-200 hover:border-emerald-300'}`}>
           <input
             type="file"

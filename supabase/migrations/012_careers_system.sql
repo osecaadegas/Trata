@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS jobs (
 -- Job applications table
 CREATE TABLE IF NOT EXISTS job_applications (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  job_id UUID NOT NULL REFERENCES jobs(id) ON DELETE CASCADE,
+  job_id UUID REFERENCES jobs(id) ON DELETE CASCADE,
   name TEXT NOT NULL,
   email TEXT NOT NULL,
   phone TEXT,
