@@ -207,6 +207,9 @@ const ContactPage = () => {
               Tem alguma questão sobre imóveis ou os nossos serviços? 
               A nossa equipa está pronta para o ajudar a encontrar a casa dos seus sonhos.
             </p>
+            <div className="mt-8 animate-bounce">
+              <i className="fa-solid fa-chevron-down text-emerald-400 text-2xl"></i>
+            </div>
           </div>
         </div>
       </section>
