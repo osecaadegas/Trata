@@ -4,8 +4,8 @@ export const SUPABASE_URL = process.env.VITE_SUPABASE_URL || process.env.SUPABAS
 export const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 export const RESEND_API_KEY = process.env.RESEND_API_KEY;
 export const BREVO_API_KEY = process.env.BREVO_API_KEY;
-export const SITE_URL = process.env.SITE_URL || 'https://trata-lovat.vercel.app';
-export const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'info@trata.pt';
+export const SITE_URL = process.env.SITE_URL || 'https://www.trataimobiliaria.pt';
+export const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'geral@trataimobiliaria.pt';
 export const FROM_EMAIL = process.env.FROM_EMAIL || 'noreply@trataimobiliaria.pt';
 export const FROM_NAME = process.env.FROM_NAME || 'Trata Imobiliária';
 

@@ -135,7 +135,7 @@ export function alertSubscriptionConfirmationTemplate({
                         <td style="background-color: #f9fafb; padding: 24px 32px; border-top: 1px solid #e5e7eb;">
                             <p style="color: #9ca3af; font-size: 12px; line-height: 1.6; margin: 0; text-align: center;">
                                 Trata Imobiliária · Braga, Portugal<br>
-                                <a href="${SITE_URL}" style="color: ${BRAND_COLOR};">www.trata.pt</a>
+                                <a href="${SITE_URL}" style="color: ${BRAND_COLOR};">www.trataimobiliaria.pt</a>
                             </p>
                             <p style="color: #9ca3af; font-size: 11px; line-height: 1.6; margin: 16px 0 0; text-align: center;">
                                 Para cancelar a subscrição, <a href="${unsubscribeUrl}" style="color: #6b7280;">clique aqui</a>.

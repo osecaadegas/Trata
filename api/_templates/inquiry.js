@@ -66,7 +66,7 @@ export function inquiryConfirmationTemplate({ name, propertyTitle, propertyLocat
                             </p>
                             <p style="color: #9ca3af; font-size: 12px; line-height: 1.6; margin: 16px 0 0; text-align: center;">
                                 Trata Imobiliária · Braga, Portugal<br>
-                                <a href="${SITE_URL}" style="color: ${BRAND_COLOR};">www.trata.pt</a>
+                                <a href="${SITE_URL}" style="color: ${BRAND_COLOR};">www.trataimobiliaria.pt</a>
                             </p>
                         </td>
                     </tr>
