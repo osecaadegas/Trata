@@ -149,21 +149,34 @@ const CareersPage = () => {
               <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-emerald-500"></div>
             </div>
           ) : jobs.length === 0 ? (
-            <div className="text-center py-20">
-              <div className="w-20 h-20 rounded-full bg-emerald-100 flex items-center justify-center mx-auto mb-6">
-                <i className="fa-solid fa-briefcase text-emerald-500 text-3xl"></i>
+            <div className="text-center py-12" ref={spontaneousRef}>
+              <div className="bg-gradient-to-br from-emerald-600 to-emerald-700 rounded-3xl p-10 md:p-16 relative overflow-hidden max-w-3xl mx-auto">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2"></div>
+                <div className="w-16 h-16 rounded-full bg-white/10 flex items-center justify-center mx-auto mb-6 relative z-10">
+                  <i className="fa-solid fa-briefcase text-white text-2xl"></i>
+                </div>
+                <h3 className="text-2xl font-bold text-white mb-3 relative z-10">Sem vagas disponíveis</h3>
+                <p className="text-emerald-100 max-w-md mx-auto mb-8 relative z-10">
+                  De momento não temos vagas abertas, mas pode enviar-nos a sua candidatura espontânea. Estamos sempre à procura de talentos excepcionais.
+                </p>
+                {!showSpontaneous && (
+                  <button
+                    onClick={() => {
+                      setShowSpontaneous(true);
+                      setTimeout(() => spontaneousRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+                    }}
+                    className="inline-flex items-center gap-2 px-8 py-4 bg-white text-emerald-700 font-bold rounded-xl hover:bg-emerald-50 transition-colors relative z-10"
+                  >
+                    <i className="fa-solid fa-paper-plane"></i>
+                    Candidatura Espontânea
+                  </button>
+                )}
               </div>
-              <h3 className="text-xl font-bold text-slate-900 mb-2">Sem vagas disponíveis</h3>
-              <p className="text-slate-500 max-w-md mx-auto mb-6">
-                De momento não temos vagas abertas, mas pode enviar-nos a sua candidatura espontânea.
-              </p>
-              <a
-                href="/contactos"
-                className="inline-flex items-center gap-2 px-6 py-3 bg-emerald-600 text-white font-semibold rounded-xl hover:bg-emerald-700 transition-colors"
-              >
-                <i className="fa-solid fa-envelope"></i>
-                Contacte-nos
-              </a>
+              {showSpontaneous && (
+                <div className="mt-8 max-w-3xl mx-auto">
+                  <SpontaneousForm onCancel={() => setShowSpontaneous(false)} />
+                </div>
+              )}
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -207,7 +220,8 @@ const CareersPage = () => {
         </div>
       </section>
 
-      {/* CTA */}
+      {/* CTA - only show when there are jobs listed */}
+      {jobs.length > 0 && (
       <section className="py-16 lg:py-20" ref={spontaneousRef}>
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="bg-gradient-to-br from-emerald-600 to-emerald-700 rounded-3xl p-10 md:p-16 relative overflow-hidden text-center">
@@ -238,6 +252,7 @@ const CareersPage = () => {
           )}
         </div>
       </section>
+      )}
 
       {/* Job Detail Modal */}
       {selectedJob && (
