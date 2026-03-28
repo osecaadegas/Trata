@@ -66,9 +66,14 @@ const PropertiesPage = () => {
   };
 
   const propertyTypes = ['Apartamento', 'Moradia', 'Terreno', 'Quinta', 'Comercial'];
-  const locations = ['Braga, Centro', 'Braga, Gualtar', 'Braga, São Vicente', 'Braga, Bom Jesus', 'Braga, Fraião', 'Braga, Maximinos', 'Braga, Real', 'Braga, Nogueira'];
   const bedroomOptions = ['1', '2', '3', '4', '5+'];
   const conditionOptions = ['Novo', 'Renovado', 'Para Renovar'];
+
+  // Dynamically extract unique locations from actual property data
+  const locations = React.useMemo(() => {
+    const uniqueLocations = [...new Set(properties.map(p => p.location).filter(Boolean))];
+    return uniqueLocations.sort((a, b) => a.localeCompare(b, 'pt'));
+  }, [properties]);
 
   // Fetch properties from Supabase or use fallback
   useEffect(() => {
