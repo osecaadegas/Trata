@@ -790,6 +790,209 @@ html.dark .group img {
 }
 
 
+/* ── 31. PROPERTIES PAGE — Sticky filter bar ── */
+
+/* Sticky filter bar container */
+html.dark .sticky.bg-white\/95 {
+    background-color: rgba(26, 35, 50, 0.97) !important;
+    border-bottom-color: var(--dm-border) !important;
+}
+html.dark .bg-white\/95 {
+    background-color: rgba(26, 35, 50, 0.97) !important;
+}
+html.dark .bg-white\/80 {
+    background-color: rgba(26, 35, 50, 0.9) !important;
+}
+
+/* Filter select dropdowns — ensure proper bg & text contrast */
+html.dark select.bg-gray-50,
+html.dark select[class*="bg-gray-50"] {
+    background-color: var(--dm-bg-input) !important;
+    border-color: var(--dm-border) !important;
+    color: var(--dm-text-primary) !important;
+}
+html.dark select.bg-gray-50:focus,
+html.dark select[class*="bg-gray-50"]:focus {
+    background-color: var(--dm-bg-card) !important;
+    border-color: var(--dm-accent) !important;
+    box-shadow: 0 0 0 3px rgba(124, 250, 39, 0.15) !important;
+}
+
+/* Select dropdown chevron icon */
+html.dark .fa-chevron-down.text-slate-400 {
+    color: var(--dm-text-muted) !important;
+}
+
+/* Filter price inputs */
+html.dark input[type="number"].bg-gray-50,
+html.dark input[type="number"][class*="bg-gray-50"] {
+    background-color: var(--dm-bg-input) !important;
+    border-color: var(--dm-border) !important;
+    color: var(--dm-text-primary) !important;
+}
+html.dark input[type="number"].bg-gray-50:focus,
+html.dark input[type="number"][class*="bg-gray-50"]:focus {
+    background-color: var(--dm-bg-card) !important;
+    border-color: var(--dm-accent) !important;
+    box-shadow: 0 0 0 3px rgba(124, 250, 39, 0.15) !important;
+}
+
+/* Mobile filter toggle button */
+html.dark button.bg-gray-100.rounded-xl {
+    background-color: var(--dm-bg-surface) !important;
+    color: var(--dm-text-secondary) !important;
+}
+html.dark button.bg-gray-100.rounded-xl:hover {
+    background-color: var(--dm-border-strong) !important;
+}
+
+/* Filter results counter */
+html.dark .font-semibold.text-slate-700 {
+    color: var(--dm-text-primary) !important;
+}
+
+/* ── 32. PROPERTIES PAGE — Price tag on cards ── */
+html.dark .bg-white\/95.backdrop-blur-sm {
+    background-color: rgba(15, 23, 42, 0.9) !important;
+}
+
+/* ── 33. PROPERTIES PAGE — Explore por Zona / SEO link chips ── */
+html.dark a.bg-white.rounded-full[class*="border"][class*="shadow-sm"] {
+    background-color: var(--dm-bg-card) !important;
+    border-color: var(--dm-border) !important;
+    color: var(--dm-text-secondary) !important;
+}
+html.dark a.bg-white.rounded-full[class*="border"][class*="shadow-sm"]:hover {
+    background-color: var(--dm-accent-muted) !important;
+    color: var(--dm-accent) !important;
+    border-color: rgba(124, 250, 39, 0.3) !important;
+}
+
+/* ── 34. PROPERTIES PAGE — Hero section (already dark, enhance) ── */
+html.dark .bg-slate-900.py-16,
+html.dark section.bg-slate-900 {
+    background-color: var(--dm-bg-base) !important;
+}
+
+/* ── 35. SKELETON / LOADING STATES ── */
+html.dark .animate-pulse .bg-gray-200,
+html.dark .animate-pulse .bg-gray-100 {
+    background-color: var(--dm-bg-surface) !important;
+}
+
+/* ── 36. SELECT OPTION ELEMENTS (browser native dropdowns) ── */
+html.dark option {
+    background-color: var(--dm-bg-card);
+    color: var(--dm-text-primary);
+}
+
+
+/* ── 37. CAREERS PAGE ── */
+
+/* Page container gradient */
+html.dark .bg-gradient-to-b.from-gray-50.to-white,
+html.dark [class*="from-gray-50"][class*="to-white"] {
+    background: linear-gradient(to bottom, var(--dm-bg-main), var(--dm-bg-base)) !important;
+}
+
+/* Job listings section bg */
+html.dark .bg-gray-50\/50 {
+    background-color: rgba(15, 23, 42, 0.5) !important;
+}
+
+/* Emerald icon containers (w-12 h-12 / w-10 h-10 / w-16 h-16) */
+html.dark .bg-emerald-100 {
+    background-color: rgba(124, 250, 39, 0.12) !important;
+}
+
+/* Emerald-50 badges, buttons, success states */
+html.dark .bg-emerald-50 {
+    background-color: rgba(124, 250, 39, 0.08) !important;
+}
+
+/* Success state container */
+html.dark .bg-emerald-50.rounded-2xl.border.border-emerald-200 {
+    background-color: rgba(124, 250, 39, 0.08) !important;
+    border-color: rgba(124, 250, 39, 0.2) !important;
+}
+html.dark .bg-emerald-50.rounded-2xl.border.border-emerald-200 .text-slate-900 {
+    color: var(--dm-text-primary) !important;
+}
+html.dark .bg-emerald-50.rounded-2xl.border.border-emerald-200 .text-slate-600 {
+    color: var(--dm-text-secondary) !important;
+}
+
+/* Application form container (bg-gray-50 inside modal) */
+html.dark form.bg-gray-50.rounded-2xl {
+    background-color: var(--dm-bg-elevated) !important;
+    border-color: var(--dm-border) !important;
+}
+
+/* Spontaneous form (bg-white outside modal) */
+html.dark form.bg-white.rounded-2xl {
+    background-color: var(--dm-bg-card) !important;
+    border-color: var(--dm-border) !important;
+}
+
+/* Form labels */
+html.dark label.text-sm.font-medium.text-slate-700,
+html.dark .text-sm.font-medium.text-slate-700 {
+    color: var(--dm-text-secondary) !important;
+}
+
+/* File upload dashed zone */
+html.dark .border-dashed.border-gray-200 {
+    border-color: var(--dm-border) !important;
+    background-color: transparent !important;
+}
+html.dark .border-dashed.border-gray-200:hover {
+    border-color: rgba(124, 250, 39, 0.3) !important;
+}
+html.dark .border-dashed.border-emerald-300 {
+    border-color: rgba(124, 250, 39, 0.3) !important;
+}
+html.dark .border-dashed.border-emerald-300.bg-emerald-50 {
+    background-color: rgba(124, 250, 39, 0.06) !important;
+    border-color: rgba(124, 250, 39, 0.3) !important;
+}
+
+/* CV file selected text */
+html.dark .text-emerald-700 {
+    color: var(--dm-accent) !important;
+}
+
+/* Error state containers */
+html.dark .bg-red-50.border.border-red-200 {
+    background-color: rgba(239, 68, 68, 0.08) !important;
+    border-color: rgba(239, 68, 68, 0.25) !important;
+}
+
+/* Job detail modal */
+html.dark .animate-slideUp.bg-white.rounded-2xl,
+html.dark .bg-white.rounded-2xl.shadow-2xl[class*="max-w-3xl"],
+html.dark .relative.bg-white.rounded-2xl.shadow-2xl {
+    background-color: var(--dm-bg-card) !important;
+    border: 1px solid var(--dm-border) !important;
+}
+
+/* Modal sticky header */
+html.dark .sticky.top-0.bg-white.border-b {
+    background-color: var(--dm-bg-card) !important;
+    border-bottom-color: var(--dm-border) !important;
+}
+
+/* Modal close / action buttons */
+html.dark .bg-gray-100.hover\:bg-gray-200 {
+    background-color: var(--dm-bg-surface) !important;
+    color: var(--dm-text-secondary) !important;
+}
+
+/* White/15 backdrop pill on hero */
+html.dark .bg-white\/15 {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+
 /* ============================================================
    END DARK MODE THEME SYSTEM
    ============================================================ */
