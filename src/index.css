@@ -10,180 +10,789 @@ body {
     transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* ====== DARK MODE GLOBAL OVERRIDES ====== */
+/* ============================================================
+   DARK MODE THEME SYSTEM — Premium Real Estate Dark Theme
+   Inspired by Airbnb / Stripe / Modern SaaS dashboards
+   ============================================================ */
+
+/* --- CSS Custom Properties --- */
 html.dark {
     color-scheme: dark;
+
+    --dm-bg-base:      #0c1222;
+    --dm-bg-main:      #0f172a;
+    --dm-bg-card:      #1a2332;
+    --dm-bg-elevated:  #1e293b;
+    --dm-bg-surface:   #243044;
+    --dm-bg-input:     #162032;
+
+    --dm-text-primary:   #f1f5f9;
+    --dm-text-secondary: #cbd5e1;
+    --dm-text-tertiary:  #94a3b8;
+    --dm-text-muted:     #64748b;
+    --dm-text-faint:     #475569;
+
+    --dm-border:        #2a3a4e;
+    --dm-border-subtle: #1f3044;
+    --dm-border-strong: #3b5068;
+
+    --dm-accent:        #7cfa27;
+    --dm-accent-hover:  #6de01f;
+    --dm-accent-muted:  rgba(124, 250, 39, 0.12);
+
+    --dm-shadow-sm:   0 1px 3px rgba(0,0,0,0.4), 0 1px 2px rgba(0,0,0,0.3);
+    --dm-shadow-md:   0 4px 12px rgba(0,0,0,0.35), 0 2px 4px rgba(0,0,0,0.25);
+    --dm-shadow-lg:   0 10px 30px rgba(0,0,0,0.4), 0 4px 8px rgba(0,0,0,0.2);
+    --dm-shadow-xl:   0 20px 50px rgba(0,0,0,0.5), 0 8px 16px rgba(0,0,0,0.3);
+    --dm-shadow-card: 0 4px 20px rgba(0,0,0,0.3), 0 0 0 1px rgba(255,255,255,0.03);
 }
 
+
+/* ── 1. BODY & ROOT ── */
 html.dark body {
-    background-color: #0f172a;
-    color: #e2e8f0;
+    background-color: var(--dm-bg-main);
+    color: var(--dm-text-secondary);
 }
 
-/* Backgrounds */
+
+/* ── 2. BACKGROUND OVERRIDES ── */
 html.dark .bg-white {
-    background-color: #1e293b !important;
+    background-color: var(--dm-bg-card) !important;
 }
 html.dark .bg-gray-50,
 html.dark .bg-slate-50 {
-    background-color: #0f172a !important;
+    background-color: var(--dm-bg-main) !important;
 }
 html.dark .bg-gray-100,
 html.dark .bg-slate-100 {
-    background-color: #1e293b !important;
+    background-color: var(--dm-bg-elevated) !important;
 }
-html.dark .bg-gray-200 {
-    background-color: #334155 !important;
+html.dark .bg-gray-200,
+html.dark .bg-slate-200 {
+    background-color: var(--dm-bg-surface) !important;
+}
+html.dark .bg-gray-300 {
+    background-color: #3b5068 !important;
 }
 
-/* Text colors */
+/* Common page gradient backgrounds */
+html.dark .bg-gradient-to-b.from-gray-50.to-white,
+html.dark .bg-gradient-to-b.from-gray-50,
+html.dark [class*="bg-gradient-to-b"][class*="from-gray-50"] {
+    background: linear-gradient(to bottom, var(--dm-bg-main), var(--dm-bg-base)) !important;
+}
+
+
+/* ── 3. TEXT COLOR OVERRIDES ── */
 html.dark .text-slate-900,
+html.dark .text-gray-900 {
+    color: var(--dm-text-primary) !important;
+}
 html.dark .text-slate-800,
-html.dark .text-gray-900,
 html.dark .text-gray-800 {
-    color: #f1f5f9 !important;
+    color: #e8edf4 !important;
 }
 html.dark .text-slate-700,
 html.dark .text-gray-700 {
-    color: #e2e8f0 !important;
+    color: var(--dm-text-secondary) !important;
 }
 html.dark .text-slate-600,
 html.dark .text-gray-600 {
-    color: #cbd5e1 !important;
+    color: #b0bec5 !important;
 }
 html.dark .text-slate-500,
 html.dark .text-gray-500 {
-    color: #94a3b8 !important;
+    color: var(--dm-text-tertiary) !important;
 }
 html.dark .text-slate-400,
 html.dark .text-gray-400 {
-    color: #94a3b8 !important;
+    color: var(--dm-text-muted) !important;
+}
+html.dark .text-slate-300 {
+    color: var(--dm-text-tertiary) !important;
 }
 
-/* Borders */
+/* Headings — brighter & stronger for hierarchy */
+html.dark h1, html.dark h2, html.dark h3, html.dark h4 {
+    color: var(--dm-text-primary);
+}
+
+
+/* ── 4. BORDER OVERRIDES ── */
 html.dark .border-gray-100,
 html.dark .border-gray-200,
 html.dark .border-slate-100,
 html.dark .border-slate-200 {
-    border-color: #334155 !important;
+    border-color: var(--dm-border) !important;
 }
-html.dark .border-gray-300 {
-    border-color: #475569 !important;
+html.dark .border-gray-300,
+html.dark .border-slate-300 {
+    border-color: var(--dm-border-strong) !important;
+}
+html.dark .border-white {
+    border-color: var(--dm-border) !important;
 }
 
-/* Divide */
+/* Dividers */
 html.dark .divide-gray-100 > :not([hidden]) ~ :not([hidden]),
-html.dark .divide-gray-200 > :not([hidden]) ~ :not([hidden]) {
-    border-color: #334155 !important;
+html.dark .divide-gray-200 > :not([hidden]) ~ :not([hidden]),
+html.dark .divide-slate-100 > :not([hidden]) ~ :not([hidden]) {
+    border-color: var(--dm-border) !important;
 }
 
 /* Rings */
 html.dark .ring-gray-100,
-html.dark .ring-gray-200 {
-    --tw-ring-color: #334155 !important;
+html.dark .ring-gray-200,
+html.dark .ring-white {
+    --tw-ring-color: var(--dm-border) !important;
 }
 
-/* Shadows – softer in dark mode */
-html.dark .shadow-sm,
+
+/* ── 5. SHADOWS — Deeper & more dramatic ── */
+html.dark .shadow-sm {
+    box-shadow: var(--dm-shadow-sm) !important;
+}
 html.dark .shadow,
-html.dark .shadow-md,
-html.dark .shadow-lg,
+html.dark .shadow-md {
+    box-shadow: var(--dm-shadow-md) !important;
+}
+html.dark .shadow-lg {
+    box-shadow: var(--dm-shadow-lg) !important;
+}
 html.dark .shadow-xl,
 html.dark .shadow-2xl {
-    --tw-shadow-color: rgba(0, 0, 0, 0.4) !important;
+    box-shadow: var(--dm-shadow-xl) !important;
 }
 
-/* Inputs & form elements */
+
+/* ── 6. PROPERTY CARDS — Critical for real estate ── */
+html.dark [class*="rounded-3xl"].bg-white,
+html.dark [class*="rounded-2xl"].bg-white {
+    background-color: var(--dm-bg-card) !important;
+    border: 1px solid var(--dm-border) !important;
+    box-shadow: var(--dm-shadow-card) !important;
+    transition: all 0.25s ease;
+}
+html.dark [class*="rounded-3xl"].bg-white:hover,
+html.dark [class*="rounded-2xl"].bg-white:hover {
+    border-color: var(--dm-border-strong) !important;
+    box-shadow: var(--dm-shadow-lg) !important;
+    transform: translateY(-2px);
+}
+
+/* Property card image tags — make them pop */
+html.dark .bg-white\/90 {
+    background-color: rgba(15, 23, 42, 0.85) !important;
+    color: var(--dm-text-primary) !important;
+}
+
+/* Favorite button on cards */
+html.dark button[class*="bg-white/90"] {
+    background-color: rgba(15, 23, 42, 0.8) !important;
+    backdrop-filter: blur(8px);
+}
+html.dark button[class*="bg-white/90"]:hover {
+    background-color: rgba(15, 23, 42, 0.95) !important;
+}
+
+/* Property price — visually dominant */
+html.dark .text-emerald-600 {
+    color: var(--dm-accent) !important;
+}
+
+/* Property card feature icons preserve brand */
+html.dark .text-emerald-500 {
+    color: var(--dm-accent) !important;
+}
+
+
+/* ── 7. BUTTONS — High impact for conversion ── */
+
+/* Primary CTA buttons (emerald) — keep vibrant */
+html.dark .bg-emerald-500 {
+    background-color: #57b318 !important;
+    color: #fff !important;
+}
+html.dark .bg-emerald-500:hover,
+html.dark .hover\:bg-emerald-600:hover {
+    background-color: #4da215 !important;
+}
+html.dark .bg-emerald-600 {
+    background-color: #4da215 !important;
+}
+
+/* Dark buttons (slate-900) — adapt for dark mode */
+html.dark .bg-slate-900 {
+    background-color: var(--dm-bg-elevated) !important;
+    border: 1px solid var(--dm-border-strong) !important;
+}
+html.dark .bg-slate-900:hover,
+html.dark .hover\:bg-slate-800:hover {
+    background-color: var(--dm-bg-surface) !important;
+}
+
+/* Secondary / outline buttons */
+html.dark .bg-white.border {
+    background-color: var(--dm-bg-card) !important;
+    border-color: var(--dm-border) !important;
+}
+html.dark .bg-white.border:hover {
+    background-color: var(--dm-bg-elevated) !important;
+    border-color: var(--dm-border-strong) !important;
+}
+
+/* Pagination buttons */
+html.dark button[class*="bg-gray-100"][class*="text-gray-400"] {
+    background-color: var(--dm-bg-elevated) !important;
+    color: var(--dm-text-faint) !important;
+}
+html.dark button[class*="bg-white"][class*="border"][class*="border-gray-200"] {
+    background-color: var(--dm-bg-card) !important;
+    border-color: var(--dm-border) !important;
+    color: var(--dm-text-secondary) !important;
+}
+html.dark button[class*="bg-white"][class*="border"]:hover {
+    background-color: var(--dm-bg-elevated) !important;
+    border-color: var(--dm-accent-hover) !important;
+}
+
+
+/* ── 8. FORMS & INPUTS — Lead generation critical ── */
 html.dark input,
 html.dark textarea,
 html.dark select {
-    background-color: #1e293b !important;
-    border-color: #334155 !important;
-    color: #e2e8f0 !important;
+    background-color: var(--dm-bg-input) !important;
+    border-color: var(--dm-border) !important;
+    color: var(--dm-text-primary) !important;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 html.dark input::placeholder,
 html.dark textarea::placeholder {
-    color: #64748b !important;
+    color: var(--dm-text-faint) !important;
 }
 html.dark input:focus,
 html.dark textarea:focus,
 html.dark select:focus {
-    border-color: #7cfa27 !important;
+    border-color: var(--dm-accent) !important;
+    box-shadow: 0 0 0 3px rgba(124, 250, 39, 0.15) !important;
+    outline: none;
 }
 
-/* Cards & elevated surfaces */
+/* Search bar inputs (Hero) — maintain readability with bg-gray-50 */
+html.dark [class*="bg-gray-50"][class*="rounded-xl"] {
+    background-color: var(--dm-bg-input) !important;
+}
+
+/* Labels */
+html.dark label {
+    color: var(--dm-text-secondary);
+}
+
+
+/* ── 9. COLORED BACKGROUNDS — Refined for dark ── */
 html.dark .bg-emerald-50 {
-    background-color: rgba(124, 250, 39, 0.08) !important;
+    background-color: rgba(124, 250, 39, 0.06) !important;
+}
+html.dark .bg-emerald-100 {
+    background-color: rgba(124, 250, 39, 0.1) !important;
+}
+html.dark .bg-emerald-50\/50 {
+    background-color: rgba(124, 250, 39, 0.03) !important;
 }
 html.dark .bg-purple-50 {
     background-color: rgba(168, 85, 247, 0.08) !important;
 }
+html.dark .bg-purple-100 {
+    background-color: rgba(168, 85, 247, 0.12) !important;
+}
 html.dark .bg-blue-50 {
     background-color: rgba(59, 130, 246, 0.08) !important;
+}
+html.dark .bg-blue-100 {
+    background-color: rgba(59, 130, 246, 0.12) !important;
 }
 html.dark .bg-red-50 {
     background-color: rgba(239, 68, 68, 0.08) !important;
 }
+html.dark .bg-red-100 {
+    background-color: rgba(239, 68, 68, 0.12) !important;
+}
 html.dark .bg-amber-50 {
     background-color: rgba(245, 158, 11, 0.08) !important;
 }
+html.dark .bg-amber-100 {
+    background-color: rgba(245, 158, 11, 0.12) !important;
+}
 html.dark .bg-teal-50 {
-    background-color: rgba(20, 184, 166, 0.08) !important;
+    background-color: rgba(20, 184, 166, 0.06) !important;
 }
 html.dark .bg-green-50 {
-    background-color: rgba(34, 197, 94, 0.08) !important;
+    background-color: rgba(34, 197, 94, 0.06) !important;
+}
+html.dark .bg-green-100 {
+    background-color: rgba(34, 197, 94, 0.1) !important;
+}
+html.dark .bg-indigo-50 {
+    background-color: rgba(99, 102, 241, 0.08) !important;
+}
+html.dark .bg-orange-50 {
+    background-color: rgba(249, 115, 22, 0.08) !important;
+}
+html.dark .bg-yellow-50 {
+    background-color: rgba(234, 179, 8, 0.08) !important;
+}
+html.dark .bg-white\/80 {
+    background-color: rgba(15, 23, 42, 0.85) !important;
+}
+html.dark .bg-white\/10,
+html.dark .bg-white\/20 {
+    background-color: rgba(255, 255, 255, 0.06) !important;
 }
 
-/* Gradient overrides */
+
+/* ── 10. GRADIENT OVERRIDES ── */
 html.dark .from-slate-50,
 html.dark .from-gray-50 {
-    --tw-gradient-from: #1e293b !important;
+    --tw-gradient-from: var(--dm-bg-elevated) !important;
 }
 html.dark .to-gray-50,
-html.dark .to-slate-50 {
-    --tw-gradient-to: #0f172a !important;
+html.dark .to-slate-50,
+html.dark .to-white {
+    --tw-gradient-to: var(--dm-bg-main) !important;
 }
 html.dark .from-emerald-50 {
-    --tw-gradient-from: rgba(124, 250, 39, 0.08) !important;
+    --tw-gradient-from: rgba(124, 250, 39, 0.06) !important;
 }
 html.dark .to-teal-50 {
-    --tw-gradient-to: rgba(20, 184, 166, 0.06) !important;
+    --tw-gradient-to: rgba(20, 184, 166, 0.04) !important;
+}
+html.dark .from-white {
+    --tw-gradient-from: var(--dm-bg-card) !important;
 }
 
-/* Role/Status badges preserve their colors – no override needed */
-
-/* Hover overrides */
-html.dark .hover\:bg-gray-50:hover {
-    background-color: #334155 !important;
-}
-html.dark .hover\:bg-slate-200:hover {
-    background-color: #475569 !important;
-}
-html.dark .hover\:bg-red-50:hover {
-    background-color: rgba(239, 68, 68, 0.15) !important;
-}
-html.dark .hover\:bg-emerald-50:hover {
-    background-color: rgba(124, 250, 39, 0.12) !important;
+/* Hero bottom gradient (from-white to-transparent) */
+html.dark .bg-gradient-to-t.from-white {
+    background: linear-gradient(to top, var(--dm-bg-main), transparent) !important;
 }
 
-/* Scrollbar */
-html.dark .custom-scrollbar::-webkit-scrollbar-track {
-    background: #1e293b;
-}
 
-/* Glass effects */
-html.dark .glass {
-    background: rgba(30, 41, 59, 0.8);
-}
-
-/* Hero section */
+/* ── 11. HERO SECTION ── */
 html.dark .hero-gradient {
     background: linear-gradient(rgba(15, 23, 42, 0.92), rgba(15, 23, 42, 0.85)), url('https://images.unsplash.com/photo-1560518883-ce09059eeffa?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80');
     background-size: cover;
     background-position: center;
 }
 
-/* ====== END DARK MODE OVERRIDES ====== */
+/* Hero blur overlay */
+html.dark .backdrop-blur-sm.bg-white\/30 {
+    background: rgba(15, 23, 42, 0.55) !important;
+}
+
+/* Hero search bar container */
+html.dark .bg-white.shadow-xl[class*="rounded-2xl"] {
+    background-color: var(--dm-bg-card) !important;
+    border: 1px solid var(--dm-border) !important;
+}
+html.dark .shadow-slate-200\/50 {
+    --tw-shadow-color: rgba(0, 0, 0, 0.3) !important;
+}
+
+/* Hero decorative blobs */
+html.dark .bg-emerald-400\/10,
+html.dark .bg-emerald-300\/10 {
+    opacity: 0.6;
+}
+
+
+/* ── 12. NAVBAR ── */
+html.dark nav.sticky {
+    background-color: var(--dm-bg-card) !important;
+    border-bottom-color: var(--dm-border) !important;
+}
+html.dark nav.sticky.shadow-sm {
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5) !important;
+}
+
+/* Navbar links */
+html.dark a[class*="text-slate-600"][class*="hover:text-emerald-600"] {
+    color: var(--dm-text-tertiary) !important;
+}
+html.dark a[class*="text-slate-600"][class*="hover:text-emerald-600"]:hover {
+    color: var(--dm-accent) !important;
+    background-color: var(--dm-accent-muted) !important;
+}
+
+/* Admin panel button */
+html.dark .bg-slate-100.text-slate-700 {
+    background-color: var(--dm-bg-elevated) !important;
+    color: var(--dm-text-secondary) !important;
+}
+html.dark .bg-slate-100.text-slate-700:hover {
+    background-color: var(--dm-bg-surface) !important;
+}
+
+/* Admin dropdown */
+html.dark .bg-white.rounded-2xl.shadow-2xl {
+    background-color: var(--dm-bg-card) !important;
+    border: 1px solid var(--dm-border) !important;
+    box-shadow: var(--dm-shadow-xl) !important;
+}
+
+/* Mobile menu panel */
+html.dark .bg-white.z-\[70\],
+html.dark [class*="bg-white"][class*="z-[70]"] {
+    background-color: var(--dm-bg-card) !important;
+}
+
+/* Mobile overlay */
+html.dark .bg-slate-900\/60 {
+    background-color: rgba(0, 0, 0, 0.7) !important;
+}
+
+/* Mobile nav link icons */
+html.dark .bg-gray-100.rounded-lg {
+    background-color: var(--dm-bg-surface) !important;
+}
+
+/* Mobile "Modo Escuro" label */
+html.dark .text-sm.font-medium.text-slate-600 {
+    color: var(--dm-text-secondary) !important;
+}
+
+
+/* ── 13. FOOTER ── */
+html.dark footer.bg-white {
+    background-color: var(--dm-bg-base) !important;
+    border-top-color: var(--dm-border) !important;
+}
+
+/* Footer social icons */
+html.dark .bg-gray-100.rounded-full {
+    background-color: var(--dm-bg-surface) !important;
+    color: var(--dm-text-tertiary) !important;
+}
+html.dark .bg-gray-100.rounded-full:hover {
+    background-color: #57b318 !important;
+    color: #fff !important;
+}
+
+/* Footer bottom bar */
+html.dark .text-slate-400.text-sm {
+    color: var(--dm-text-faint) !important;
+}
+
+
+/* ── 14. CTA SECTION (already dark in light mode — enhance) ── */
+html.dark .bg-slate-900.text-white.rounded-\[3rem\] {
+    background-color: var(--dm-bg-elevated) !important;
+    border: 1px solid var(--dm-border) !important;
+}
+html.dark .border-slate-700 {
+    border-color: var(--dm-border-strong) !important;
+}
+
+
+/* ── 15. MODALS ── */
+/* Login modal */
+html.dark .bg-black\/50 {
+    background-color: rgba(0, 0, 0, 0.65) !important;
+}
+html.dark .bg-white.rounded-3xl[class*="shadow-2xl"],
+html.dark .bg-white[class*="rounded-3xl"][class*="shadow-2xl"] {
+    background-color: var(--dm-bg-card) !important;
+    border: 1px solid var(--dm-border) !important;
+}
+
+/* Inquiry modal form */
+html.dark .bg-white.rounded-2xl.shadow-2xl {
+    background-color: var(--dm-bg-card) !important;
+    border: 1px solid var(--dm-border) !important;
+}
+
+/* Modal close buttons */
+html.dark .hover\:bg-gray-100:hover {
+    background-color: var(--dm-bg-surface) !important;
+}
+
+
+/* ── 16. COOKIE BANNER ── */
+html.dark .animate-slide-up .bg-white.rounded-2xl {
+    background-color: var(--dm-bg-card) !important;
+    border-color: var(--dm-border) !important;
+    box-shadow: var(--dm-shadow-xl) !important;
+}
+
+
+/* ── 17. WHATSAPP TOOLTIP ── */
+html.dark .bg-white.rounded-xl.shadow-lg.border {
+    background-color: var(--dm-bg-card) !important;
+    border-color: var(--dm-border) !important;
+}
+
+
+/* ── 18. HOVER STATE OVERRIDES ── */
+html.dark .hover\:bg-gray-50:hover {
+    background-color: var(--dm-bg-elevated) !important;
+}
+html.dark .hover\:bg-slate-50:hover {
+    background-color: var(--dm-bg-elevated) !important;
+}
+html.dark .hover\:bg-slate-200:hover {
+    background-color: var(--dm-bg-surface) !important;
+}
+html.dark .hover\:bg-red-50:hover {
+    background-color: rgba(239, 68, 68, 0.12) !important;
+}
+html.dark .hover\:bg-red-100:hover {
+    background-color: rgba(239, 68, 68, 0.18) !important;
+}
+html.dark .hover\:bg-emerald-50:hover {
+    background-color: var(--dm-accent-muted) !important;
+}
+html.dark .hover\:bg-emerald-100:hover {
+    background-color: rgba(124, 250, 39, 0.15) !important;
+}
+html.dark .hover\:bg-gray-200:hover {
+    background-color: var(--dm-bg-surface) !important;
+}
+
+/* Card / link hover border */
+html.dark .hover\:border-emerald-200:hover,
+html.dark .hover\:border-emerald-100:hover {
+    border-color: rgba(124, 250, 39, 0.3) !important;
+}
+html.dark .hover\:border-emerald-500:hover {
+    border-color: var(--dm-accent) !important;
+}
+html.dark .hover\:border-gray-300:hover {
+    border-color: var(--dm-border-strong) !important;
+}
+
+
+/* ── 19. GENERAL CARD & INTERACTIVE ELEMENT LIFT ── */
+/* Give all card-like elements subtle hover lift */
+html.dark .card-hover {
+    transition: all 0.25s ease;
+}
+html.dark .card-hover:hover {
+    box-shadow: var(--dm-shadow-lg) !important;
+    transform: translateY(-2px);
+}
+
+/* Hover transition for all interactive bg-white elements */
+html.dark .bg-white[class*="hover:shadow"] {
+    transition: all 0.25s ease;
+}
+
+
+/* ── 20. SCROLLBAR — premium dark scrollbar ── */
+html.dark .custom-scrollbar::-webkit-scrollbar-track {
+    background: var(--dm-bg-main);
+}
+html.dark .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: var(--dm-bg-surface);
+}
+html.dark .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: var(--dm-border-strong);
+}
+
+/* Global scrollbar for dark mode */
+html.dark ::-webkit-scrollbar {
+    width: 8px;
+}
+html.dark ::-webkit-scrollbar-track {
+    background: var(--dm-bg-main);
+}
+html.dark ::-webkit-scrollbar-thumb {
+    background: var(--dm-bg-surface);
+    border-radius: 4px;
+}
+html.dark ::-webkit-scrollbar-thumb:hover {
+    background: var(--dm-border-strong);
+}
+
+
+/* ── 21. GLASS EFFECTS ── */
+html.dark .glass {
+    background: rgba(30, 41, 59, 0.85);
+    backdrop-filter: blur(12px);
+}
+html.dark .glass-dark {
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(12px);
+}
+
+
+/* ── 22. FOCUS STATES — Accessible ── */
+html.dark .focus-ring:focus {
+    --tw-ring-color: rgba(124, 250, 39, 0.25) !important;
+    border-color: var(--dm-accent) !important;
+}
+
+
+/* ── 23. UTILITY COMPONENT OVERRIDES ── */
+
+/* Gradient text */
+html.dark .gradient-text {
+    background: linear-gradient(to right, var(--dm-accent), #57b318);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* Button primary (utility class) */
+html.dark .btn-primary {
+    background: linear-gradient(to right, #57b318, #448a14) !important;
+    box-shadow: 0 4px 14px rgba(87, 179, 24, 0.25) !important;
+}
+html.dark .btn-primary:hover {
+    background: linear-gradient(to right, #448a14, #376d14) !important;
+}
+
+/* Button secondary (utility class) */
+html.dark .btn-secondary {
+    background-color: var(--dm-bg-card) !important;
+    border-color: var(--dm-border) !important;
+    color: var(--dm-text-secondary) !important;
+}
+html.dark .btn-secondary:hover {
+    background-color: var(--dm-bg-elevated) !important;
+    border-color: var(--dm-border-strong) !important;
+}
+
+
+/* ── 24. SERVICES / ABOUT / BLOG PAGE SECTIONS ── */
+
+/* Dark hero sections (already look good — enhance contrast) */
+html.dark .bg-gradient-to-br.from-slate-900 {
+    background: linear-gradient(to bottom right, #080e1c, #0c1222, rgba(5, 50, 20, 0.3)) !important;
+}
+
+/* Service/about card panels */
+html.dark .bg-white.rounded-2xl.border.border-gray-100 {
+    background-color: var(--dm-bg-card) !important;
+    border-color: var(--dm-border) !important;
+}
+
+/* Blog article cards */
+html.dark .bg-white.rounded-2xl[class*="shadow-sm"][class*="border"] {
+    background-color: var(--dm-bg-card) !important;
+    border-color: var(--dm-border) !important;
+    box-shadow: var(--dm-shadow-card) !important;
+}
+
+/* Stats / benefit chips */
+html.dark .bg-emerald-500\/20 {
+    background-color: rgba(124, 250, 39, 0.1) !important;
+}
+html.dark .bg-emerald-500\/10 {
+    background-color: rgba(124, 250, 39, 0.06) !important;
+}
+
+
+/* ── 25. CONTACT PAGE — form area ── */
+html.dark .bg-gradient-to-br.from-emerald-50.to-teal-50,
+html.dark [class*="from-emerald-50"][class*="to-teal-50"] {
+    background: linear-gradient(to bottom right, rgba(124, 250, 39, 0.06), rgba(20, 184, 166, 0.04)) !important;
+}
+
+/* Contact info cards */
+html.dark .bg-white.rounded-2xl.border.border-gray-100.shadow-sm {
+    background-color: var(--dm-bg-card) !important;
+    border-color: var(--dm-border) !important;
+    box-shadow: var(--dm-shadow-sm) !important;
+}
+
+/* Social media section (already dark — slight tweak) */
+html.dark .bg-gradient-to-br.from-slate-900.to-slate-800 {
+    background: linear-gradient(to bottom right, #080e1c, var(--dm-bg-elevated)) !important;
+    border: 1px solid var(--dm-border);
+}
+
+/* Google Maps iframe in dark mode */
+html.dark iframe {
+    filter: brightness(0.8) contrast(1.1);
+}
+
+
+/* ── 26. PROPERTY DETAIL PAGE ── */
+/* Image gallery nav dots/thumbnails */
+html.dark .bg-white\/80 {
+    background-color: rgba(15, 23, 42, 0.85) !important;
+}
+
+/* Seller contact card */
+html.dark .bg-gradient-to-br.from-emerald-50 {
+    background: linear-gradient(to bottom right, rgba(124, 250, 39, 0.06), rgba(20, 184, 166, 0.04)) !important;
+}
+
+
+/* ── 27. USER DASHBOARD ── */
+/* Tab buttons */
+html.dark button[class*="bg-emerald-50"][class*="text-emerald-700"] {
+    background-color: var(--dm-accent-muted) !important;
+    color: var(--dm-accent) !important;
+}
+
+/* Settings / profile sections */
+html.dark .bg-red-50.text-red-600 {
+    background-color: rgba(239, 68, 68, 0.1) !important;
+}
+
+
+/* ── 28. PROPERTY MANAGEMENT & ADMIN PANELS ── */
+html.dark table {
+    background-color: var(--dm-bg-card);
+}
+html.dark thead {
+    background-color: var(--dm-bg-elevated);
+}
+html.dark th {
+    color: var(--dm-text-secondary);
+    border-bottom-color: var(--dm-border);
+}
+html.dark td {
+    border-bottom-color: var(--dm-border-subtle);
+    color: var(--dm-text-secondary);
+}
+html.dark tbody tr:hover {
+    background-color: var(--dm-bg-elevated);
+}
+
+
+/* ── 29. SMOOTH TRANSITIONS ── */
+/* Transition all theme-related properties for smooth switching */
+html.dark *,
+html.dark *::before,
+html.dark *::after {
+    transition-property: background-color, border-color, color, fill, stroke, box-shadow;
+    transition-duration: 0.15s;
+    transition-timing-function: ease;
+}
+/* Exclude elements that shouldn't transition (animations, transforms) */
+html.dark .animate-spin,
+html.dark .animate-bounce,
+html.dark .animate-pulse,
+html.dark [class*="transition-transform"],
+html.dark img,
+html.dark video {
+    transition-property: none !important;
+}
+
+
+/* ── 30. PROPERTY IMAGES — Ensure they POP ── */
+/* Never dim property images */
+html.dark img {
+    filter: none;
+}
+/* Card images maintain full brightness */
+html.dark .group img {
+    filter: none !important;
+}
+
+
+/* ============================================================
+   END DARK MODE THEME SYSTEM
+   ============================================================ */
 
 @keyframes fade-in {
     from {
