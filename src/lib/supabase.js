@@ -1,5 +1,19 @@
 import { createClient } from '@supabase/supabase-js';
 
+const normalizeOAuthCallbackUrl = () => {
+  if (typeof window === 'undefined') return;
+
+  const pathCallbackPrefixes = ['/access_token=', '/refresh_token=', '/error='];
+  const hasPathCallback = pathCallbackPrefixes.some(prefix => window.location.pathname.startsWith(prefix));
+
+  if (hasPathCallback) {
+    const callbackParams = `${window.location.pathname.slice(1)}${window.location.search}`;
+    window.history.replaceState(null, '', `/#${callbackParams}`);
+  }
+};
+
+normalizeOAuthCallbackUrl();
+
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 

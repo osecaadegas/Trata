@@ -44,10 +44,13 @@ function App() {
   useEffect(() => {
     // Backwards compatibility: redirect old hash URLs to path URLs
     if (window.location.hash && window.location.hash !== '#') {
-      const hashPath = window.location.hash.slice(1).split('?')[0];
-      const hashParams = window.location.hash.includes('?') ? '?' + window.location.hash.split('?')[1] : '';
-      const newPath = (hashPath === 'home' ? '/' : `/${hashPath}`) + hashParams;
-      history.replaceState(null, '', newPath);
+      const isAuthCallback = /[#&](access_token|refresh_token|error|error_code|type)=/.test(window.location.hash);
+      if (!isAuthCallback) {
+        const hashPath = window.location.hash.slice(1).split('?')[0];
+        const hashParams = window.location.hash.includes('?') ? '?' + window.location.hash.split('?')[1] : '';
+        const newPath = (hashPath === 'home' ? '/' : `/${hashPath}`) + hashParams;
+        history.replaceState(null, '', newPath);
+      }
     }
 
     // Path-based routing

@@ -16,6 +16,13 @@ export const AuthProvider = ({ children }) => {
   const [userRole, setUserRole] = useState('user');
   const [loading, setLoading] = useState(true);
 
+  const clearOAuthCallbackUrl = () => {
+    const callbackPattern = /(access_token|refresh_token|error|error_code|type)=/;
+    if (callbackPattern.test(window.location.hash) || callbackPattern.test(window.location.pathname)) {
+      window.history.replaceState(null, '', '/');
+    }
+  };
+
   useEffect(() => {
     let mounted = true;
     
@@ -32,6 +39,7 @@ export const AuthProvider = ({ children }) => {
         
         if (mounted && session?.user) {
           await loadUserWithRole(session.user);
+          clearOAuthCallbackUrl();
         }
       } catch (error) {
         console.log('Init auth:', error.message);
@@ -50,6 +58,7 @@ export const AuthProvider = ({ children }) => {
       
       if (session?.user) {
         await loadUserWithRole(session.user);
+        clearOAuthCallbackUrl();
       } else if (event === 'SIGNED_OUT') {
         setUser(null);
         setUserRole('user');
