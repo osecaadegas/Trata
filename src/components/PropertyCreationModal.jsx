@@ -2,6 +2,22 @@ import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 
+const PROPERTY_IMAGES_BUCKET = 'property-images';
+
+const extractPropertyImagePath = (image) => {
+  if (!image) return null;
+  const marker = `/storage/v1/object/public/${PROPERTY_IMAGES_BUCKET}/`;
+  const markerIndex = image.indexOf(marker);
+
+  if (markerIndex >= 0) {
+    return decodeURIComponent(image.slice(markerIndex + marker.length).split('?')[0]);
+  }
+
+  return image.startsWith(`${PROPERTY_IMAGES_BUCKET}/`)
+    ? image.slice(PROPERTY_IMAGES_BUCKET.length + 1)
+    : image;
+};
+
 const PropertyCreationModal = ({ isOpen, onClose, editingProperty, onSuccess }) => {
   const { user } = useAuth();
   const [currentStep, setCurrentStep] = useState(1);
@@ -79,6 +95,7 @@ const PropertyCreationModal = ({ isOpen, onClose, editingProperty, onSuccess }) 
 
   const [imageFiles, setImageFiles] = useState([]);
   const [existingImages, setExistingImages] = useState([]);
+  const [removedExistingImages, setRemovedExistingImages] = useState([]);
   const [imageOrder, setImageOrder] = useState([]);
   const [thumbnailIndex, setThumbnailIndex] = useState(0);
   const [draggedImageIndex, setDraggedImageIndex] = useState(null);
@@ -147,6 +164,7 @@ const PropertyCreationModal = ({ isOpen, onClose, editingProperty, onSuccess }) 
         lot_area_sqm: editingProperty.lot_area_sqm?.toString() || '',
       });
       setExistingImages(editingProperty.images || []);
+      setRemovedExistingImages([]);
       setImageOrder(editingProperty.images || []);
       setThumbnailIndex(0);
     }
@@ -188,6 +206,7 @@ const PropertyCreationModal = ({ isOpen, onClose, editingProperty, onSuccess }) 
     });
     setImageFiles([]);
     setExistingImages([]);
+    setRemovedExistingImages([]);
     setImageOrder([]);
     setThumbnailIndex(0);
     setDraggedImageIndex(null);
@@ -263,7 +282,13 @@ const PropertyCreationModal = ({ isOpen, onClose, editingProperty, onSuccess }) 
   };
 
   const removeExistingImage = (index) => {
-    setExistingImages(prev => prev.filter((_, i) => i !== index));
+    setExistingImages(prev => {
+      const removed = prev[index];
+      if (removed) {
+        setRemovedExistingImages(current => current.includes(removed) ? current : [...current, removed]);
+      }
+      return prev.filter((_, i) => i !== index);
+    });
   };
 
   const toggleFeature = (featureId) => {
@@ -288,7 +313,7 @@ const PropertyCreationModal = ({ isOpen, onClose, editingProperty, onSuccess }) 
       const filePath = `${user.id}/${fileName}`;
 
       const { error: uploadError } = await supabase.storage
-        .from('property-images')
+        .from(PROPERTY_IMAGES_BUCKET)
         .upload(filePath, file);
 
       if (uploadError) {
@@ -297,13 +322,48 @@ const PropertyCreationModal = ({ isOpen, onClose, editingProperty, onSuccess }) 
       }
 
       const { data: { publicUrl } } = supabase.storage
-        .from('property-images')
+        .from(PROPERTY_IMAGES_BUCKET)
         .getPublicUrl(filePath);
 
       uploadedUrls.push(publicUrl);
     }
 
     return uploadedUrls;
+  };
+
+  const cleanupRemovedExistingImages = async () => {
+    if (!editingProperty || removedExistingImages.length === 0) return;
+
+    const removedPaths = new Set(
+      removedExistingImages
+        .map(extractPropertyImagePath)
+        .filter(Boolean)
+    );
+
+    if (removedPaths.size === 0) return;
+
+    const { data: otherProperties, error: fetchError } = await supabase
+      .from('properties')
+      .select('id,images')
+      .neq('id', editingProperty.id);
+
+    if (fetchError) throw fetchError;
+
+    const stillUsedPaths = new Set(
+      (otherProperties || [])
+        .flatMap((property) => property.images || [])
+        .map(extractPropertyImagePath)
+        .filter(Boolean)
+    );
+
+    const pathsToRemove = [...removedPaths].filter((path) => !stillUsedPaths.has(path));
+    if (pathsToRemove.length === 0) return;
+
+    const { error: removeError } = await supabase.storage
+      .from(PROPERTY_IMAGES_BUCKET)
+      .remove(pathsToRemove);
+
+    if (removeError) throw removeError;
   };
 
   const handleSubmit = async (asDraft = false) => {
@@ -376,6 +436,13 @@ const PropertyCreationModal = ({ isOpen, onClose, editingProperty, onSuccess }) 
         if (!response.ok) {
           const errorText = await response.text();
           throw new Error(errorText);
+        }
+
+        try {
+          await cleanupRemovedExistingImages();
+        } catch (cleanupError) {
+          console.error('Removed image cleanup failed:', cleanupError);
+          alert(`Alterações guardadas, mas não foi possível remover algumas imagens do bucket: ${cleanupError.message}`);
         }
       } else {
         // INSERT using REST API
