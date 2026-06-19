@@ -4,6 +4,21 @@ import { useAuth } from '../context/AuthContext';
 import PropertyCreationModal from './PropertyCreationModal';
 
 const PROPERTIES_PER_PAGE = 12;
+const PROPERTY_IMAGES_BUCKET = 'property-images';
+
+const extractPropertyImagePath = (image) => {
+  if (!image) return null;
+  const marker = `/storage/v1/object/public/${PROPERTY_IMAGES_BUCKET}/`;
+  const markerIndex = image.indexOf(marker);
+
+  if (markerIndex >= 0) {
+    return decodeURIComponent(image.slice(markerIndex + marker.length).split('?')[0]);
+  }
+
+  return image.startsWith(`${PROPERTY_IMAGES_BUCKET}/`)
+    ? image.slice(PROPERTY_IMAGES_BUCKET.length + 1)
+    : image;
+};
 
 const PropertyManagement = () => {
   const { user, isSeller, isAdmin, isConfigurator, userRole } = useAuth();
@@ -209,7 +224,40 @@ const PropertyManagement = () => {
     }
   };
 
-  const handleDelete = async (propertyId) => {
+  const cleanupDeletedPropertyImages = async (deletedProperties) => {
+    const deletedIds = new Set(deletedProperties.map((property) => property.id));
+    const deletedImagePaths = new Set(
+      deletedProperties
+        .flatMap((property) => property.images || [])
+        .map(extractPropertyImagePath)
+        .filter(Boolean)
+    );
+
+    if (deletedImagePaths.size === 0) return { deleted: 0, skipped: 0 };
+
+    const remainingImagePaths = new Set(
+      properties
+        .filter((property) => !deletedIds.has(property.id))
+        .flatMap((property) => property.images || [])
+        .map(extractPropertyImagePath)
+        .filter(Boolean)
+    );
+
+    const pathsToRemove = [...deletedImagePaths].filter((path) => !remainingImagePaths.has(path));
+    const skipped = deletedImagePaths.size - pathsToRemove.length;
+
+    if (pathsToRemove.length === 0) return { deleted: 0, skipped };
+
+    const { error: storageError } = await supabase.storage
+      .from(PROPERTY_IMAGES_BUCKET)
+      .remove(pathsToRemove);
+
+    if (storageError) throw storageError;
+    return { deleted: pathsToRemove.length, skipped };
+  };
+
+  const handleDelete = async (property) => {
+    const propertyId = property.id;
     console.log('=== DELETE OPERATION START ===');
     console.log('Property ID:', propertyId);
     
@@ -279,7 +327,19 @@ const PropertyManagement = () => {
       }
       
       console.log('=== DELETE SUCCESS - Deleted:', deleted.length, 'rows ===');
-      alert('Imóvel eliminado com sucesso!');
+      try {
+        const imageCleanup = await cleanupDeletedPropertyImages(deleted);
+        const imageMessage = imageCleanup.deleted > 0
+          ? ` ${imageCleanup.deleted} imagem(ns) removida(s) do bucket.`
+          : '';
+        const skippedMessage = imageCleanup.skipped > 0
+          ? ` ${imageCleanup.skipped} imagem(ns) mantida(s) porque ainda estão em uso.`
+          : '';
+        alert(`Imóvel eliminado com sucesso!${imageMessage}${skippedMessage}`);
+      } catch (storageError) {
+        console.error('Image cleanup failed:', storageError);
+        alert(`Imóvel eliminado, mas não foi possível remover algumas imagens do bucket: ${storageError.message}`);
+      }
       fetchProperties();
     } catch (error) {
       console.error('=== DELETE FAILED ===');
@@ -793,7 +853,7 @@ const PropertyManagement = () => {
                           <i className="fa-solid fa-eye"></i>
                         </a>
                         <button
-                          onClick={() => handleDelete(property.id)}
+                          onClick={() => handleDelete(property)}
                           className="px-4 py-2.5 bg-rose-50 text-rose-600 rounded-xl font-semibold hover:bg-rose-100 transition-colors text-sm flex items-center justify-center"
                         >
                           <i className="fa-solid fa-trash"></i>
@@ -896,7 +956,7 @@ const PropertyManagement = () => {
                               <i className="fa-solid fa-eye text-sm"></i>
                             </a>
                             <button
-                              onClick={() => handleDelete(property.id)}
+                              onClick={() => handleDelete(property)}
                               className="w-8 h-8 rounded-lg bg-rose-50 text-rose-600 hover:bg-rose-100 flex items-center justify-center transition-colors"
                               title="Eliminar"
                             >
