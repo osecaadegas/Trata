@@ -23,6 +23,7 @@ const LoginModal = ({ isOpen, onClose }) => {
       }
     } catch (err) {
       console.error('Login exception:', err);
+      alert('Erro ao iniciar sessão. Confirme a configuração do Google/Supabase e tente novamente.');
     }
   };
 

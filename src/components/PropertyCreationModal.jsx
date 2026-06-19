@@ -276,6 +276,10 @@ const PropertyCreationModal = ({ isOpen, onClose, editingProperty, onSuccess }) 
   };
 
   const handleImageUpload = async (files) => {
+    if (!user?.id) {
+      throw new Error('Sessão expirada. Inicie sessão novamente antes de publicar o imóvel.');
+    }
+
     const uploadedUrls = [];
     
     for (const file of files) {
@@ -319,7 +323,10 @@ const PropertyCreationModal = ({ isOpen, onClose, editingProperty, onSuccess }) 
     try {
       // Get the current session token for authenticated requests
       const { data: { session } } = await supabase.auth.getSession();
-      const accessToken = session?.access_token || supabaseKey;
+      if (!session?.access_token || !user?.id) {
+        throw new Error('Sessão expirada. Inicie sessão novamente antes de publicar o imóvel.');
+      }
+      const accessToken = session.access_token;
       
       let imageUrls = [...existingImages];
       if (imageFiles.length > 0) {
@@ -411,7 +418,10 @@ const PropertyCreationModal = ({ isOpen, onClose, editingProperty, onSuccess }) 
       resetForm();
     } catch (error) {
       console.error('Error saving property:', error);
-      setErrors({ submit: error.message || 'Erro ao guardar imóvel. Verifique a ligação à base de dados.' });
+      const message = error.message?.includes('Could not find')
+        ? 'A base de dados ainda não tem todos os campos necessários. Execute as migrações mais recentes do Supabase.'
+        : error.message || 'Erro ao guardar imóvel. Verifique a ligação à base de dados.';
+      setErrors({ submit: message });
     } finally {
       setIsSubmitting(false);
     }
