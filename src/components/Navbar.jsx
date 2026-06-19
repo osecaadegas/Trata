@@ -101,6 +101,7 @@ const Navbar = () => {
     ...((isAdmin || isConfigurator || isSeller) ? [{ href: '/property-management', label: 'Gerir Imóveis', icon: 'fa-building', color: 'text-emerald-500', bgColor: 'bg-emerald-50', description: 'Propriedades e listagens' }] : []),
     ...((isAdmin || isConfigurator || isSeller) ? [{ href: '/messages', label: 'Mensagens', icon: 'fa-inbox', color: 'text-blue-500', bgColor: 'bg-blue-50', description: 'Caixa de entrada' }] : []),
     ...((isAdmin || isConfigurator) ? [{ href: '/job-management', label: 'Carreiras', icon: 'fa-briefcase', color: 'text-amber-500', bgColor: 'bg-amber-50', description: 'Vagas e candidaturas' }] : []),
+    ...(isConfigurator ? [{ href: '/storage-cleanup', label: 'Limpar Imagens', icon: 'fa-images', color: 'text-red-500', bgColor: 'bg-red-50', description: 'Bucket de imóveis' }] : []),
   ];
 
   return (

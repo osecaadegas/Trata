@@ -23,6 +23,7 @@ import CookiesPage from './components/CookiesPage';
 import SecurityPage from './components/SecurityPage';
 import CareersPage from './components/CareersPage';
 import JobManagement from './components/JobManagement';
+import StorageCleanup from './components/StorageCleanup';
 import BlogPage from './components/BlogPage';
 import BlogArticlePage from './components/BlogArticlePage';
 import WhatsAppButton from './components/WhatsAppButton';
@@ -226,6 +227,8 @@ function App() {
         );
       case 'job-management':
         return <JobManagement />;
+      case 'storage-cleanup':
+        return <StorageCleanup />;
       default:
         return (
           <>
