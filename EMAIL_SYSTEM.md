@@ -68,7 +68,8 @@ Add these to your Vercel project (Settings → Environment Variables):
 | `RESEND_API_KEY` | Resend API key | Yes |
 | `BREVO_API_KEY` | Brevo API key | Yes |
 | `BREVO_ALERTS_LIST_ID` | Brevo list ID for alerts | No |
-| `ADMIN_EMAIL` | Admin notification email | Yes |
+| `PROPERTY_INQUIRY_EMAIL` | Property inquiry notification email (defaults to `geral.trata@gmail.com`) | No |
+| `ADMIN_EMAIL` | Other admin notification email | Yes |
 | `FROM_EMAIL` | Sender email address | Yes |
 | `FROM_NAME` | Sender name | Yes |
 | `SITE_URL` | Your website URL | Yes |

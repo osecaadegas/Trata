@@ -1,6 +1,13 @@
 // Minimal API endpoint to insert inquiries via Supabase REST API
 // Uses service role key to bypass RLS, with anon key fallback
 
+import {
+  PROPERTY_INQUIRY_EMAIL,
+  SITE_URL,
+  sendEmailResend
+} from './_utils/email.js';
+import { inquiryNotificationTemplate } from './_templates/inquiry.js';
+
 const SUPABASE_URL = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const SUPABASE_ANON_KEY = process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY;
@@ -99,6 +106,34 @@ export default async function handler(request) {
       return new Response(JSON.stringify({ error: 'Erro ao submeter pedido. Por favor tente novamente.' }), {
         status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
+    }
+
+    // Notify the agency without risking loss of the inquiry if the email provider is unavailable.
+    try {
+      const notificationHtml = inquiryNotificationTemplate({
+        name: inquiryData.name,
+        email: inquiryData.email,
+        phone: inquiryData.phone,
+        message: inquiryData.message,
+        inquiryType: inquiryData.inquiry_type,
+        preferredContact: inquiryData.preferred_contact,
+        preferredTime: inquiryData.preferred_time,
+        propertyTitle: inquiryData.property_title,
+        propertyLocation: null,
+        propertyPrice: null,
+        inquiryId: null,
+        source: inquiryData.source,
+        adminUrl: `${SITE_URL}/messages`
+      });
+
+      await sendEmailResend({
+        to: PROPERTY_INQUIRY_EMAIL,
+        subject: `🏠 Novo Pedido: ${inquiryData.name} - ${inquiryData.property_title || 'Pedido Geral'}`,
+        html: notificationHtml,
+        replyTo: inquiryData.email
+      });
+    } catch (emailError) {
+      console.error('Property inquiry notification failed:', emailError);
     }
 
     return new Response(JSON.stringify({

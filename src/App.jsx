@@ -30,6 +30,8 @@ import WhatsAppButton from './components/WhatsAppButton';
 import LocationPage, { LOCATION_SLUGS } from './components/LocationPage';
 import { updateSeoMeta, PAGE_SEO } from './lib/seo';
 
+const PROPERTY_ID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 function App() {
   const [currentPage, setCurrentPage] = useState('home');
   const [propertyId, setPropertyId] = useState(null);
@@ -69,8 +71,14 @@ function App() {
         setCurrentPage('guias-article');
       } else if (path.startsWith('imoveis/')) {
         const locSlug = path.replace('imoveis/', '');
-        setPropertyId(locSlug);
-        setCurrentPage('imoveis-location');
+        if (PROPERTY_ID_PATTERN.test(locSlug)) {
+          history.replaceState(null, '', `/imovel/${locSlug}${window.location.search}`);
+          setPropertyId(locSlug);
+          setCurrentPage('imovel-detail');
+        } else {
+          setPropertyId(locSlug);
+          setCurrentPage('imoveis-location');
+        }
       } else if (path) {
         setPropertyId(null);
         setCurrentPage(path);

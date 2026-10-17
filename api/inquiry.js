@@ -10,7 +10,7 @@ import {
   corsHeaders,
   errorResponse,
   successResponse,
-  ADMIN_EMAIL,
+  PROPERTY_INQUIRY_EMAIL,
   SITE_URL
 } from './_utils/email.js';
 
@@ -148,7 +148,7 @@ export default async function handler(request) {
           ? `Confirmação: O seu pedido sobre ${property.title}`
           : 'Confirmação: Recebemos o seu pedido - Trata Imobiliária',
         html: confirmationHtml,
-        replyTo: ADMIN_EMAIL
+        replyTo: PROPERTY_INQUIRY_EMAIL
       });
 
       await logEmail(supabase, {
@@ -194,14 +194,14 @@ export default async function handler(request) {
       });
 
       const notifyResult = await sendEmailResend({
-        to: ADMIN_EMAIL,
+        to: PROPERTY_INQUIRY_EMAIL,
         subject: `🏠 Novo Pedido: ${sanitizedData.name} - ${property?.title || 'Pedido Geral'}`,
         html: notificationHtml,
         replyTo: sanitizedData.email
       });
 
       await logEmail(supabase, {
-        recipientEmail: ADMIN_EMAIL,
+        recipientEmail: PROPERTY_INQUIRY_EMAIL,
         subject: 'Notificação de novo pedido',
         templateName: 'inquiry_notification',
         emailType: 'inquiry_notification',
@@ -215,7 +215,7 @@ export default async function handler(request) {
     } catch (emailErr) {
       console.error('Notification email failed:', emailErr);
       await logEmail(supabase, {
-        recipientEmail: ADMIN_EMAIL,
+        recipientEmail: PROPERTY_INQUIRY_EMAIL,
         emailType: 'inquiry_notification',
         status: 'failed',
         inquiryId: inquiry.id,

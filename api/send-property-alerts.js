@@ -83,7 +83,7 @@ export default async function handler(request) {
     for (const sub of subsToNotify) {
       try {
         const unsubscribeUrl = `${siteUrl}/unsubscribe?token=${sub.unsubscribe_token}`;
-        const viewUrl = `${siteUrl}/imoveis/${propertyId}`;
+        const viewUrl = `${siteUrl}/imovel/${propertyId}`;
         const sellerName = property.seller?.name || 'Trata Imobiliária';
         const sellerPhone = property.seller?.phone || '';
 

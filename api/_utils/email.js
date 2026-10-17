@@ -6,6 +6,7 @@ export const RESEND_API_KEY = process.env.RESEND_API_KEY;
 export const BREVO_API_KEY = process.env.BREVO_API_KEY;
 export const SITE_URL = process.env.SITE_URL || 'https://www.trataimobiliaria.pt';
 export const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'geral@trataimobiliaria.pt';
+export const PROPERTY_INQUIRY_EMAIL = process.env.PROPERTY_INQUIRY_EMAIL || 'geral.trata@gmail.com';
 export const FROM_EMAIL = process.env.FROM_EMAIL || 'noreply@trataimobiliaria.pt';
 export const FROM_NAME = process.env.FROM_NAME || 'Trata Imobiliária';
 
